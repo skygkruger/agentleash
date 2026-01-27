@@ -5,7 +5,6 @@
 
 import { describe, it, expect } from '@jest/globals';
 import { minimatch } from 'minimatch';
-import * as path from 'path';
 
 // ───────────────────────────────────────────────────────────────
 // TYPES
