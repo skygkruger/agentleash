@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import './globals.css';
+import { AuthProvider } from '@/lib/auth-context';
 
 export const metadata: Metadata = {
   title: 'ScopeAgent - AI Agent Permission Controller',
@@ -41,7 +42,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="min-h-screen bg-scope-bg text-scope-text font-mono">
-        {children}
+        <AuthProvider>{children}</AuthProvider>
       </body>
     </html>
   );

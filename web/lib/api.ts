@@ -1,26 +1,155 @@
 // ═══════════════════════════════════════════════════════════════
-// SCOPEAGENT API CLIENT
+// SCOPEAGENT WEB API CLIENT
+// HTTP client for API communication
 // ═══════════════════════════════════════════════════════════════
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
-interface ApiResponse<T = unknown> {
+// ───────────────────────────────────────────────────────────────
+// TYPES
+// ───────────────────────────────────────────────────────────────
+
+export interface ApiResponse<T = unknown> {
   success: boolean;
   data?: T;
   error?: string;
   message?: string;
 }
 
+export interface User {
+  id: string;
+  email: string;
+  plan: 'free' | 'pro' | 'team' | 'enterprise';
+}
+
+export interface AuthTokens {
+  accessToken: string;
+  refreshToken: string;
+  expiresIn: number;
+}
+
+export interface Scope {
+  id: string;
+  name: string;
+  description?: string;
+  basePath: string;
+  defaultPolicy: 'allow' | 'deny';
+  isActive: boolean;
+  createdAt: string;
+  lastSyncedAt?: string;
+}
+
+export interface Rule {
+  id: string;
+  pathPattern: string;
+  ruleType: 'allow' | 'deny';
+  operations: string[];
+  priority: number;
+  reason?: string;
+  createdAt: string;
+}
+
+export interface AccessLog {
+  id: string;
+  filePath: string;
+  operation: string;
+  result: 'allowed' | 'blocked' | 'warning';
+  agentIdentifier?: string;
+  processName?: string;
+  matchedRuleId?: string;
+  createdAt: string;
+}
+
+export interface Violation {
+  id: string;
+  severity: 'critical' | 'high' | 'medium' | 'low';
+  type: string;
+  description: string;
+  affectedPaths?: string[];
+  recommendedAction?: string;
+  acknowledged: boolean;
+  acknowledgedAt?: string;
+  createdAt: string;
+}
+
+export interface Stats {
+  period: string;
+  total: number;
+  allowed: number;
+  blocked: number;
+  warnings: number;
+  operations: Record<string, number>;
+  hourly: Array<{
+    hour: string;
+    allowed: number;
+    blocked: number;
+    warnings: number;
+  }>;
+}
+
+export interface ViolationSummary {
+  total: number;
+  unacknowledged: number;
+  bySeverity: Record<string, number>;
+  byType: Record<string, number>;
+}
+
+// ───────────────────────────────────────────────────────────────
+// API CLIENT CLASS
+// ───────────────────────────────────────────────────────────────
+
 class ApiClient {
   private baseUrl: string;
-  private token: string | null = null;
 
   constructor(baseUrl: string) {
     this.baseUrl = baseUrl;
   }
 
-  setToken(token: string | null) {
-    this.token = token;
+  private getToken(): string | null {
+    if (typeof window === 'undefined') return null;
+    return localStorage.getItem('accessToken');
+  }
+
+  private getRefreshToken(): string | null {
+    if (typeof window === 'undefined') return null;
+    return localStorage.getItem('refreshToken');
+  }
+
+  setTokens(accessToken: string, refreshToken: string): void {
+    if (typeof window === 'undefined') return;
+    localStorage.setItem('accessToken', accessToken);
+    localStorage.setItem('refreshToken', refreshToken);
+  }
+
+  clearTokens(): void {
+    if (typeof window === 'undefined') return;
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
+  }
+
+  private async refreshAccessToken(): Promise<boolean> {
+    const refreshToken = this.getRefreshToken();
+    if (!refreshToken) return false;
+
+    try {
+      const response = await fetch(`${this.baseUrl}/api/auth/refresh`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ refreshToken }),
+      });
+
+      if (!response.ok) return false;
+
+      const data = await response.json();
+      if (data.success && data.data) {
+        this.setTokens(data.data.accessToken, data.data.refreshToken);
+        return true;
+      }
+
+      return false;
+    } catch {
+      return false;
+    }
   }
 
   private async request<T>(
@@ -32,8 +161,9 @@ class ApiClient {
       ...(options.headers as Record<string, string>),
     };
 
-    if (this.token) {
-      headers['Authorization'] = `Bearer ${this.token}`;
+    const token = this.getToken();
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
     }
 
     try {
@@ -44,17 +174,19 @@ class ApiClient {
 
       const data = await response.json();
 
-      if (!response.ok) {
-        return {
-          success: false,
-          error: data.error || 'An error occurred',
-        };
+      // Handle token refresh
+      if (response.status === 401 && !endpoint.includes('/auth/')) {
+        const refreshed = await this.refreshAccessToken();
+        if (refreshed) {
+          return this.request<T>(endpoint, options);
+        }
+        this.clearTokens();
+        if (typeof window !== 'undefined') {
+          window.location.href = '/login';
+        }
       }
 
-      return {
-        success: true,
-        data: data.data || data,
-      };
+      return data as ApiResponse<T>;
     } catch (error) {
       return {
         success: false,
@@ -63,60 +195,210 @@ class ApiClient {
     }
   }
 
-  // Auth
-  async login(email: string, password: string) {
-    return this.request('/api/auth/login', {
+  // ─────────────────────────────────────────────────────────────
+  // AUTH
+  // ─────────────────────────────────────────────────────────────
+
+  async login(email: string, password: string): Promise<ApiResponse<{ user: User; tokens: AuthTokens }>> {
+    const response = await this.request<{ user: User; tokens: AuthTokens }>('/api/auth/login', {
       method: 'POST',
       body: JSON.stringify({ email, password }),
     });
+
+    if (response.success && response.data) {
+      this.setTokens(response.data.tokens.accessToken, response.data.tokens.refreshToken);
+    }
+
+    return response;
   }
 
-  async register(email: string, password: string) {
-    return this.request('/api/auth/register', {
+  async register(email: string, password: string): Promise<ApiResponse<{ user: User; tokens: AuthTokens }>> {
+    const response = await this.request<{ user: User; tokens: AuthTokens }>('/api/auth/register', {
       method: 'POST',
       body: JSON.stringify({ email, password }),
     });
+
+    if (response.success && response.data) {
+      this.setTokens(response.data.tokens.accessToken, response.data.tokens.refreshToken);
+    }
+
+    return response;
   }
 
-  // Scopes
-  async getScopes() {
-    return this.request('/api/scopes');
+  async logout(): Promise<void> {
+    await this.request('/api/auth/logout', { method: 'POST' });
+    this.clearTokens();
   }
 
-  async getScope(id: string) {
-    return this.request(`/api/scopes/${id}`);
+  async getMe(): Promise<ApiResponse<User>> {
+    return this.request<User>('/api/auth/me');
   }
 
-  async createScope(data: { name: string; basePath: string; description?: string }) {
-    return this.request('/api/scopes', {
+  async getApiKeys(): Promise<ApiResponse<Array<{ id: string; name: string; createdAt: string }>>> {
+    return this.request('/api/auth/api-keys');
+  }
+
+  async createApiKey(name: string): Promise<ApiResponse<{ key: string; id: string }>> {
+    return this.request('/api/auth/api-key', {
+      method: 'POST',
+      body: JSON.stringify({ name }),
+    });
+  }
+
+  async deleteApiKey(keyId: string): Promise<ApiResponse<void>> {
+    return this.request(`/api/auth/api-key/${keyId}`, { method: 'DELETE' });
+  }
+
+  // ─────────────────────────────────────────────────────────────
+  // SCOPES
+  // ─────────────────────────────────────────────────────────────
+
+  async getScopes(): Promise<ApiResponse<Scope[]>> {
+    return this.request<Scope[]>('/api/scopes');
+  }
+
+  async getScope(id: string): Promise<ApiResponse<Scope>> {
+    return this.request<Scope>(`/api/scopes/${id}`);
+  }
+
+  async createScope(data: {
+    name: string;
+    description?: string;
+    basePath: string;
+    defaultPolicy?: 'allow' | 'deny';
+  }): Promise<ApiResponse<Scope>> {
+    return this.request<Scope>('/api/scopes', {
       method: 'POST',
       body: JSON.stringify(data),
     });
   }
 
-  // Rules
-  async getRules(scopeId: string) {
-    return this.request(`/api/scopes/${scopeId}/rules`);
+  async updateScope(id: string, data: Partial<Scope>): Promise<ApiResponse<Scope>> {
+    return this.request<Scope>(`/api/scopes/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
   }
 
-  async createRule(scopeId: string, data: { pathPattern: string; ruleType: string; operations: string[] }) {
-    return this.request(`/api/scopes/${scopeId}/rules`, {
+  async deleteScope(id: string): Promise<ApiResponse<void>> {
+    return this.request<void>(`/api/scopes/${id}`, { method: 'DELETE' });
+  }
+
+  // ─────────────────────────────────────────────────────────────
+  // RULES
+  // ─────────────────────────────────────────────────────────────
+
+  async getRules(scopeId: string): Promise<ApiResponse<Rule[]>> {
+    return this.request<Rule[]>(`/api/scopes/${scopeId}/rules`);
+  }
+
+  async createRule(
+    scopeId: string,
+    data: {
+      pathPattern: string;
+      ruleType: 'allow' | 'deny';
+      operations: string[];
+      priority?: number;
+      reason?: string;
+    }
+  ): Promise<ApiResponse<Rule>> {
+    return this.request<Rule>(`/api/scopes/${scopeId}/rules`, {
       method: 'POST',
       body: JSON.stringify(data),
     });
   }
 
-  // Logs
-  async getLogs(scopeId: string, params?: { limit?: number; offset?: number }) {
+  async updateRule(scopeId: string, ruleId: string, data: Partial<Rule>): Promise<ApiResponse<Rule>> {
+    return this.request<Rule>(`/api/scopes/${scopeId}/rules/${ruleId}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async deleteRule(scopeId: string, ruleId: string): Promise<ApiResponse<void>> {
+    return this.request<void>(`/api/scopes/${scopeId}/rules/${ruleId}`, { method: 'DELETE' });
+  }
+
+  async testRule(
+    scopeId: string,
+    filePath: string,
+    operation: string
+  ): Promise<ApiResponse<{ path: string; operation: string; allowed: boolean; reason: string; matchedRule?: Rule }>> {
+    return this.request(`/api/scopes/${scopeId}/rules/test`, {
+      method: 'POST',
+      body: JSON.stringify({ filePath, operation }),
+    });
+  }
+
+  // ─────────────────────────────────────────────────────────────
+  // LOGS
+  // ─────────────────────────────────────────────────────────────
+
+  async getLogs(
+    scopeId: string,
+    params?: {
+      limit?: number;
+      offset?: number;
+      operation?: string;
+      result?: string;
+      startDate?: string;
+      endDate?: string;
+    }
+  ): Promise<ApiResponse<{ data: AccessLog[]; total: number; hasMore: boolean }>> {
     const query = params
-      ? `?${new URLSearchParams(params as Record<string, string>).toString()}`
+      ? `?${new URLSearchParams(
+          Object.fromEntries(
+            Object.entries(params).filter(([, v]) => v !== undefined)
+          ) as Record<string, string>
+        ).toString()}`
       : '';
     return this.request(`/api/scopes/${scopeId}/logs${query}`);
   }
 
-  // Violations
-  async getViolations(scopeId: string) {
-    return this.request(`/api/scopes/${scopeId}/violations`);
+  async getStats(scopeId: string, period: 'hour' | 'day' | 'week' | 'month' = 'day'): Promise<ApiResponse<Stats>> {
+    return this.request<Stats>(`/api/scopes/${scopeId}/logs/stats?period=${period}`);
+  }
+
+  // ─────────────────────────────────────────────────────────────
+  // VIOLATIONS
+  // ─────────────────────────────────────────────────────────────
+
+  async getViolations(
+    scopeId: string,
+    params?: {
+      limit?: number;
+      offset?: number;
+      severity?: string;
+      acknowledged?: boolean;
+    }
+  ): Promise<ApiResponse<{ data: Violation[]; total: number; hasMore: boolean }>> {
+    const query = params
+      ? `?${new URLSearchParams(
+          Object.fromEntries(
+            Object.entries(params).filter(([, v]) => v !== undefined)
+          ) as Record<string, string>
+        ).toString()}`
+      : '';
+    return this.request(`/api/scopes/${scopeId}/violations${query}`);
+  }
+
+  async getViolationSummary(scopeId: string): Promise<ApiResponse<ViolationSummary>> {
+    return this.request<ViolationSummary>(`/api/scopes/${scopeId}/violations/summary`);
+  }
+
+  async acknowledgeViolation(scopeId: string, violationId: string, note?: string): Promise<ApiResponse<Violation>> {
+    return this.request<Violation>(`/api/scopes/${scopeId}/violations/${violationId}/acknowledge`, {
+      method: 'POST',
+      body: JSON.stringify({ note }),
+    });
+  }
+
+  // ─────────────────────────────────────────────────────────────
+  // HEALTH
+  // ─────────────────────────────────────────────────────────────
+
+  async healthCheck(): Promise<ApiResponse<{ status: string; database: string }>> {
+    return this.request('/health');
   }
 }
 
