@@ -15,6 +15,7 @@ import { ConfigParser, DEFAULT_CONFIG_TEMPLATE, ConfigError } from './config/par
 import { ScopeWatcher, AccessEvent } from './watcher';
 import { Violation } from './evaluator/engine';
 import { Reporter } from './reporter';
+import { VaultAgentIntegration } from './integrations';
 
 dotenv.config();
 
@@ -237,7 +238,8 @@ program
   .command('status')
   .description('Show current configuration status')
   .option('-c, --config <path>', 'Path to .scopeagent.yml', '.scopeagent.yml')
-  .action((options) => {
+  .option('--vault', 'Show combined status with VaultAgent')
+  .action(async (options) => {
     const configPath = path.resolve(options.config);
 
     console.log(`${c.amber}${BANNER}${c.reset}`);
@@ -254,7 +256,7 @@ program
       const rules = parser.getRulesForAgent();
 
       console.log(`${c.amber}╔══════════════════════════════════════════════════════════════════════════════╗${c.reset}`);
-      console.log(`${c.amber}║${c.reset}  ${c.bold}STATUS${c.reset}${''.padEnd(70)}${c.amber}║${c.reset}`);
+      console.log(`${c.amber}║${c.reset}  ${c.bold}SCOPEAGENT STATUS${c.reset}${''.padEnd(58)}${c.amber}║${c.reset}`);
       console.log(`${c.amber}╠══════════════════════════════════════════════════════════════════════════════╣${c.reset}`);
       console.log(`${c.amber}║${c.reset}  Scope:          ${config.name.padEnd(57)} ${c.amber}║${c.reset}`);
       console.log(`${c.amber}║${c.reset}  Base Path:      ${config.base_path.slice(0, 57).padEnd(57)} ${c.amber}║${c.reset}`);
@@ -269,6 +271,69 @@ program
 
       console.log(`${c.amber}║${c.reset}    ${c.mint}[/] Allow:${c.reset} ${String(allowRules).padEnd(5)} ${c.coral}[X] Deny:${c.reset} ${String(denyRules).padEnd(5)} ${c.muted}[~] Mixed:${c.reset} ${String(mixedRules).padEnd(20)} ${c.amber}║${c.reset}`);
       console.log(`${c.amber}╚══════════════════════════════════════════════════════════════════════════════╝${c.reset}`);
+
+      // Show VaultAgent status if --vault flag is used
+      if (options.vault) {
+        console.log('');
+        const vaultIntegration = new VaultAgentIntegration(config.base_path);
+        const vaultStatus = await vaultIntegration.getStatus();
+
+        console.log(`${c.amber}╔══════════════════════════════════════════════════════════════════════════════╗${c.reset}`);
+        console.log(`${c.amber}║${c.reset}  ${c.bold}VAULTAGENT STATUS${c.reset}${''.padEnd(58)}${c.amber}║${c.reset}`);
+        console.log(`${c.amber}╠══════════════════════════════════════════════════════════════════════════════╣${c.reset}`);
+
+        const installedIcon = vaultStatus.installed ? `${c.mint}[/]${c.reset}` : `${c.coral}[X]${c.reset}`;
+        const configuredIcon = vaultStatus.configured ? `${c.mint}[/]${c.reset}` : `${c.coral}[X]${c.reset}`;
+        const runningIcon = vaultStatus.running ? `${c.mint}[/]${c.reset}` : `${c.coral}[X]${c.reset}`;
+
+        console.log(`${c.amber}║${c.reset}  Installed:      ${installedIcon} ${(vaultStatus.installed ? 'Yes' : 'No').padEnd(53)} ${c.amber}║${c.reset}`);
+        console.log(`${c.amber}║${c.reset}  Configured:     ${configuredIcon} ${(vaultStatus.configured ? 'Yes' : 'No').padEnd(53)} ${c.amber}║${c.reset}`);
+        console.log(`${c.amber}║${c.reset}  Running:        ${runningIcon} ${(vaultStatus.running ? 'Yes' : 'No').padEnd(53)} ${c.amber}║${c.reset}`);
+
+        if (vaultStatus.version) {
+          console.log(`${c.amber}║${c.reset}  Version:        ${vaultStatus.version.padEnd(57)} ${c.amber}║${c.reset}`);
+        }
+
+        console.log(`${c.amber}║${c.reset}  Protected:      ${String(vaultStatus.protectedPaths.length).padEnd(57)} ${c.amber}║${c.reset}`);
+
+        if (vaultStatus.linkedSession) {
+          console.log(`${c.amber}║${c.reset}  Linked Session: ${vaultStatus.linkedSession.slice(0, 57).padEnd(57)} ${c.amber}║${c.reset}`);
+        }
+
+        console.log(`${c.amber}╚══════════════════════════════════════════════════════════════════════════════╝${c.reset}`);
+
+        // Show combined security stack status
+        console.log('');
+        console.log(`${c.amber}╔══════════════════════════════════════════════════════════════════════════════╗${c.reset}`);
+        console.log(`${c.amber}║${c.reset}  ${c.bold}AI AGENT SECURITY STACK${c.reset}${''.padEnd(52)}${c.amber}║${c.reset}`);
+        console.log(`${c.amber}╠══════════════════════════════════════════════════════════════════════════════╣${c.reset}`);
+
+        if (vaultStatus.installed && vaultStatus.configured) {
+          console.log(`${c.amber}║${c.reset}  ${c.mint}[/] Complete security stack active${c.reset}${''.padEnd(40)}${c.amber}║${c.reset}`);
+          console.log(`${c.amber}║${c.reset}      - VaultAgent: Protecting secrets FROM agents${''.padEnd(26)}${c.amber}║${c.reset}`);
+          console.log(`${c.amber}║${c.reset}      - ScopeAgent: Protecting systems FROM agents${''.padEnd(26)}${c.amber}║${c.reset}`);
+        } else if (!vaultStatus.installed) {
+          console.log(`${c.amber}║${c.reset}  ${c.coral}[!] VaultAgent not installed${c.reset}${''.padEnd(47)}${c.amber}║${c.reset}`);
+          console.log(`${c.amber}║${c.reset}      Install with: npm install -g @veridian/vaultagent${''.padEnd(22)}${c.amber}║${c.reset}`);
+          console.log(`${c.amber}║${c.reset}      Complete your AI Agent Security Stack!${''.padEnd(32)}${c.amber}║${c.reset}`);
+        } else {
+          console.log(`${c.amber}║${c.reset}  ${c.coral}[!] VaultAgent not configured${c.reset}${''.padEnd(46)}${c.amber}║${c.reset}`);
+          console.log(`${c.amber}║${c.reset}      Run: vaultagent init${''.padEnd(50)}${c.amber}║${c.reset}`);
+        }
+
+        console.log(`${c.amber}╚══════════════════════════════════════════════════════════════════════════════╝${c.reset}`);
+      } else {
+        // Show tip about VaultAgent
+        const vaultIntegration = new VaultAgentIntegration(config.base_path);
+        const vaultDetected = await vaultIntegration.detectVaultAgent();
+
+        console.log('');
+        if (!vaultDetected) {
+          console.log(`${c.muted}Tip: Add VaultAgent for complete AI agent security.${c.reset}`);
+          console.log(`${c.muted}     Run 'scopeagent-daemon status --vault' for combined status.${c.reset}`);
+        }
+      }
+
       console.log('');
     } catch (error) {
       if (error instanceof ConfigError) {
@@ -365,6 +430,109 @@ program
         console.log(`${c.coral}[X] Error validating configuration${c.reset}`);
       }
       process.exit(1);
+    }
+  });
+
+// ───────────────────────────────────────────────────────────────
+// LINK-VAULT COMMAND
+// ───────────────────────────────────────────────────────────────
+
+program
+  .command('link-vault')
+  .description('Link VaultAgent account for combined security')
+  .option('--api-key <key>', 'VaultAgent API key')
+  .option('--unlink', 'Unlink VaultAgent account')
+  .action(async (options) => {
+    console.log(`${c.amber}${BANNER}${c.reset}`);
+
+    const vaultIntegration = new VaultAgentIntegration();
+
+    if (options.unlink) {
+      vaultIntegration.unlinkAccount();
+      console.log(`${c.mint}[/] VaultAgent account unlinked${c.reset}`);
+      return;
+    }
+
+    if (options.apiKey) {
+      console.log(`${c.muted}[~] Linking VaultAgent account...${c.reset}`);
+      const result = await vaultIntegration.linkAccount(options.apiKey);
+
+      if (result.success) {
+        console.log(`${c.mint}[/] ${result.message}${c.reset}`);
+        console.log('');
+        console.log(`${c.amber}AI Agent Security Stack is now complete:${c.reset}`);
+        console.log(`${c.muted}  - VaultAgent: Protecting secrets FROM agents${c.reset}`);
+        console.log(`${c.muted}  - ScopeAgent: Protecting systems FROM agents${c.reset}`);
+      } else {
+        console.log(`${c.coral}[X] ${result.message}${c.reset}`);
+      }
+    } else {
+      // Check current status
+      const status = await vaultIntegration.getStatus();
+
+      if (vaultIntegration.isAccountLinked()) {
+        console.log(`${c.mint}[/] VaultAgent account is linked${c.reset}`);
+        if (status.version) {
+          console.log(`${c.muted}    Version: ${status.version}${c.reset}`);
+        }
+        console.log('');
+        console.log(`${c.muted}To unlink: scopeagent-daemon link-vault --unlink${c.reset}`);
+      } else {
+        console.log(`${c.coral}[X] VaultAgent account not linked${c.reset}`);
+        console.log('');
+        console.log(`${c.amber}To link your VaultAgent account:${c.reset}`);
+        console.log(`${c.muted}1. Get your VaultAgent API key from https://vaultagent.dev/settings${c.reset}`);
+        console.log(`${c.muted}2. Run: scopeagent-daemon link-vault --api-key YOUR_API_KEY${c.reset}`);
+        console.log('');
+        console.log(`${c.amber}Why link?${c.reset}`);
+        console.log(`${c.muted}- Combined security dashboard${c.reset}`);
+        console.log(`${c.muted}- Unified audit logs${c.reset}`);
+        console.log(`${c.muted}- Bundle pricing discounts${c.reset}`);
+      }
+    }
+  });
+
+// ───────────────────────────────────────────────────────────────
+// VAULT-RULES COMMAND
+// ───────────────────────────────────────────────────────────────
+
+program
+  .command('vault-rules')
+  .description('Generate deny rules for VaultAgent protected paths')
+  .option('--apply', 'Apply rules to current config')
+  .action(async (options) => {
+    console.log(`${c.amber}${BANNER}${c.reset}`);
+
+    const vaultIntegration = new VaultAgentIntegration();
+    const protectedPaths = await vaultIntegration.getProtectedPaths();
+
+    console.log(`${c.amber}╔══════════════════════════════════════════════════════════════════════════════╗${c.reset}`);
+    console.log(`${c.amber}║${c.reset}  ${c.bold}VAULTAGENT PROTECTED PATHS${c.reset}${''.padEnd(49)}${c.amber}║${c.reset}`);
+    console.log(`${c.amber}╠══════════════════════════════════════════════════════════════════════════════╣${c.reset}`);
+
+    for (const p of protectedPaths) {
+      console.log(`${c.amber}║${c.reset}  ${c.coral}[X]${c.reset} ${p.padEnd(70)} ${c.amber}║${c.reset}`);
+    }
+
+    console.log(`${c.amber}╚══════════════════════════════════════════════════════════════════════════════╝${c.reset}`);
+    console.log('');
+
+    if (options.apply) {
+      console.log(`${c.muted}[~] Applying rules to .scopeagent.yml...${c.reset}`);
+      // TODO: Implement rule application
+      console.log(`${c.coral}[!] Not yet implemented. Add these patterns manually to your config.${c.reset}`);
+    } else {
+      console.log(`${c.muted}Add these patterns to your .scopeagent.yml to protect secrets:${c.reset}`);
+      console.log('');
+      console.log(`${c.amber}rules:${c.reset}`);
+      for (const p of protectedPaths.slice(0, 5)) {
+        console.log(`${c.muted}  - path: "${p}"${c.reset}`);
+        console.log(`${c.muted}    deny: [read, write, delete]${c.reset}`);
+        console.log(`${c.muted}    reason: "VaultAgent protected path"${c.reset}`);
+      }
+      if (protectedPaths.length > 5) {
+        console.log(`${c.muted}  # ... and ${protectedPaths.length - 5} more${c.reset}`);
+      }
     }
   });
 

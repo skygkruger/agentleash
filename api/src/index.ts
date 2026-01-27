@@ -20,6 +20,7 @@ import scopesRoutes from './routes/scopes';
 import rulesRoutes from './routes/rules';
 import logsRoutes from './routes/logs';
 import violationsRoutes from './routes/violations';
+import bundlesRoutes from './routes/bundles';
 
 // Import WebSocket handler
 import { WSHandler } from './ws/handler';
@@ -171,6 +172,15 @@ app.get('/api', (_req, res) => {
         acknowledge: 'POST /api/scopes/:scopeId/violations/:id/acknowledge',
         create: 'POST /api/scopes/:scopeId/violations',
       },
+      bundles: {
+        list: 'GET /api/bundles',
+        get: 'GET /api/bundles/:id',
+        subscribe: 'POST /api/bundles/subscribe',
+        upgradeOptions: 'GET /api/bundles/upgrade/options',
+        upgrade: 'POST /api/bundles/upgrade',
+        status: 'GET /api/bundles/status',
+        cancel: 'POST /api/bundles/cancel',
+      },
     },
     websocket: {
       url: `ws://localhost:${PORT}/ws`,
@@ -198,6 +208,7 @@ app.use('/api/scopes', scopesRoutes);
 app.use('/api/scopes/:scopeId/rules', rulesRoutes);
 app.use('/api/scopes/:scopeId/logs', logsRoutes);
 app.use('/api/scopes/:scopeId/violations', violationsRoutes);
+app.use('/api/bundles', bundlesRoutes);
 
 // ───────────────────────────────────────────────────────────────
 // ERROR HANDLING

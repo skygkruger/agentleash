@@ -400,6 +400,114 @@ class ApiClient {
   async healthCheck(): Promise<ApiResponse<{ status: string; database: string }>> {
     return this.request('/health');
   }
+
+  // ─────────────────────────────────────────────────────────────
+  // BUNDLES
+  // ─────────────────────────────────────────────────────────────
+
+  async getBundles(): Promise<ApiResponse<{
+    bundles: Array<{
+      id: string;
+      name: string;
+      description: string;
+      products: { vaultAgent: string; scopeAgent: string };
+      features: string[];
+      pricing: {
+        monthly: { amount: number; formatted: string; savings: number; savingsFormatted: string };
+        yearly: { amount: number; formatted: string; monthlyEquivalent: string; savings: number; savingsFormatted: string };
+      };
+      comparison: { separateMonthly: number; separateYearly: number };
+    }>;
+    tagline: string;
+    description: string;
+  }>> {
+    return this.request('/api/bundles');
+  }
+
+  async getBundle(bundleId: string): Promise<ApiResponse<{
+    id: string;
+    name: string;
+    description: string;
+    products: { vaultAgent: string; scopeAgent: string };
+    features: string[];
+    pricing: {
+      monthly: { amount: number; formatted: string; savings: number };
+      yearly: { amount: number; formatted: string; monthlyEquivalent: string; savings: number };
+    };
+  }>> {
+    return this.request(`/api/bundles/${bundleId}`);
+  }
+
+  async subscribeToBundle(
+    bundleId: string,
+    interval: 'monthly' | 'yearly',
+    successUrl?: string,
+    cancelUrl?: string
+  ): Promise<ApiResponse<{ sessionId: string; url: string }>> {
+    return this.request('/api/bundles/subscribe', {
+      method: 'POST',
+      body: JSON.stringify({ bundleId, interval, successUrl, cancelUrl }),
+    });
+  }
+
+  async getBundleUpgradeOptions(): Promise<ApiResponse<{
+    currentPlan: string;
+    availableUpgrades: Array<{
+      id: string;
+      name: string;
+      description: string;
+      currentPlan: string;
+      newPlan: string;
+      pricing: { monthly: number; yearly: number };
+      features: string[];
+    }>;
+    recommendation: string | null;
+  }>> {
+    return this.request('/api/bundles/upgrade/options');
+  }
+
+  async upgradeToBundle(
+    bundleId: string,
+    interval?: 'monthly' | 'yearly'
+  ): Promise<ApiResponse<{
+    subscriptionId: string;
+    newPlan: string;
+    proratedAmount: number;
+    effectiveDate: string;
+  }>> {
+    return this.request('/api/bundles/upgrade', {
+      method: 'POST',
+      body: JSON.stringify({ bundleId, interval }),
+    });
+  }
+
+  async getBundleStatus(): Promise<ApiResponse<{
+    currentPlan: string;
+    hasBundle: boolean;
+    bundle: {
+      bundleId: string;
+      bundleName: string;
+      status: string;
+      currentPeriodEnd: string;
+      cancelAtPeriodEnd: boolean;
+      products: { vaultAgent: string; scopeAgent: string };
+    } | null;
+    availableBundles: Array<{ id: string; name: string; plan: string }>;
+  }>> {
+    return this.request('/api/bundles/status');
+  }
+
+  async cancelBundle(immediately?: boolean): Promise<ApiResponse<{
+    message: string;
+    effectiveDate: string;
+    newPlan?: string;
+    currentPlan?: string;
+  }>> {
+    return this.request('/api/bundles/cancel', {
+      method: 'POST',
+      body: JSON.stringify({ immediately }),
+    });
+  }
 }
 
 export const api = new ApiClient(API_URL);
