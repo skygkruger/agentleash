@@ -1,0 +1,254 @@
+# ═══════════════════════════════════════════════════════════════
+# SCOPEAGENT CONFIGURATION
+# AI Agent Permission Controller
+# https://scopeagent.io/docs/config
+# ═══════════════════════════════════════════════════════════════
+
+version: 1
+
+# Scope name (appears in dashboard and logs)
+name: "my-project-scope"
+
+# Base directory for all path patterns (defaults to current directory)
+base_path: .
+
+# Default behavior for paths not matching any rule
+# 'allow' = permit unless explicitly denied
+# 'deny' = block unless explicitly allowed (recommended)
+default_policy: deny
+
+# ───────────────────────────────────────────────────────────────
+# GLOBAL RULES
+# Applied to all AI agents. Evaluated top-to-bottom, first match wins.
+# ───────────────────────────────────────────────────────────────
+
+rules:
+  # ─────────────────────────────────────────────────────────────
+  # SOURCE CODE ACCESS
+  # ─────────────────────────────────────────────────────────────
+  
+  - path: "src/**"
+    allow: [read, write]
+    reason: "Source code - full access"
+    
+  - path: "app/**"
+    allow: [read, write]
+    reason: "App directory - full access"
+    
+  - path: "lib/**"
+    allow: [read, write]
+    reason: "Library code - full access"
+    
+  - path: "components/**"
+    allow: [read, write]
+    reason: "Components - full access"
+
+  # ─────────────────────────────────────────────────────────────
+  # CONFIGURATION FILES (Read-only)
+  # ─────────────────────────────────────────────────────────────
+  
+  - path: "*.config.js"
+    allow: [read]
+    deny: [write, delete]
+    reason: "Config files - read only"
+    
+  - path: "*.config.ts"
+    allow: [read]
+    deny: [write, delete]
+    reason: "Config files - read only"
+    
+  - path: "tsconfig.json"
+    allow: [read]
+    deny: [write, delete]
+    reason: "TypeScript config - read only"
+    
+  - path: "package.json"
+    allow: [read]
+    deny: [write, delete]
+    reason: "Package manifest - read only"
+
+  # ─────────────────────────────────────────────────────────────
+  # SENSITIVE FILES (Completely blocked)
+  # ─────────────────────────────────────────────────────────────
+  
+  - path: ".env"
+    deny: [read, write, delete]
+    reason: "Environment secrets"
+    
+  - path: ".env.*"
+    deny: [read, write, delete]
+    reason: "Environment secrets"
+    
+  - path: "**/*.key"
+    deny: [read, write, delete]
+    reason: "Private keys"
+    
+  - path: "**/*.pem"
+    deny: [read, write, delete]
+    reason: "Certificates and keys"
+    
+  - path: "**/*.p12"
+    deny: [read, write, delete]
+    reason: "PKCS12 certificates"
+    
+  - path: "**/id_rsa*"
+    deny: [read, write, delete]
+    reason: "SSH private keys"
+    
+  - path: "**/.ssh/**"
+    deny: [read, write, delete]
+    reason: "SSH directory"
+    
+  - path: "**/secrets/**"
+    deny: [read, write, delete]
+    reason: "Secrets directory"
+    
+  - path: "**/credentials/**"
+    deny: [read, write, delete]
+    reason: "Credentials directory"
+
+  # ─────────────────────────────────────────────────────────────
+  # DEPENDENCIES (Read-only, no modifications)
+  # ─────────────────────────────────────────────────────────────
+  
+  - path: "node_modules/**"
+    allow: [read]
+    deny: [write, delete]
+    reason: "Dependencies - read only"
+    
+  - path: "vendor/**"
+    allow: [read]
+    deny: [write, delete]
+    reason: "Vendor dependencies - read only"
+
+  # ─────────────────────────────────────────────────────────────
+  # BUILD & OUTPUT DIRECTORIES
+  # ─────────────────────────────────────────────────────────────
+  
+  - path: "dist/**"
+    allow: [read, write, delete]
+    reason: "Build output - full access"
+    
+  - path: "build/**"
+    allow: [read, write, delete]
+    reason: "Build output - full access"
+    
+  - path: ".next/**"
+    allow: [read]
+    deny: [write, delete]
+    reason: "Next.js cache - read only"
+
+  # ─────────────────────────────────────────────────────────────
+  # TEST FILES
+  # ─────────────────────────────────────────────────────────────
+  
+  - path: "tests/**"
+    allow: [read, write]
+    reason: "Test files - full access"
+    
+  - path: "**/*.test.ts"
+    allow: [read, write]
+    reason: "Test files - full access"
+    
+  - path: "**/*.spec.ts"
+    allow: [read, write]
+    reason: "Test files - full access"
+
+  # ─────────────────────────────────────────────────────────────
+  # DOCUMENTATION
+  # ─────────────────────────────────────────────────────────────
+  
+  - path: "docs/**"
+    allow: [read, write]
+    reason: "Documentation - full access"
+    
+  - path: "*.md"
+    allow: [read, write]
+    reason: "Markdown files - full access"
+    
+  - path: "README*"
+    allow: [read, write]
+    reason: "README - full access"
+
+  # ─────────────────────────────────────────────────────────────
+  # GIT (Read-only except .gitignore)
+  # ─────────────────────────────────────────────────────────────
+  
+  - path: ".git/**"
+    deny: [read, write, delete]
+    reason: "Git internals - blocked"
+    
+  - path: ".gitignore"
+    allow: [read, write]
+    reason: "Gitignore - full access"
+    
+  - path: ".gitattributes"
+    allow: [read]
+    deny: [write, delete]
+    reason: "Git attributes - read only"
+
+  # ─────────────────────────────────────────────────────────────
+  # HIDDEN FILES (Generally blocked)
+  # ─────────────────────────────────────────────────────────────
+  
+  - path: ".*"
+    deny: [read, write, delete]
+    # Exceptions are handled by more specific rules above
+    reason: "Hidden files - blocked by default"
+
+# ───────────────────────────────────────────────────────────────
+# AGENT-SPECIFIC OVERRIDES
+# Additional restrictions or permissions per AI agent
+# ───────────────────────────────────────────────────────────────
+
+agents:
+  claude-code:
+    # Claude Code specific rules (if any)
+    rules: []
+    
+  cursor:
+    # Cursor specific rules (if any)
+    rules: []
+    
+  copilot:
+    # GitHub Copilot specific rules (if any)
+    rules: []
+
+# ───────────────────────────────────────────────────────────────
+# ALERT CONFIGURATION
+# ───────────────────────────────────────────────────────────────
+
+alerts:
+  # Violation types that trigger alerts
+  notify_on:
+    - env_access        # Attempted .env access
+    - key_access        # Attempted private key access
+    - mass_delete       # >10 files deleted in 1 minute
+    - config_breach     # Attempted config modification
+    - path_escape       # Access outside base_path
+    
+  # Optional: Webhook for real-time alerts
+  webhook_url: null
+  
+  # Optional: Slack integration
+  slack_webhook: null
+  
+  # Alert threshold for mass operations
+  mass_operation_threshold: 10  # operations per minute
+
+# ───────────────────────────────────────────────────────────────
+# LOGGING CONFIGURATION
+# ───────────────────────────────────────────────────────────────
+
+logging:
+  # Log level: 'debug', 'info', 'warn', 'error'
+  level: info
+  
+  # Log file location (null for no file logging)
+  file: null
+  
+  # Include process info in logs
+  include_process_info: true
+  
+  # Include timestamps
+  include_timestamps: true
