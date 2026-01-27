@@ -8,23 +8,33 @@
 import { program } from 'commander';
 import dotenv from 'dotenv';
 
+// Load environment variables
 dotenv.config();
 
-// ───────────────────────────────────────────────────────────────
-// ASCII BANNER
-// ───────────────────────────────────────────────────────────────
+// Import commands
+import initCommand from './commands/init';
+import watchCommand from './commands/watch';
+import testCommand, { batchTestCommand } from './commands/test';
+import statusCommand from './commands/status';
+import {
+  loginCommand,
+  logoutCommand,
+  whoamiCommand,
+  createApiKeyCommand,
+} from './commands/login';
+import {
+  listRulesCommand,
+  allowCommand,
+  denyCommand,
+  removeRuleCommand,
+  editRulesCommand,
+} from './commands/rules';
+import { logsCommand, statsCommand } from './commands/logs';
+import { syncCommand, linkCommand, unlinkCommand } from './commands/sync';
+import { validateCommand, formatCommand, doctorCommand } from './commands/validate';
 
-const banner = `
-███████╗ ██████╗ ██████╗ ██████╗ ███████╗
-██╔════╝██╔════╝██╔═══██╗██╔══██╗██╔════╝
-███████╗██║     ██║   ██║██████╔╝█████╗
-╚════██║██║     ██║   ██║██╔═══╝ ██╔══╝
-███████║╚██████╗╚██████╔╝██║     ███████╗
-╚══════╝ ╚═════╝ ╚═════╝ ╚═╝     ╚══════╝
-         ┌───┐ ┌───┐ ┌───┐ ┌───┐ ┌───┐
-         │ A ├─┤ G ├─┤ E ├─┤ N ├─┤ T │
-         └───┘ └───┘ └───┘ └───┘ └───┘
-`;
+// Import UI
+import { printBanner, colors } from './utils/ui';
 
 // ───────────────────────────────────────────────────────────────
 // CLI PROGRAM
@@ -33,7 +43,11 @@ const banner = `
 program
   .name('scopeagent')
   .description('AI Agent Permission Controller - Define path boundaries, monitor operations, get alerts')
-  .version('1.0.0');
+  .version('1.0.0')
+  .option('-c, --config <path>', 'Path to .scopeagent.yml config file')
+  .hook('preAction', () => {
+    // Could add global pre-action hooks here
+  });
 
 // ───────────────────────────────────────────────────────────────
 // INIT COMMAND
@@ -43,14 +57,10 @@ program
   .command('init')
   .description('Create .scopeagent.yml in current directory')
   .option('-p, --path <path>', 'Directory to initialize', '.')
-  .action((options) => {
-    console.log(banner);
-    console.log('');
-    console.log('Initializing ScopeAgent...');
-    console.log(`Path: ${options.path}`);
-    console.log('');
-    console.log('[!] Init command implementation coming in Phase 4');
-  });
+  .option('--preset <name>', 'Use a preset (minimal, strict, nodejs, python)')
+  .option('-f, --force', 'Overwrite existing config')
+  .option('-y, --yes', 'Skip prompts, use defaults')
+  .action(initCommand);
 
 // ───────────────────────────────────────────────────────────────
 // WATCH COMMAND
@@ -59,21 +69,31 @@ program
 program
   .command('watch')
   .description('Start monitoring file operations')
-  .option('-p, --path <path>', 'Directory to watch', '.')
-  .action((options) => {
-    console.log(banner);
-    console.log('');
-    console.log('╔══════════════════════════════════════════════════════════════════════╗');
-    console.log('║  SCOPEAGENT                                          [WATCHING...]   ║');
-    console.log('╠══════════════════════════════════════════════════════════════════════╣');
-    console.log(`║  Path: ${options.path.padEnd(60)} ║`);
-    console.log('║  Status: [~] PENDING                                                 ║');
-    console.log('╠══════════════════════════════════════════════════════════════════════╣');
-    console.log('║                                                                      ║');
-    console.log('║  [!] Watch command implementation coming in Phase 4                  ║');
-    console.log('║                                                                      ║');
-    console.log('╚══════════════════════════════════════════════════════════════════════╝');
-  });
+  .option('-p, --path <path>', 'Directory to watch')
+  .option('-c, --config <path>', 'Path to config file')
+  .option('-q, --quiet', 'Only show blocked operations')
+  .option('--sync', 'Sync events to cloud')
+  .action(watchCommand);
+
+// ───────────────────────────────────────────────────────────────
+// TEST COMMAND
+// ───────────────────────────────────────────────────────────────
+
+program
+  .command('test <path>')
+  .description('Test if a path would be allowed/denied')
+  .option('-o, --operation <type>', 'Operation to test (read,write,delete)')
+  .option('-c, --config <path>', 'Path to config file')
+  .option('-v, --verbose', 'Show matching rules')
+  .action(testCommand);
+
+program
+  .command('test-batch')
+  .description('Test multiple paths at once')
+  .argument('<paths...>', 'Paths to test')
+  .option('-o, --operation <type>', 'Operation to test', 'read')
+  .option('-c, --config <path>', 'Path to config file')
+  .action((paths, options) => batchTestCommand(paths, options));
 
 // ───────────────────────────────────────────────────────────────
 // STATUS COMMAND
@@ -82,111 +102,149 @@ program
 program
   .command('status')
   .description('Show current scope info and stats')
-  .action(() => {
-    console.log(banner);
-    console.log('');
-    console.log('[!] Status command implementation coming in Phase 4');
-  });
+  .option('-c, --config <path>', 'Path to config file')
+  .option('--cloud', 'Include cloud status')
+  .action(statusCommand);
 
 // ───────────────────────────────────────────────────────────────
-// LOGS COMMAND
-// ───────────────────────────────────────────────────────────────
-
-program
-  .command('logs')
-  .description('View recent access logs')
-  .option('-l, --limit <number>', 'Number of logs to show', '50')
-  .option('-o, --operation <type>', 'Filter by operation type')
-  .option('-r, --result <type>', 'Filter by result type')
-  .action((options) => {
-    console.log(`Showing last ${options.limit} logs...`);
-    console.log('');
-    console.log('[!] Logs command implementation coming in Phase 4');
-  });
-
-// ───────────────────────────────────────────────────────────────
-// ALLOW COMMAND
-// ───────────────────────────────────────────────────────────────
-
-program
-  .command('allow <pattern>')
-  .description('Quick add an allow rule')
-  .option('-o, --operation <type>', 'Operation to allow', 'read,write')
-  .action((pattern, options) => {
-    console.log(`Adding allow rule: ${pattern}`);
-    console.log(`Operations: ${options.operation}`);
-    console.log('');
-    console.log('[!] Allow command implementation coming in Phase 4');
-  });
-
-// ───────────────────────────────────────────────────────────────
-// DENY COMMAND
-// ───────────────────────────────────────────────────────────────
-
-program
-  .command('deny <pattern>')
-  .description('Quick add a deny rule')
-  .option('-o, --operation <type>', 'Operation to deny', 'read,write,delete')
-  .action((pattern, options) => {
-    console.log(`Adding deny rule: ${pattern}`);
-    console.log(`Operations: ${options.operation}`);
-    console.log('');
-    console.log('[!] Deny command implementation coming in Phase 4');
-  });
-
-// ───────────────────────────────────────────────────────────────
-// TEST COMMAND
-// ───────────────────────────────────────────────────────────────
-
-program
-  .command('test <path>')
-  .description('Test if a path would be allowed')
-  .option('-o, --operation <type>', 'Operation to test', 'read')
-  .action((path, options) => {
-    console.log(`Testing path: ${path}`);
-    console.log(`Operation: ${options.operation}`);
-    console.log('');
-    console.log('[!] Test command implementation coming in Phase 4');
-  });
-
-// ───────────────────────────────────────────────────────────────
-// SYNC COMMAND
-// ───────────────────────────────────────────────────────────────
-
-program
-  .command('sync')
-  .description('Sync config to/from cloud')
-  .option('--push', 'Push local config to cloud')
-  .option('--pull', 'Pull cloud config to local')
-  .action((options) => {
-    if (options.push) {
-      console.log('Pushing config to cloud...');
-    } else if (options.pull) {
-      console.log('Pulling config from cloud...');
-    } else {
-      console.log('Use --push or --pull to specify sync direction');
-    }
-    console.log('');
-    console.log('[!] Sync command implementation coming in Phase 4');
-  });
-
-// ───────────────────────────────────────────────────────────────
-// LOGIN COMMAND
+// AUTH COMMANDS
 // ───────────────────────────────────────────────────────────────
 
 program
   .command('login')
   .description('Authenticate with ScopeAgent')
   .option('--api-key <key>', 'Use API key instead of interactive login')
-  .action((options) => {
-    if (options.apiKey) {
-      console.log('Authenticating with API key...');
-    } else {
-      console.log('Starting interactive login...');
-    }
-    console.log('');
-    console.log('[!] Login command implementation coming in Phase 4');
-  });
+  .option('--email <email>', 'Pre-fill email')
+  .action(loginCommand);
+
+program
+  .command('logout')
+  .description('Log out from ScopeAgent')
+  .option('--all', 'Clear all credentials including API key')
+  .action(logoutCommand);
+
+program
+  .command('whoami')
+  .description('Show current authenticated user')
+  .action(whoamiCommand);
+
+program
+  .command('api-key')
+  .description('Create a new API key')
+  .option('-n, --name <name>', 'Name for the API key')
+  .action(createApiKeyCommand);
+
+// ───────────────────────────────────────────────────────────────
+// RULES COMMANDS
+// ───────────────────────────────────────────────────────────────
+
+program
+  .command('rules')
+  .description('List configured rules')
+  .option('-c, --config <path>', 'Path to config file')
+  .option('--json', 'Output as JSON')
+  .action(listRulesCommand);
+
+program
+  .command('allow <pattern>')
+  .description('Add an allow rule')
+  .option('-o, --operation <ops>', 'Operations to allow (comma-separated)', 'read,write')
+  .option('-r, --reason <text>', 'Reason for the rule')
+  .option('-c, --config <path>', 'Path to config file')
+  .action(allowCommand);
+
+program
+  .command('deny <pattern>')
+  .description('Add a deny rule')
+  .option('-o, --operation <ops>', 'Operations to deny (comma-separated)', 'read,write,delete')
+  .option('-r, --reason <text>', 'Reason for the rule')
+  .option('-c, --config <path>', 'Path to config file')
+  .action(denyCommand);
+
+program
+  .command('rule-remove <pattern>')
+  .description('Remove a rule')
+  .option('-c, --config <path>', 'Path to config file')
+  .option('-y, --yes', 'Skip confirmation')
+  .action(removeRuleCommand);
+
+program
+  .command('rules-edit')
+  .description('Interactive rule editor')
+  .option('-c, --config <path>', 'Path to config file')
+  .action(editRulesCommand);
+
+// ───────────────────────────────────────────────────────────────
+// LOGS COMMANDS
+// ───────────────────────────────────────────────────────────────
+
+program
+  .command('logs')
+  .description('View access logs from cloud')
+  .option('-l, --limit <number>', 'Number of logs to show', '50')
+  .option('-o, --operation <type>', 'Filter by operation type')
+  .option('-r, --result <type>', 'Filter by result (allowed, blocked, warning)')
+  .option('-c, --config <path>', 'Path to config file')
+  .option('--json', 'Output as JSON')
+  .action(logsCommand);
+
+program
+  .command('stats')
+  .description('View access statistics')
+  .option('-p, --period <period>', 'Time period (hour, day, week, month)', 'day')
+  .option('-c, --config <path>', 'Path to config file')
+  .option('--json', 'Output as JSON')
+  .action(statsCommand);
+
+// ───────────────────────────────────────────────────────────────
+// SYNC COMMANDS
+// ───────────────────────────────────────────────────────────────
+
+program
+  .command('sync')
+  .description('Sync configuration with cloud')
+  .option('--push', 'Push local config to cloud')
+  .option('--pull', 'Pull cloud config to local')
+  .option('-c, --config <path>', 'Path to config file')
+  .option('-f, --force', 'Skip confirmations')
+  .action(syncCommand);
+
+program
+  .command('link <scopeId>')
+  .description('Link local config to a cloud scope')
+  .option('-c, --config <path>', 'Path to config file')
+  .action(linkCommand);
+
+program
+  .command('unlink')
+  .description('Unlink local config from cloud scope')
+  .option('-c, --config <path>', 'Path to config file')
+  .action(unlinkCommand);
+
+// ───────────────────────────────────────────────────────────────
+// VALIDATE COMMANDS
+// ───────────────────────────────────────────────────────────────
+
+program
+  .command('validate')
+  .description('Validate configuration file')
+  .option('-c, --config <path>', 'Path to config file')
+  .option('--json', 'Output as JSON')
+  .option('--strict', 'Treat warnings as errors')
+  .action(validateCommand);
+
+program
+  .command('format')
+  .description('Format configuration file')
+  .option('-c, --config <path>', 'Path to config file')
+  .option('--check', 'Check formatting without modifying')
+  .action(formatCommand);
+
+program
+  .command('doctor')
+  .description('Check ScopeAgent setup')
+  .option('-c, --config <path>', 'Path to config file')
+  .action(doctorCommand);
 
 // ───────────────────────────────────────────────────────────────
 // PARSE ARGS
@@ -196,7 +254,19 @@ program.parse();
 
 // Show help if no command provided
 if (!process.argv.slice(2).length) {
-  console.log(banner);
+  printBanner();
+  console.log('');
+  console.log(colors.amber('AI agents are powerful. ScopeAgent keeps them in line.'));
   console.log('');
   program.outputHelp();
+  console.log('');
+  console.log(colors.muted('Examples:'));
+  console.log(`  ${colors.cyan('scopeagent init')}          Create a new configuration`);
+  console.log(`  ${colors.cyan('scopeagent watch')}         Start monitoring file operations`);
+  console.log(`  ${colors.cyan('scopeagent test src/app.ts')}   Test if a path is allowed`);
+  console.log(`  ${colors.cyan('scopeagent allow "src/**"')}    Add an allow rule`);
+  console.log(`  ${colors.cyan('scopeagent deny ".env"')}       Add a deny rule`);
+  console.log('');
+  console.log(colors.muted('Documentation: https://scopeagent.io/docs'));
+  console.log('');
 }
