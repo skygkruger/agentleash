@@ -1,0 +1,15 @@
+{
+  "name": "@scopeagent/shared",
+  "version": "1.0.0",
+  "description": "Shared types and constants for ScopeAgent",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "lint": "eslint src --ext .ts"
+  },
+  "keywords": [],
+  "author": "Veridian Tools",
+  "license": "MIT"
+}

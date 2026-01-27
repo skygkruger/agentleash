@@ -1,0 +1,50 @@
+{
+  "name": "scopeagent",
+  "version": "1.0.0",
+  "description": "AI Agent Permission Controller - Define path boundaries, monitor operations, get alerts",
+  "private": true,
+  "workspaces": [
+    "api",
+    "cli",
+    "daemon",
+    "web",
+    "shared"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspaces --if-present",
+    "dev:api": "npm run dev -w api",
+    "dev:cli": "npm run dev -w cli",
+    "dev:daemon": "npm run dev -w daemon",
+    "dev:web": "npm run dev -w web",
+    "build": "npm run build --workspaces --if-present",
+    "build:api": "npm run build -w api",
+    "build:cli": "npm run build -w cli",
+    "build:daemon": "npm run build -w daemon",
+    "build:web": "npm run build -w web",
+    "lint": "npm run lint --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "clean": "rimraf api/dist cli/dist daemon/dist web/.next"
+  },
+  "keywords": [
+    "ai",
+    "agent",
+    "security",
+    "permissions",
+    "file-access",
+    "monitoring",
+    "claude-code",
+    "cursor"
+  ],
+  "author": "Veridian Tools",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/skygkruger/scopeagent.git"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "devDependencies": {
+    "rimraf": "^5.0.5"
+  }
+}
