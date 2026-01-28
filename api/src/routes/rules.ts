@@ -52,12 +52,17 @@ router.get(
   async (req: AuthRequest, res: Response) => {
     const { scopeId } = req.params;
 
-    const { data: rules, error } = await supabaseAdmin
+    // Pagination params
+    const limit = Math.min(Math.max(1, parseInt(req.query.limit as string) || 50), 100);
+    const offset = Math.max(0, parseInt(req.query.offset as string) || 0);
+
+    const { data: rules, error, count } = await supabaseAdmin
       .from('scope_rules')
-      .select('*')
+      .select('*', { count: 'exact' })
       .eq('scope_id', scopeId)
       .order('priority', { ascending: false })
-      .order('created_at', { ascending: true });
+      .order('created_at', { ascending: true })
+      .range(offset, offset + limit - 1);
 
     if (error) {
       res.status(500).json({
@@ -78,6 +83,12 @@ router.get(
         reason: rule.reason,
         createdAt: rule.created_at,
       })),
+      pagination: {
+        total: count || 0,
+        limit,
+        offset,
+        hasMore: (count || 0) > offset + limit,
+      },
     });
   }
 );

@@ -27,15 +27,20 @@ const PLAN_LIMITS = {
 // ───────────────────────────────────────────────────────────────
 
 router.get('/', authenticate, async (req: AuthRequest, res: Response) => {
-  const { data: scopes, error } = await supabaseAdmin
+  // Pagination params
+  const limit = Math.min(Math.max(1, parseInt(req.query.limit as string) || 50), 100);
+  const offset = Math.max(0, parseInt(req.query.offset as string) || 0);
+
+  const { data: scopes, error, count } = await supabaseAdmin
     .from('scopes')
     .select(`
       *,
       scope_rules(count),
       access_logs(count)
-    `)
+    `, { count: 'exact' })
     .eq('user_id', req.user!.id)
-    .order('created_at', { ascending: false });
+    .order('created_at', { ascending: false })
+    .range(offset, offset + limit - 1);
 
   if (error) {
     res.status(500).json({
@@ -58,6 +63,12 @@ router.get('/', authenticate, async (req: AuthRequest, res: Response) => {
       createdAt: scope.created_at,
       updatedAt: scope.updated_at,
     })),
+    pagination: {
+      total: count || 0,
+      limit,
+      offset,
+      hasMore: (count || 0) > offset + limit,
+    },
   });
 });
 

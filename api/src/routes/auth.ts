@@ -227,11 +227,16 @@ router.post('/api-key', authenticate, async (req: AuthRequest, res: Response) =>
 // ───────────────────────────────────────────────────────────────
 
 router.get('/api-keys', authenticate, async (req: AuthRequest, res: Response) => {
-  const { data, error } = await supabaseAdmin
+  // Pagination params
+  const limit = Math.min(Math.max(1, parseInt(req.query.limit as string) || 50), 100);
+  const offset = Math.max(0, parseInt(req.query.offset as string) || 0);
+
+  const { data, error, count } = await supabaseAdmin
     .from('api_keys')
-    .select('id, name, scopes, is_active, created_at, last_used_at')
+    .select('id, name, scopes, is_active, created_at, last_used_at', { count: 'exact' })
     .eq('user_id', req.user!.id)
-    .order('created_at', { ascending: false });
+    .order('created_at', { ascending: false })
+    .range(offset, offset + limit - 1);
 
   if (error) {
     res.status(500).json({
@@ -251,6 +256,12 @@ router.get('/api-keys', authenticate, async (req: AuthRequest, res: Response) =>
       createdAt: key.created_at,
       lastUsedAt: key.last_used_at,
     })),
+    pagination: {
+      total: count || 0,
+      limit,
+      offset,
+      hasMore: (count || 0) > offset + limit,
+    },
   });
 });
 
