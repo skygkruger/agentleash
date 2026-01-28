@@ -268,7 +268,7 @@ export { wsHandler };
 // START SERVER
 // ───────────────────────────────────────────────────────────────
 
-server.listen(PORT, async () => {
+server.listen(Number(PORT), '0.0.0.0', async () => {
   // Check database connection
   const dbConnected = await checkConnection();
 
