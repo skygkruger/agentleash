@@ -1,7 +1,7 @@
 'use client';
 
 // ═══════════════════════════════════════════════════════════════
-// SCOPEAGENT DASHBOARD OVERVIEW
+// AGENTLEASH DASHBOARD OVERVIEW
 // ═══════════════════════════════════════════════════════════════
 
 import React, { useEffect, useState } from 'react';
@@ -205,19 +205,19 @@ export default function DashboardPage() {
                 <span className="text-scope-amber">2.</span> Install the CLI:
               </p>
               <pre className="bg-scope-bg-light p-2 text-scope-amber">
-                npm install -g @veridian/scopeagent
+                npm install -g agentleash
               </pre>
               <p className="text-scope-text">
                 <span className="text-scope-amber">3.</span> Initialize in your project:
               </p>
               <pre className="bg-scope-bg-light p-2 text-scope-amber">
-                scopeagent init
+                leash init
               </pre>
               <p className="text-scope-text">
                 <span className="text-scope-amber">4.</span> Start watching:
               </p>
               <pre className="bg-scope-bg-light p-2 text-scope-amber">
-                scopeagent watch
+                leash watch
               </pre>
             </div>
           </div>

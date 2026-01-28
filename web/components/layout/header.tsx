@@ -1,7 +1,7 @@
 'use client';
 
 // ═══════════════════════════════════════════════════════════════
-// SCOPEAGENT HEADER COMPONENT
+// AGENTLEASH HEADER COMPONENT
 // Top navigation bar
 // ═══════════════════════════════════════════════════════════════
 
@@ -25,7 +25,7 @@ export function Header({ variant = 'landing' }: HeaderProps) {
             <Link href="/dashboard" className="text-scope-amber hover:text-scope-amber/80">
               <pre className="text-xs leading-tight">
 {`╔══════════════════╗
-║   SCOPEAGENT     ║
+║   AGENTLEASH     ║
 ╚══════════════════╝`}
               </pre>
             </Link>
@@ -54,7 +54,7 @@ export function Header({ variant = 'landing' }: HeaderProps) {
           <Link href="/" className="text-scope-amber hover:text-scope-amber/80">
             <pre className="text-xs">
 {`╔════════════════╗
-║  SCOPEAGENT    ║
+║  AGENTLEASH    ║
 ╚════════════════╝`}
             </pre>
           </Link>
@@ -73,7 +73,7 @@ export function Header({ variant = 'landing' }: HeaderProps) {
               [PRICING]
             </Link>
             <a
-              href="https://github.com/skygkruger/scopeagent"
+              href="https://github.com/skygkruger/agentleash"
               target="_blank"
               rel="noopener noreferrer"
               className="text-xs text-scope-muted hover:text-scope-amber transition-colors"

@@ -1,7 +1,7 @@
 'use client';
 
 // ═══════════════════════════════════════════════════════════════
-// SCOPEAGENT SIDEBAR COMPONENT
+// AGENTLEASH SIDEBAR COMPONENT
 // Dashboard navigation sidebar
 // ═══════════════════════════════════════════════════════════════
 
@@ -80,7 +80,7 @@ export function Sidebar() {
         </Link>
 
         <a
-          href="https://scopeagent.io/docs"
+          href="https://agentleash.io/docs"
           target="_blank"
           rel="noopener noreferrer"
           className="flex items-center gap-3 px-3 py-2 text-sm text-scope-muted hover:text-scope-cyan transition-colors"
@@ -95,7 +95,7 @@ export function Sidebar() {
         <div className="border border-scope-border p-3 bg-scope-bg">
           <p className="text-xs text-scope-muted mb-2">{'// CLI INSTALL'}</p>
           <pre className="text-xs text-scope-amber bg-scope-bg-light p-2 overflow-x-auto">
-            npm i -g @veridian/scopeagent
+            npm i -g agentleash
           </pre>
         </div>
       </div>
