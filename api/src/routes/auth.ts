@@ -5,7 +5,6 @@
 
 import { Router, Response } from 'express';
 import { v4 as uuidv4 } from 'uuid';
-import crypto from 'crypto';
 import {
   authenticate,
   AuthRequest,
@@ -15,6 +14,7 @@ import {
   generateRefreshToken,
   verifyToken,
   getUserById,
+  hashApiKey,
 } from '../middleware/auth';
 import { validate, schemas } from '../middleware/validate';
 import { supabaseAdmin } from '../db/supabase';
@@ -184,9 +184,9 @@ router.get('/me', authenticate, async (req: AuthRequest, res: Response) => {
 router.post('/api-key', authenticate, async (req: AuthRequest, res: Response) => {
   const { name, scopes } = req.body;
 
-  // Generate a new API key
+  // Generate a new API key with HMAC-SHA256 hash
   const apiKey = `sk_${uuidv4().replace(/-/g, '')}`;
-  const keyHash = crypto.createHash('sha256').update(apiKey).digest('hex');
+  const keyHash = hashApiKey(apiKey);
 
   const { data, error } = await supabaseAdmin
     .from('api_keys')

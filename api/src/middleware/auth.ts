@@ -34,8 +34,22 @@ interface JwtPayload {
 // CONSTANTS
 // ───────────────────────────────────────────────────────────────
 
-const JWT_SECRET = process.env.JWT_SECRET || 'development-secret-change-in-production';
+// Enforce JWT_SECRET in production
+if (!process.env.JWT_SECRET && process.env.NODE_ENV === 'production') {
+  throw new Error('JWT_SECRET environment variable is required in production');
+}
+if (!process.env.JWT_SECRET) {
+  console.warn('[Auth] WARNING: JWT_SECRET not set, using insecure default for development only');
+}
+const EFFECTIVE_JWT_SECRET: string = process.env.JWT_SECRET || 'development-secret-change-in-production';
+
 const JWT_EXPIRES_IN = process.env.SESSION_DURATION || '7d';
+
+// Secret for HMAC-based API key hashing (more secure than plain SHA256)
+const API_KEY_SECRET = process.env.API_KEY_SECRET;
+if (!API_KEY_SECRET && process.env.NODE_ENV === 'production') {
+  throw new Error('API_KEY_SECRET environment variable is required in production');
+}
 
 // ───────────────────────────────────────────────────────────────
 // JWT FUNCTIONS
@@ -48,7 +62,7 @@ export function generateToken(user: AuthUser): string {
       email: user.email,
       plan: user.plan,
     },
-    JWT_SECRET,
+    EFFECTIVE_JWT_SECRET,
     { expiresIn: JWT_EXPIRES_IN } as SignOptions
   );
 }
@@ -56,14 +70,14 @@ export function generateToken(user: AuthUser): string {
 export function generateRefreshToken(userId: string): string {
   return jwt.sign(
     { sub: userId, type: 'refresh' },
-    JWT_SECRET,
+    EFFECTIVE_JWT_SECRET,
     { expiresIn: '30d' }
   );
 }
 
 export function verifyToken(token: string): JwtPayload | null {
   try {
-    return jwt.verify(token, JWT_SECRET) as JwtPayload;
+    return jwt.verify(token, EFFECTIVE_JWT_SECRET) as JwtPayload;
   } catch {
     return null;
   }
@@ -242,11 +256,12 @@ async function validateApiKey(apiKey: string): Promise<AuthUser | null> {
   }
 }
 
-function hashApiKey(key: string): string {
-  // Simple hash for API key comparison
-  // In production, use a proper hashing algorithm like bcrypt
+export function hashApiKey(key: string): string {
+  // Use HMAC-SHA256 with server secret for secure API key hashing
+  // This prevents rainbow table attacks even if database is compromised
   const crypto = require('crypto');
-  return crypto.createHash('sha256').update(key).digest('hex');
+  const secret = API_KEY_SECRET || 'dev-api-key-secret';
+  return crypto.createHmac('sha256', secret).update(key).digest('hex');
 }
 
 // ───────────────────────────────────────────────────────────────
