@@ -1,14 +1,14 @@
 // ═══════════════════════════════════════════════════════════════
-// SCOPEAGENT SHARED CONSTANTS
+// AGENTLEASH SHARED CONSTANTS
 // ═══════════════════════════════════════════════════════════════
 
 // ───────────────────────────────────────────────────────────────
 // PRODUCT INFO
 // ───────────────────────────────────────────────────────────────
 
-export const PRODUCT_NAME = 'ScopeAgent';
+export const PRODUCT_NAME = 'AgentLeash';
 export const PRODUCT_VERSION = '1.0.0';
-export const PRODUCT_TAGLINE = 'AI agents are powerful. ScopeAgent keeps them in line.';
+export const PRODUCT_TAGLINE = 'AI agents are powerful. AgentLeash keeps them in line.';
 
 // ───────────────────────────────────────────────────────────────
 // DESIGN SYSTEM COLORS
@@ -25,7 +25,7 @@ export const COLORS = {
   textMuted: '#6e6a86',
 
   // Accents
-  amber: '#d4a76a',      // ScopeAgent primary
+  amber: '#d4a76a',      // AgentLeash primary
   mint: '#a8d8b9',       // Success/allowed
   coral: '#eb6f92',      // Error/blocked
   lavender: '#c4a7e7',   // Info/highlight
@@ -117,7 +117,7 @@ export const DEFAULT_SENSITIVE_PATTERNS = [
 // CONFIG FILE
 // ───────────────────────────────────────────────────────────────
 
-export const CONFIG_FILE_NAME = '.scopeagent.yml';
+export const CONFIG_FILE_NAME = '.agentleash.yml';
 export const CONFIG_VERSION = 1;
 
 // ───────────────────────────────────────────────────────────────
@@ -195,16 +195,16 @@ export const WS_CONFIG = {
 // ───────────────────────────────────────────────────────────────
 
 export const ASCII_LOGO = `
-███████╗ ██████╗ ██████╗ ██████╗ ███████╗
-██╔════╝██╔════╝██╔═══██╗██╔══██╗██╔════╝
-███████╗██║     ██║   ██║██████╔╝█████╗
-╚════██║██║     ██║   ██║██╔═══╝ ██╔══╝
-███████║╚██████╗╚██████╔╝██║     ███████╗
-╚══════╝ ╚═════╝ ╚═════╝ ╚═╝     ╚══════╝
+██╗     ███████╗ █████╗ ███████╗██╗  ██╗
+██║     ██╔════╝██╔══██╗██╔════╝██║  ██║
+██║     █████╗  ███████║███████╗███████║
+██║     ██╔══╝  ██╔══██║╚════██║██╔══██║
+███████╗███████╗██║  ██║███████║██║  ██║
+╚══════╝╚══════╝╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝
          ┌───┐ ┌───┐ ┌───┐ ┌───┐ ┌───┐
          │ A ├─┤ G ├─┤ E ├─┤ N ├─┤ T │
          └───┘ └───┘ └───┘ └───┘ └───┘`;
 
 export const ASCII_LOGO_COMPACT = `╔══════════════════════════════════════════════════════════════════════════════╗
-║  SCOPEAGENT                                                                  ║
+║  AGENTLEASH                                                                  ║
 ╚══════════════════════════════════════════════════════════════════════════════╝`;
