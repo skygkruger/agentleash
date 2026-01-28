@@ -1,16 +1,16 @@
-# SCOPEAGENT PRODUCTION READINESS AUDIT
+# AGENTLEASH PRODUCTION READINESS AUDIT
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │  PRODUCTION AUDIT CHECKLIST                                     │
-│  ScopeAgent - AI Agent Permission Controller                    │
+│  AgentLeash - AI Agent Permission Controller                    │
 │  Run this audit before every production deployment              │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
 ## INSTRUCTIONS FOR CLAUDE CODE
 
-Before declaring ScopeAgent production-ready, systematically verify each item below. Mark items as:
+Before declaring AgentLeash production-ready, systematically verify each item below. Mark items as:
 - [x] PASS - Verified working correctly
 - [ ] FAIL - Needs fix before launch
 - [~] PARTIAL - Works but needs improvement (non-blocking)
@@ -175,16 +175,16 @@ Run all automated tests, then manually verify critical paths. Document any failu
 ## 5. CLI AUDIT
 
 ### 5.1 Commands Functional
-- [ ] scopeagent init - Creates .scopeagent.yml interactively
-- [ ] scopeagent watch - Starts daemon with live terminal UI
-- [ ] scopeagent status - Shows current scope status
-- [ ] scopeagent logs - Displays recent access logs
-- [ ] scopeagent logs --export - Exports to CSV
-- [ ] scopeagent allow <pattern> - Adds allow rule
-- [ ] scopeagent deny <pattern> - Adds deny rule
-- [ ] scopeagent test <path> - Tests path against rules
-- [ ] scopeagent login - Authenticates with API
-- [ ] scopeagent sync - Syncs local config with cloud
+- [ ] leash init - Creates .agentleash.yml interactively
+- [ ] leash watch - Starts daemon with live terminal UI
+- [ ] leash status - Shows current scope status
+- [ ] leash logs - Displays recent access logs
+- [ ] leash logs --export - Exports to CSV
+- [ ] leash allow <pattern> - Adds allow rule
+- [ ] leash deny <pattern> - Adds deny rule
+- [ ] leash test <path> - Tests path against rules
+- [ ] leash login - Authenticates with API
+- [ ] leash sync - Syncs local config with cloud
 
 ### 5.2 Terminal UI
 - [ ] Colors render correctly (respects NO_COLOR env var)
@@ -241,7 +241,7 @@ Run all automated tests, then manually verify critical paths. Document any failu
 - [ ] Shows integration prompt when detected
 
 ### 7.2 Session Linking
-- [ ] Can link ScopeAgent scope to VaultAgent vault
+- [ ] Can link AgentLeash scope to VaultAgent vault
 - [ ] Combined audit view shows both file + secret access
 - [ ] Unlinking works without data loss
 
@@ -296,7 +296,7 @@ Run all automated tests, then manually verify critical paths. Document any failu
 
 ### 9.1 User Documentation
 - [ ] README covers installation and quick start
-- [ ] Configuration reference complete (.scopeagent.yml options)
+- [ ] Configuration reference complete (.agentleash.yml options)
 - [ ] CLI command reference with examples
 - [ ] FAQ addresses common issues
 - [ ] Troubleshooting guide exists
