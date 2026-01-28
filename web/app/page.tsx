@@ -25,11 +25,12 @@ export default function HomePage() {
             </Link>
 
             {/* Navigation */}
-            <nav className="flex items-center gap-6">
+            <nav className="hidden md:flex items-center gap-6">
               {[
                 { label: 'DOCS', href: '/docs' },
                 { label: 'PRICING', href: '/pricing' },
-                { label: 'GITHUB', href: 'https://github.com/veridiantools/agentleash' },
+                { label: 'GITHUB', href: 'https://github.com/skygkruger' },
+                { label: '@', href: 'https://x.com/run_veridian' },
               ].map((item) => (
                 <Link
                   key={item.label}
@@ -51,16 +52,27 @@ export default function HomePage() {
                 [LOGIN]
               </Link>
             </nav>
+
+            {/* Mobile Menu */}
+            <div className="flex md:hidden items-center gap-4">
+              <Link href="/docs" className="text-scope-muted text-xs">[DOCS]</Link>
+              <Link
+                href="/login"
+                className="border border-scope-amber text-scope-amber px-3 py-1 text-xs"
+              >
+                [LOGIN]
+              </Link>
+            </div>
           </div>
         </div>
       </header>
 
       <main className="max-w-5xl mx-auto px-6 py-12">
         {/* Hero Section */}
-        <section className="text-center mb-16">
+        <section className="text-center mb-12 md:mb-16">
           {/* ASCII Logo - LEASH */}
-          <div className="mb-6">
-            <pre className="text-scope-amber text-xs leading-tight inline-block">
+          <div className="mb-4 md:mb-6 overflow-x-auto">
+            <pre className="text-scope-amber text-[8px] md:text-xs leading-tight inline-block">
 {`██╗     ███████╗ █████╗ ███████╗██╗  ██╗
 ██║     ██╔════╝██╔══██╗██╔════╝██║  ██║
 ██║     █████╗  ███████║███████╗███████║
@@ -71,29 +83,29 @@ export default function HomePage() {
           </div>
 
           {/* AGENT Nodes */}
-          <div className="mb-6">
-            <pre className="text-scope-amber text-xs leading-tight inline-block">
-{`         ┌───┐ ┌───┐ ┌───┐ ┌───┐ ┌───┐
-         │ A ├─┤ G ├─┤ E ├─┤ N ├─┤ T │
-         └───┘ └───┘ └───┘ └───┘ └───┘`}
+          <div className="mb-4 md:mb-6">
+            <pre className="text-scope-amber text-[8px] md:text-xs leading-tight inline-block">
+{`┌───┐ ┌───┐ ┌───┐ ┌───┐ ┌───┐
+│ A ├─┤ G ├─┤ E ├─┤ N ├─┤ T │
+└───┘ └───┘ └───┘ └───┘ └───┘`}
             </pre>
           </div>
 
           {/* Version Tag */}
-          <p className="text-xs tracking-widest text-scope-rust mb-8">
+          <p className="text-[10px] md:text-xs tracking-widest text-scope-rust mb-6 md:mb-8">
             // AI AGENT ACCESS CONTROL v1.0
           </p>
 
           {/* Tagline */}
-          <h1 className="text-xl text-scope-text mb-3">
+          <h1 className="text-lg md:text-xl text-scope-text mb-3 px-4">
             Know exactly what your AI agents access.
           </h1>
-          <p className="text-scope-muted max-w-xl mx-auto mb-8">
+          <p className="text-scope-muted text-sm md:text-base max-w-xl mx-auto mb-6 md:mb-8 px-4">
             Monitor file operations in real-time. Define boundaries. Get alerts when agents cross the line.
           </p>
 
           {/* CTA Buttons */}
-          <div className="flex justify-center gap-4">
+          <div className="flex flex-col sm:flex-row justify-center gap-3 md:gap-4 px-4">
             <Link
               href="/register"
               className="border border-scope-amber text-scope-amber px-6 py-2.5 hover:bg-scope-amber hover:text-scope-bg transition-all duration-200 group"
@@ -113,10 +125,10 @@ export default function HomePage() {
         </section>
 
         {/* Problem Section */}
-        <section className="mb-16">
+        <section className="mb-12 md:mb-16">
           <p className="text-xs text-scope-rust mb-4 tracking-wider">// THE PROBLEM</p>
-          <div className="bg-scope-bg-light border border-scope-border p-6">
-            <pre className="text-sm leading-relaxed text-scope-text whitespace-pre-wrap">
+          <div className="bg-scope-bg-light border border-scope-border p-4 md:p-6">
+            <pre className="text-xs md:text-sm leading-relaxed text-scope-text whitespace-pre-wrap">
 {`You use Claude Code, Cursor, or Copilot to write code faster.
 But have you ever wondered:
 
@@ -131,7 +143,7 @@ But have you ever wondered:
         </section>
 
         {/* Solution - Feature Cards */}
-        <section className="mb-16">
+        <section className="mb-12 md:mb-16">
           <p className="text-xs text-scope-rust mb-4 tracking-wider">// THE SOLUTION</p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {/* Card 1 */}
@@ -173,59 +185,65 @@ But have you ever wondered:
         </section>
 
         {/* How It Works */}
-        <section className="mb-16">
+        <section className="mb-12 md:mb-16">
           <p className="text-xs text-scope-rust mb-4 tracking-wider">// HOW IT WORKS</p>
-          <div className="bg-scope-bg-light border border-scope-border p-6">
-            <div className="grid grid-cols-3 gap-6 text-center">
-              <div>
-                <div className="text-scope-amber text-2xl mb-2">1</div>
-                <div className="text-scope-amber text-sm mb-1">DEFINE</div>
-                <p className="text-scope-muted text-xs">Create rules in<br/>.agentleash.yml</p>
-                <pre className="text-xs text-scope-muted mt-2">$ leash init</pre>
+          <div className="bg-scope-bg-light border border-scope-border p-4 md:p-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
+              <div className="flex md:block items-center gap-4 md:gap-0">
+                <div className="text-scope-amber text-2xl md:mb-2">1</div>
+                <div className="text-left md:text-center">
+                  <div className="text-scope-amber text-sm mb-1">DEFINE</div>
+                  <p className="text-scope-muted text-xs">Create rules in .agentleash.yml</p>
+                  <pre className="text-xs text-scope-muted mt-2">$ leash init</pre>
+                </div>
               </div>
-              <div>
-                <div className="text-scope-rust text-2xl mb-2">2</div>
-                <div className="text-scope-rust text-sm mb-1">WATCH</div>
-                <p className="text-scope-muted text-xs">Start the daemon<br/>with one command</p>
-                <pre className="text-xs text-scope-muted mt-2">$ leash watch</pre>
+              <div className="flex md:block items-center gap-4 md:gap-0">
+                <div className="text-scope-rust text-2xl md:mb-2">2</div>
+                <div className="text-left md:text-center">
+                  <div className="text-scope-rust text-sm mb-1">WATCH</div>
+                  <p className="text-scope-muted text-xs">Start the daemon with one command</p>
+                  <pre className="text-xs text-scope-muted mt-2">$ leash watch</pre>
+                </div>
               </div>
-              <div>
-                <div className="text-scope-burnt text-2xl mb-2">3</div>
-                <div className="text-scope-burnt text-sm mb-1">PROTECT</div>
-                <p className="text-scope-muted text-xs">Get alerts when<br/>agents cross lines</p>
-                <pre className="text-xs text-scope-coral mt-2">[!] BLOCKED</pre>
+              <div className="flex md:block items-center gap-4 md:gap-0">
+                <div className="text-scope-burnt text-2xl md:mb-2">3</div>
+                <div className="text-left md:text-center">
+                  <div className="text-scope-burnt text-sm mb-1">PROTECT</div>
+                  <p className="text-scope-muted text-xs">Get alerts when agents cross lines</p>
+                  <pre className="text-xs text-scope-coral mt-2">[!] BLOCKED</pre>
+                </div>
               </div>
             </div>
           </div>
         </section>
 
         {/* Live Preview */}
-        <section className="mb-16">
+        <section className="mb-12 md:mb-16">
           <p className="text-xs text-scope-rust mb-4 tracking-wider">// LIVE PREVIEW</p>
-          <div className="bg-scope-bg-card border border-scope-border">
-            <div className="border-b border-scope-border px-4 py-2 flex items-center justify-between">
+          <div className="bg-scope-bg-card border border-scope-border overflow-hidden">
+            <div className="border-b border-scope-border px-3 md:px-4 py-2 flex items-center justify-between">
               <span className="text-scope-amber text-xs">AGENTLEASH</span>
               <span className="text-scope-mint text-xs">[WATCHING...]</span>
             </div>
-            <div className="p-4 font-mono text-xs">
-              <div className="text-scope-muted mb-3">
-                Scope: my-project &nbsp;|&nbsp; Path: ~/projects/myapp &nbsp;|&nbsp; Rules: 15 active
+            <div className="p-3 md:p-4 font-mono text-[10px] md:text-xs overflow-x-auto">
+              <div className="text-scope-muted mb-3 whitespace-nowrap">
+                Scope: my-project | Path: ~/projects/myapp | Rules: 15 active
               </div>
               <div className="border-t border-scope-border-light pt-3 space-y-1">
-                <div><span className="text-scope-muted">14:32:01</span> <span className="text-scope-mint">[/]</span> <span className="text-scope-muted">READ</span> <span className="text-scope-text">src/components/Button.tsx</span></div>
-                <div><span className="text-scope-muted">14:32:02</span> <span className="text-scope-mint">[/]</span> <span className="text-scope-muted">WRITE</span> <span className="text-scope-text">src/components/Button.tsx</span></div>
-                <div><span className="text-scope-muted">14:32:05</span> <span className="text-scope-coral">[X]</span> <span className="text-scope-muted">READ</span> <span className="text-scope-text">.env.local</span> <span className="text-scope-coral">[BLOCKED]</span></div>
-                <div><span className="text-scope-muted">14:32:08</span> <span className="text-scope-mint">[/]</span> <span className="text-scope-muted">READ</span> <span className="text-scope-text">package.json</span></div>
-                <div><span className="text-scope-muted">14:32:10</span> <span className="text-scope-amber">[!]</span> <span className="text-scope-muted">DELETE</span> <span className="text-scope-text">node_modules/lodash/...</span> <span className="text-scope-amber">[WARNING]</span></div>
+                <div className="whitespace-nowrap"><span className="text-scope-muted">14:32:01</span> <span className="text-scope-mint">[/]</span> <span className="text-scope-muted">READ</span> <span className="text-scope-text">src/components/Button.tsx</span></div>
+                <div className="whitespace-nowrap"><span className="text-scope-muted">14:32:02</span> <span className="text-scope-mint">[/]</span> <span className="text-scope-muted">WRITE</span> <span className="text-scope-text">src/components/Button.tsx</span></div>
+                <div className="whitespace-nowrap"><span className="text-scope-muted">14:32:05</span> <span className="text-scope-coral">[X]</span> <span className="text-scope-muted">READ</span> <span className="text-scope-text">.env.local</span> <span className="text-scope-coral">[BLOCKED]</span></div>
+                <div className="whitespace-nowrap"><span className="text-scope-muted">14:32:08</span> <span className="text-scope-mint">[/]</span> <span className="text-scope-muted">READ</span> <span className="text-scope-text">package.json</span></div>
+                <div className="whitespace-nowrap"><span className="text-scope-muted">14:32:10</span> <span className="text-scope-amber">[!]</span> <span className="text-scope-muted">DELETE</span> <span className="text-scope-text">node_modules/...</span> <span className="text-scope-amber">[WARN]</span></div>
               </div>
             </div>
           </div>
         </section>
 
         {/* Supported Agents */}
-        <section className="mb-16">
+        <section className="mb-12 md:mb-16">
           <p className="text-xs text-scope-rust mb-4 tracking-wider">// SUPPORTED AGENTS</p>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-2 md:gap-3">
             {[
               { name: 'Claude Code', status: 'supported' },
               { name: 'Cursor', status: 'supported' },
@@ -236,25 +254,25 @@ But have you ever wondered:
             ].map((agent) => (
               <div
                 key={agent.name}
-                className="border border-scope-border px-4 py-3 flex items-center justify-between"
+                className="border border-scope-border px-3 md:px-4 py-2 md:py-3 flex items-center justify-between"
               >
-                <span className="text-scope-text text-xs">{agent.name}</span>
-                <span className={`text-xs ${agent.status === 'supported' ? 'text-scope-mint' : 'text-scope-muted'}`}>
-                  {agent.status === 'supported' ? '[/] Ready' : '[~] Soon'}
+                <span className="text-scope-text text-[10px] md:text-xs">{agent.name}</span>
+                <span className={`text-[10px] md:text-xs ${agent.status === 'supported' ? 'text-scope-mint' : 'text-scope-muted'}`}>
+                  {agent.status === 'supported' ? '[/]' : '[~]'}
                 </span>
               </div>
             ))}
           </div>
-          <p className="text-xs text-scope-muted mt-3 text-center">
+          <p className="text-[10px] md:text-xs text-scope-muted mt-3 text-center">
             Works with any file-accessing agent via filesystem monitoring
           </p>
         </section>
 
         {/* Quick Start */}
-        <section className="mb-16">
+        <section className="mb-12 md:mb-16">
           <p className="text-xs text-scope-rust mb-4 tracking-wider">// QUICK START</p>
-          <div className="bg-scope-bg-light border border-scope-border p-5">
-            <pre className="text-xs leading-relaxed text-scope-text">
+          <div className="bg-scope-bg-light border border-scope-border p-4 md:p-5 overflow-x-auto">
+            <pre className="text-[10px] md:text-xs leading-relaxed text-scope-text whitespace-pre">
 <span className="text-scope-muted">$</span> npm install -g agentleash
 
 <span className="text-scope-muted">$</span> cd your-project
@@ -265,37 +283,37 @@ But have you ever wondered:
 <span className="text-scope-muted">$</span> leash watch --agent claude-code
 <span className="text-scope-mint">[/]</span> Monitoring started
 <span className="text-scope-mint">[/]</span> Watching: ~/your-project
-<span className="text-scope-mint">[/]</span> Rules loaded: 12 allow, 3 deny, 2 warn
+<span className="text-scope-mint">[/]</span> Rules loaded: 12 allow, 3 deny
             </pre>
           </div>
         </section>
 
         {/* Pricing Preview */}
-        <section className="mb-16">
+        <section className="mb-12 md:mb-16">
           <p className="text-xs text-scope-rust mb-4 tracking-wider">// PRICING</p>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-3">
             {[
               { name: 'FREE', price: '$0', features: ['1 scope', '1k logs/day', 'Basic rules'], highlight: false },
-              { name: 'PRO', price: '$15', features: ['5 scopes', '10k logs', 'Custom rules', 'Export'], highlight: true },
-              { name: 'TEAM', price: '$49', features: ['20 scopes', '100k logs', 'Sharing', 'Webhooks'], highlight: false },
-              { name: 'ENTERPRISE', price: '$149', features: ['Unlimited', 'SSO/SAML', 'Compliance', 'Support'], highlight: false },
+              { name: 'PRO', price: '$15', features: ['5 scopes', '10k logs', 'Custom rules'], highlight: true },
+              { name: 'TEAM', price: '$49', features: ['20 scopes', '100k logs', 'Webhooks'], highlight: false },
+              { name: 'ENTERPRISE', price: '$149', features: ['Unlimited', 'SSO/SAML', 'Support'], highlight: false },
             ].map((tier) => (
               <div
                 key={tier.name}
-                className={`border ${tier.highlight ? 'border-scope-amber' : 'border-scope-border'} p-4`}
+                className={`border ${tier.highlight ? 'border-scope-amber' : 'border-scope-border'} p-3 md:p-4`}
               >
-                <div className={`text-sm mb-1 ${tier.highlight ? 'text-scope-amber' : 'text-scope-text'}`}>{tier.name}</div>
-                <div className={`text-lg mb-3 ${tier.highlight ? 'text-scope-amber' : 'text-scope-muted'}`}>{tier.price}<span className="text-xs">/mo</span></div>
+                <div className={`text-xs md:text-sm mb-1 ${tier.highlight ? 'text-scope-amber' : 'text-scope-text'}`}>{tier.name}</div>
+                <div className={`text-base md:text-lg mb-2 md:mb-3 ${tier.highlight ? 'text-scope-amber' : 'text-scope-muted'}`}>{tier.price}<span className="text-[10px] md:text-xs">/mo</span></div>
                 <div className="space-y-1">
                   {tier.features.map((f) => (
-                    <div key={f} className="text-xs text-scope-muted">[/] {f}</div>
+                    <div key={f} className="text-[10px] md:text-xs text-scope-muted">[/] {f}</div>
                   ))}
                 </div>
               </div>
             ))}
           </div>
           <div className="text-center mt-4">
-            <Link href="/pricing" className="text-scope-amber text-xs hover:underline">
+            <Link href="/pricing" className="text-scope-amber text-[10px] md:text-xs hover:underline">
               View full pricing details →
             </Link>
           </div>
@@ -308,11 +326,12 @@ But have you ever wondered:
           <div className="text-center">
             <div className="text-scope-amber mb-4">AGENTLEASH</div>
             <p className="text-scope-muted text-xs mb-4">Keep your AI agents in check.</p>
-            <div className="flex justify-center gap-6 text-xs">
+            <div className="flex flex-wrap justify-center gap-4 md:gap-6 text-xs">
               <Link href="/docs" className="text-scope-muted hover:text-scope-amber transition-colors">[DOCS]</Link>
               <Link href="/pricing" className="text-scope-muted hover:text-scope-amber transition-colors">[PRICING]</Link>
-              <a href="https://github.com/veridiantools/agentleash" className="text-scope-muted hover:text-scope-amber transition-colors">[GITHUB]</a>
+              <a href="https://github.com/skygkruger" className="text-scope-muted hover:text-scope-amber transition-colors">[GITHUB]</a>
               <a href="https://veridiantools.dev" className="text-scope-muted hover:text-scope-amber transition-colors">[VERIDIAN]</a>
+              <a href="mailto:sky@veridian.run" className="text-scope-muted hover:text-scope-amber transition-colors">[CONTACT]</a>
             </div>
             <p className="text-scope-muted text-xs mt-6">
               Part of the <a href="https://veridiantools.dev" className="text-scope-rust hover:text-scope-amber transition-colors">Veridian</a> family

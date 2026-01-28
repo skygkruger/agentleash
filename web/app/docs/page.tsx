@@ -21,13 +21,13 @@ const sections: { id: SectionId; label: string }[] = [
 
 function CodeBlock({ children, title }: { children: React.ReactNode; title?: string }) {
   return (
-    <div className="bg-scope-bg border border-scope-border mb-4">
+    <div className="bg-scope-bg border border-scope-border mb-4 overflow-hidden">
       {title && (
-        <div className="px-3 py-2 border-b border-scope-border text-scope-muted text-xs">
+        <div className="px-3 py-2 border-b border-scope-border text-scope-muted text-[10px] md:text-xs">
           {title}
         </div>
       )}
-      <pre className="p-3 text-scope-amber text-xs leading-relaxed overflow-auto whitespace-pre-wrap">
+      <pre className="p-3 text-scope-amber text-[10px] md:text-xs leading-relaxed overflow-x-auto">
         {children}
       </pre>
     </div>
@@ -116,7 +116,7 @@ $ leash report
 
             <h3 className="text-scope-rust mb-3">Supported AI Agents</h3>
 
-            <div className="grid grid-cols-2 gap-2 mb-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mb-4">
               {[
                 { name: 'Claude Code', supported: true },
                 { name: 'Cursor', supported: true },
@@ -125,8 +125,8 @@ $ leash report
                 { name: 'Aider', supported: true },
                 { name: 'Continue', supported: false },
               ].map(agent => (
-                <div key={agent.name} className="bg-scope-bg-light border border-scope-border p-3 flex justify-between items-center">
-                  <span className="text-scope-text text-sm">{agent.name}</span>
+                <div key={agent.name} className="bg-scope-bg-light border border-scope-border p-2 md:p-3 flex justify-between items-center">
+                  <span className="text-scope-text text-xs md:text-sm">{agent.name}</span>
                   <StatusBadge
                     status={agent.supported ? 'Supported' : 'Coming Soon'}
                     variant={agent.supported ? 'success' : 'muted'}
@@ -671,25 +671,31 @@ $ leash watch --agent cursor`}
     }
   };
 
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
   return (
     <div className="min-h-screen font-mono text-sm">
       {/* Header */}
       <header className="border-b border-scope-border">
-        <div className="max-w-6xl mx-auto px-6 py-4">
+        <div className="max-w-6xl mx-auto px-4 md:px-6 py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 md:gap-4">
               <Link href="/" className="flex items-center gap-2">
-                <span className="text-scope-amber text-lg">AGENTLEASH</span>
+                <span className="text-scope-amber text-base md:text-lg">AGENTLEASH</span>
                 <span className="text-scope-amber animate-cursor-blink">_</span>
               </Link>
-              <span className="text-scope-border">|</span>
-              <span className="text-scope-muted">Documentation</span>
+              <span className="hidden md:inline text-scope-border">|</span>
+              <span className="hidden md:inline text-scope-muted">Documentation</span>
             </div>
-            <nav className="flex items-center gap-6">
+
+            {/* Desktop Nav */}
+            <nav className="hidden md:flex items-center gap-6">
               {[
                 { label: 'HOME', href: '/' },
                 { label: 'DOCS', href: '/docs', active: true },
                 { label: 'PRICING', href: '/pricing' },
+                { label: 'GITHUB', href: 'https://github.com/skygkruger' },
+                { label: '@', href: 'https://x.com/run_veridian' },
               ].map((item) => (
                 <Link
                   key={item.label}
@@ -707,13 +713,41 @@ $ leash watch --agent cursor`}
                 </Link>
               ))}
             </nav>
+
+            {/* Mobile Menu Toggle */}
+            <button
+              className="md:hidden text-scope-amber"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            >
+              {mobileMenuOpen ? '[X]' : '[=]'}
+            </button>
           </div>
         </div>
       </header>
 
+      {/* Mobile Section Selector */}
+      <div className="md:hidden border-b border-scope-border p-4 bg-scope-bg-light">
+        <div className="text-scope-muted text-xs mb-2 tracking-wider">SECTION</div>
+        <div className="flex flex-wrap gap-2">
+          {sections.map(section => (
+            <button
+              key={section.id}
+              onClick={() => setActiveSection(section.id)}
+              className={`text-xs px-2 py-1 border transition-colors ${
+                activeSection === section.id
+                  ? 'border-scope-amber text-scope-amber'
+                  : 'border-scope-border text-scope-muted'
+              }`}
+            >
+              {section.label.replace(/\[\S\] /, '')}
+            </button>
+          ))}
+        </div>
+      </div>
+
       <div className="flex max-w-6xl mx-auto">
-        {/* Sidebar */}
-        <aside className="w-64 border-r border-scope-border p-6 min-h-[calc(100vh-60px)]">
+        {/* Sidebar - Desktop Only */}
+        <aside className="hidden md:block w-64 border-r border-scope-border p-6 min-h-[calc(100vh-60px)]">
           {/* Mini Logo */}
           <pre className="text-scope-amber text-[6px] leading-tight mb-6">
 {`██╗     ███████╗ █████╗ ███████╗██╗  ██╗
@@ -724,9 +758,9 @@ $ leash watch --agent cursor`}
 ╚══════╝╚══════╝╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝`}
           </pre>
           <pre className="text-scope-amber text-[6px] leading-tight mb-6">
-{`     ┌───┐ ┌───┐ ┌───┐ ┌───┐ ┌───┐
-     │ A ├─┤ G ├─┤ E ├─┤ N ├─┤ T │
-     └───┘ └───┘ └───┘ └───┘ └───┘`}
+{`┌───┐ ┌───┐ ┌───┐ ┌───┐ ┌───┐
+│ A ├─┤ G ├─┤ E ├─┤ N ├─┤ T │
+└───┘ └───┘ └───┘ └───┘ └───┘`}
           </pre>
 
           <div className="text-scope-muted text-xs mb-4 tracking-wider">DOCUMENTATION</div>
@@ -755,16 +789,20 @@ $ leash watch --agent cursor`}
         </aside>
 
         {/* Main Content */}
-        <main className="flex-1 p-8 max-w-3xl">
+        <main className="flex-1 p-4 md:p-8 max-w-3xl">
           {renderContent()}
         </main>
       </div>
 
       {/* Footer */}
       <footer className="border-t border-scope-border">
-        <div className="max-w-6xl mx-auto px-6 py-4 flex justify-between text-xs text-scope-muted">
+        <div className="max-w-6xl mx-auto px-4 md:px-6 py-4 flex flex-col md:flex-row justify-between gap-2 text-xs text-scope-muted">
           <span>AgentLeash v1.0.0</span>
-          <span>AI agent access [/] monitored and controlled</span>
+          <div className="flex flex-wrap gap-4">
+            <a href="https://github.com/skygkruger" className="hover:text-scope-amber transition-colors">[GITHUB]</a>
+            <a href="mailto:sky@veridian.run" className="hover:text-scope-amber transition-colors">[CONTACT]</a>
+            <a href="https://veridiantools.dev" className="hover:text-scope-amber transition-colors">[VERIDIAN]</a>
+          </div>
         </div>
       </footer>
     </div>
