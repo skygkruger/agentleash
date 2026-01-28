@@ -264,7 +264,7 @@ export default function ScopeDetailPage() {
           </Button>
         }
       >
-        <Table
+        <Table<Rule>
           columns={ruleColumns}
           data={rules}
           loading={rulesLoading}

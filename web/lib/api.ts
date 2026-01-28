@@ -344,7 +344,7 @@ class ApiClient {
       startDate?: string;
       endDate?: string;
     }
-  ): Promise<ApiResponse<{ data: AccessLog[]; total: number; hasMore: boolean }>> {
+  ): Promise<ApiResponse<AccessLog[]> & { total?: number; hasMore?: boolean }> {
     const query = params
       ? `?${new URLSearchParams(
           Object.fromEntries(
@@ -371,7 +371,7 @@ class ApiClient {
       severity?: string;
       acknowledged?: boolean;
     }
-  ): Promise<ApiResponse<{ data: Violation[]; total: number; hasMore: boolean }>> {
+  ): Promise<ApiResponse<Violation[]> & { total?: number; hasMore?: boolean }> {
     const query = params
       ? `?${new URLSearchParams(
           Object.fromEntries(

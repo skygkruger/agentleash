@@ -8,7 +8,7 @@
 import React, { forwardRef } from 'react';
 import { cn } from '@/lib/utils';
 
-interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+interface InputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'prefix'> {
   label?: string;
   error?: string;
   hint?: string;
@@ -36,7 +36,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
               'w-full bg-scope-bg-light border border-scope-border px-3 py-2 text-sm text-scope-text',
               'placeholder:text-scope-muted focus:outline-none focus:border-scope-amber',
               'disabled:opacity-50 disabled:cursor-not-allowed',
-              prefix && 'pl-8',
+              !!prefix && 'pl-8',
               error && 'border-scope-coral',
               className
             )}
