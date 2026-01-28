@@ -716,6 +716,149 @@ router.post('/cancel', authenticate, async (req: AuthRequest, res: Response) => 
 });
 
 // ───────────────────────────────────────────────────────────────
+// STRIPE WEBHOOK HANDLER
+// ───────────────────────────────────────────────────────────────
+
+/**
+ * Handle Stripe webhook events
+ * This function is called from a separate route with raw body
+ */
+export async function handleStripeWebhook(
+  payload: Buffer,
+  signature: string
+): Promise<{ received: boolean; error?: string }> {
+  const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+
+  if (!webhookSecret) {
+    console.error('STRIPE_WEBHOOK_SECRET not configured');
+    return { received: false, error: 'Webhook secret not configured' };
+  }
+
+  let event: Stripe.Event;
+
+  try {
+    event = stripe.webhooks.constructEvent(payload, signature, webhookSecret);
+  } catch (err) {
+    console.error('Webhook signature verification failed:', err);
+    return { received: false, error: 'Invalid signature' };
+  }
+
+  console.log(`[Stripe Webhook] Received event: ${event.type}`);
+
+  try {
+    switch (event.type) {
+      case 'checkout.session.completed': {
+        // New subscription created via Checkout
+        const session = event.data.object as Stripe.Checkout.Session;
+        const userId = session.metadata?.userId;
+        const bundleId = session.metadata?.bundleId;
+
+        if (userId && bundleId) {
+          const bundle = BUNDLES.find((b) => b.id === bundleId);
+          if (bundle) {
+            console.log(`[Stripe Webhook] Activating plan for user ${userId}: ${bundle.products.scopeAgent}`);
+
+            await supabase
+              .from('profiles')
+              .update({
+                plan: bundle.products.scopeAgent,
+                updated_at: new Date().toISOString(),
+              })
+              .eq('id', userId);
+          }
+        }
+        break;
+      }
+
+      case 'customer.subscription.updated': {
+        // Subscription changed (upgrade, downgrade, renewal)
+        const subscription = event.data.object as Stripe.Subscription;
+        const userId = subscription.metadata?.userId;
+        const newPlan = subscription.metadata?.scopeAgentPlan;
+
+        if (userId && newPlan && subscription.status === 'active') {
+          console.log(`[Stripe Webhook] Updating plan for user ${userId}: ${newPlan}`);
+
+          await supabase
+            .from('profiles')
+            .update({
+              plan: newPlan,
+              updated_at: new Date().toISOString(),
+            })
+            .eq('id', userId);
+        }
+        break;
+      }
+
+      case 'customer.subscription.deleted': {
+        // Subscription cancelled/expired
+        const subscription = event.data.object as Stripe.Subscription;
+        const userId = subscription.metadata?.userId;
+
+        if (userId) {
+          console.log(`[Stripe Webhook] Downgrading user ${userId} to free plan`);
+
+          await supabase
+            .from('profiles')
+            .update({
+              plan: 'free',
+              updated_at: new Date().toISOString(),
+            })
+            .eq('id', userId);
+        }
+        break;
+      }
+
+      case 'invoice.payment_failed': {
+        // Payment failed - log for monitoring
+        const invoice = event.data.object as Stripe.Invoice;
+        console.error(`[Stripe Webhook] Payment failed for customer ${invoice.customer}, invoice ${invoice.id}`);
+        // Could add notification/email logic here
+        break;
+      }
+
+      case 'invoice.paid': {
+        // Subscription renewed successfully
+        // Use unknown cast to access subscription field from webhook payload
+        const invoiceData = event.data.object as unknown as Record<string, unknown>;
+        const subscriptionRef = invoiceData.subscription;
+        const subscriptionId = typeof subscriptionRef === 'string'
+          ? subscriptionRef
+          : (subscriptionRef as { id?: string } | null)?.id;
+
+        if (subscriptionId) {
+          const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+          const userId = subscription.metadata?.userId;
+          const plan = subscription.metadata?.scopeAgentPlan;
+
+          if (userId && plan) {
+            console.log(`[Stripe Webhook] Renewal confirmed for user ${userId}: ${plan}`);
+
+            // Ensure plan is active after successful payment
+            await supabase
+              .from('profiles')
+              .update({
+                plan: plan,
+                updated_at: new Date().toISOString(),
+              })
+              .eq('id', userId);
+          }
+        }
+        break;
+      }
+
+      default:
+        console.log(`[Stripe Webhook] Unhandled event type: ${event.type}`);
+    }
+
+    return { received: true };
+  } catch (error) {
+    console.error(`[Stripe Webhook] Error processing event ${event.type}:`, error);
+    return { received: false, error: 'Processing error' };
+  }
+}
+
+// ───────────────────────────────────────────────────────────────
 // EXPORTS
 // ───────────────────────────────────────────────────────────────
 

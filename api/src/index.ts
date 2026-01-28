@@ -20,7 +20,7 @@ import scopesRoutes from './routes/scopes';
 import rulesRoutes from './routes/rules';
 import logsRoutes from './routes/logs';
 import violationsRoutes from './routes/violations';
-import bundlesRoutes from './routes/bundles';
+import bundlesRoutes, { handleStripeWebhook } from './routes/bundles';
 
 // Import WebSocket handler
 import { WSHandler } from './ws/handler';
@@ -92,6 +92,31 @@ const authLimiter = rateLimit({
     error: 'Too many authentication attempts, please try again later.',
   },
 });
+
+// ───────────────────────────────────────────────────────────────
+// STRIPE WEBHOOK (before JSON middleware - needs raw body)
+// ───────────────────────────────────────────────────────────────
+
+app.post(
+  '/api/stripe/webhook',
+  express.raw({ type: 'application/json' }),
+  async (req, res) => {
+    const signature = req.headers['stripe-signature'] as string;
+
+    if (!signature) {
+      res.status(400).json({ error: 'Missing signature' });
+      return;
+    }
+
+    const result = await handleStripeWebhook(req.body, signature);
+
+    if (result.received) {
+      res.json({ received: true });
+    } else {
+      res.status(400).json({ error: result.error });
+    }
+  }
+);
 
 // Body parsing
 app.use(express.json({ limit: '10mb' }));
@@ -192,6 +217,7 @@ app.get('/api', (_req, res) => {
         upgrade: 'POST /api/bundles/upgrade',
         status: 'GET /api/bundles/status',
         cancel: 'POST /api/bundles/cancel',
+        webhook: 'POST /api/stripe/webhook (Stripe webhook endpoint)',
       },
     },
     websocket: {
