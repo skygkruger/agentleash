@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════════
-// SCOPEAGENT LOGS COMMAND
+// AGENTLEASH LOGS COMMAND
 // View access logs from cloud
 // ═══════════════════════════════════════════════════════════════
 
@@ -30,7 +30,7 @@ export async function logsCommand(options: LogsOptions): Promise<void> {
   if (!auth.isAuthenticated()) {
     ui.printError('Authentication required');
     ui.newLine();
-    console.log(`Run ${ui.colors.cyan('scopeagent login')} first`);
+    console.log(`Run ${ui.colors.cyan('leash login')} first`);
     process.exit(1);
   }
 

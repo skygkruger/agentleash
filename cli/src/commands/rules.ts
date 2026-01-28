@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════════
-// SCOPEAGENT RULES COMMAND
+// AGENTLEASH RULES COMMAND
 // Manage allow/deny rules
 // ═══════════════════════════════════════════════════════════════
 
@@ -33,7 +33,7 @@ export async function listRulesCommand(options: ListRulesOptions): Promise<void>
   const configPath = options.config || findConfig();
 
   if (!configPath) {
-    ui.printError('No .scopeagent.yml found');
+    ui.printError('No .agentleash.yml found');
     process.exit(1);
   }
 
@@ -59,7 +59,7 @@ export async function listRulesCommand(options: ListRulesOptions): Promise<void>
   if (config.rules.length === 0) {
     ui.printInfo('No rules configured');
     ui.newLine();
-    console.log(`Run ${ui.colors.cyan('scopeagent allow <pattern>')} or ${ui.colors.cyan('scopeagent deny <pattern>')} to add rules`);
+    console.log(`Run ${ui.colors.cyan('leash allow <pattern>')} or ${ui.colors.cyan('leash deny <pattern>')} to add rules`);
     return;
   }
 
@@ -100,9 +100,9 @@ export async function allowCommand(
   const configPath = options.config || findConfig();
 
   if (!configPath) {
-    ui.printError('No .scopeagent.yml found');
+    ui.printError('No .agentleash.yml found');
     ui.newLine();
-    console.log(`Run ${ui.colors.cyan('scopeagent init')} first`);
+    console.log(`Run ${ui.colors.cyan('leash init')} first`);
     process.exit(1);
   }
 
@@ -180,9 +180,9 @@ export async function denyCommand(
   const configPath = options.config || findConfig();
 
   if (!configPath) {
-    ui.printError('No .scopeagent.yml found');
+    ui.printError('No .agentleash.yml found');
     ui.newLine();
-    console.log(`Run ${ui.colors.cyan('scopeagent init')} first`);
+    console.log(`Run ${ui.colors.cyan('leash init')} first`);
     process.exit(1);
   }
 
@@ -259,7 +259,7 @@ export async function removeRuleCommand(
   const configPath = options.config || findConfig();
 
   if (!configPath) {
-    ui.printError('No .scopeagent.yml found');
+    ui.printError('No .agentleash.yml found');
     process.exit(1);
   }
 
@@ -329,7 +329,7 @@ export async function editRulesCommand(options: EditRulesOptions): Promise<void>
   const configPath = options.config || findConfig();
 
   if (!configPath) {
-    ui.printError('No .scopeagent.yml found');
+    ui.printError('No .agentleash.yml found');
     process.exit(1);
   }
 

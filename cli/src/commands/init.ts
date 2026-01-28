@@ -1,6 +1,6 @@
 // ═══════════════════════════════════════════════════════════════
-// SCOPEAGENT INIT COMMAND
-// Initialize .scopeagent.yml in current directory
+// AGENTLEASH INIT COMMAND
+// Initialize .agentleash.yml in current directory
 // ═══════════════════════════════════════════════════════════════
 
 import * as path from 'path';
@@ -216,7 +216,7 @@ export async function initCommand(options: InitOptions): Promise<void> {
 
   // Check if config already exists
   if (configExists(directory) && !options.force) {
-    ui.printWarning(`.scopeagent.yml already exists in ${directory}`);
+    ui.printWarning(`.agentleash.yml already exists in ${directory}`);
 
     const { overwrite } = await inquirer.prompt([
       {
@@ -329,7 +329,7 @@ export async function initCommand(options: InitOptions): Promise<void> {
   try {
     saveConfig(config, configPath);
     ui.newLine();
-    ui.printSuccess(`Created ${ui.colors.amber('.scopeagent.yml')}`);
+    ui.printSuccess(`Created ${ui.colors.amber('.agentleash.yml')}`);
     ui.newLine();
 
     // Show summary
@@ -343,9 +343,9 @@ export async function initCommand(options: InitOptions): Promise<void> {
 
     ui.newLine();
     ui.printInfo('Next steps:');
-    console.log(`  ${ui.colors.muted('1.')} Review and customize ${ui.colors.amber('.scopeagent.yml')}`);
-    console.log(`  ${ui.colors.muted('2.')} Run ${ui.colors.cyan('scopeagent watch')} to start monitoring`);
-    console.log(`  ${ui.colors.muted('3.')} Run ${ui.colors.cyan('scopeagent test <path>')} to test rules`);
+    console.log(`  ${ui.colors.muted('1.')} Review and customize ${ui.colors.amber('.agentleash.yml')}`);
+    console.log(`  ${ui.colors.muted('2.')} Run ${ui.colors.cyan('leash watch')} to start monitoring`);
+    console.log(`  ${ui.colors.muted('3.')} Run ${ui.colors.cyan('leash test <path>')} to test rules`);
     ui.newLine();
 
   } catch (error) {

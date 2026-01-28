@@ -1,7 +1,7 @@
 {
-  "name": "scopeagent",
+  "name": "agentleash",
   "version": "1.0.0",
-  "description": "AI Agent Permission Controller - Define path boundaries, monitor operations, get alerts",
+  "description": "AI Agent Access Control - Define path boundaries, monitor operations, get alerts",
   "private": true,
   "workspaces": [
     "api",
@@ -21,7 +21,7 @@
     "build:cli": "npm run build -w cli",
     "build:daemon": "npm run build -w daemon",
     "build:web": "npm run build -w web",
-    "start": "npm start --workspace=@scopeagent/api",
+    "start": "npm start --workspace=@agentleash/api",
     "lint": "npm run lint --workspaces --if-present",
     "test": "npm run test --workspaces --if-present",
     "clean": "rimraf api/dist cli/dist daemon/dist web/.next"
@@ -40,7 +40,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/skygkruger/scopeagent.git"
+    "url": "https://github.com/skygkruger/agentleash.git"
   },
   "engines": {
     "node": ">=18.0.0"

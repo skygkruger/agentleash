@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════════
-// SCOPEAGENT WATCH COMMAND
+// AGENTLEASH WATCH COMMAND
 // Start monitoring file operations
 // ═══════════════════════════════════════════════════════════════
 
@@ -120,9 +120,9 @@ export async function watchCommand(options: WatchOptions): Promise<void> {
   const configPath = options.config || findConfig(options.path);
 
   if (!configPath) {
-    ui.printError('No .scopeagent.yml found');
+    ui.printError('No .agentleash.yml found');
     ui.newLine();
-    console.log(`Run ${ui.colors.cyan('scopeagent init')} to create a configuration file`);
+    console.log(`Run ${ui.colors.cyan('leash init')} to create a configuration file`);
     process.exit(1);
   }
 
@@ -168,7 +168,7 @@ export async function watchCommand(options: WatchOptions): Promise<void> {
       '**/.git/**',
       '**/dist/**',
       '**/build/**',
-      '**/.scopeagent.yml',
+      '**/.agentleash.yml',
     ],
     persistent: true,
     ignoreInitial: true,
@@ -331,13 +331,13 @@ function connectWebSocket(scopeId: string): WebSocket | null {
     return null;
   }
 
-  const wsUrl = process.env.SCOPEAGENT_WS_URL || 'ws://localhost:3001/ws';
+  const wsUrl = process.env.AGENTLEASH_WS_URL || 'ws://localhost:3001/ws';
 
   try {
     const ws = new WebSocket(wsUrl);
 
     ws.on('open', () => {
-      ui.printInfo('Connected to ScopeAgent cloud');
+      ui.printInfo('Connected to AgentLeash cloud');
       ws.send(JSON.stringify({
         type: 'subscribe',
         scopeId,
@@ -377,7 +377,7 @@ function connectWebSocket(scopeId: string): WebSocket | null {
 
 function printWatchHeader(config: ScopeConfig, watchPath: string): void {
   console.log('╔══════════════════════════════════════════════════════════════════════════════╗');
-  console.log(`║  ${ui.colors.amber('SCOPEAGENT')}                                          [${ui.colors.mint('WATCHING')}]   ║`);
+  console.log(`║  ${ui.colors.amber('AGENTLEASH')}                                          [${ui.colors.mint('WATCHING')}]   ║`);
   console.log('╠══════════════════════════════════════════════════════════════════════════════╣');
   console.log(`║  Scope:  ${ui.colors.text(config.name.padEnd(66))} ║`);
   console.log(`║  Path:   ${ui.colors.muted(truncatePath(watchPath, 66).padEnd(66))} ║`);

@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════════
-// SCOPEAGENT STATUS COMMAND
+// AGENTLEASH STATUS COMMAND
 // Show current scope info and stats
 // ═══════════════════════════════════════════════════════════════
 
@@ -25,9 +25,9 @@ export async function statusCommand(options: StatusOptions): Promise<void> {
   const configPath = options.config || findConfig();
 
   if (!configPath) {
-    ui.printWarning('No .scopeagent.yml found in current directory or parent directories');
+    ui.printWarning('No .agentleash.yml found in current directory or parent directories');
     ui.newLine();
-    console.log(`Run ${ui.colors.cyan('scopeagent init')} to create a configuration file`);
+    console.log(`Run ${ui.colors.cyan('leash init')} to create a configuration file`);
     ui.newLine();
 
     // Still show auth status
@@ -161,7 +161,7 @@ function showAuthStatus(): void {
   } else {
     const icon = ui.icons.blocked;
     console.log(`║  ${icon} Status:   ${ui.colors.coral('Not authenticated')}${' '.repeat(49)} ║`);
-    console.log(`║  ${ui.icons.help} Run:      ${ui.colors.cyan('scopeagent login').padEnd(63)} ║`);
+    console.log(`║  ${ui.icons.help} Run:      ${ui.colors.cyan('leash login').padEnd(63)} ║`);
   }
 
   console.log('╚══════════════════════════════════════════════════════════════════════════════╝');

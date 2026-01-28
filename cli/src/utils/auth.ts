@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════════
-// SCOPEAGENT AUTH UTILITIES
+// AGENTLEASH AUTH UTILITIES
 // Token storage and authentication helpers
 // ═══════════════════════════════════════════════════════════════
 
@@ -33,7 +33,7 @@ export interface AuthState {
 // ───────────────────────────────────────────────────────────────
 
 const config = new Conf<AuthState>({
-  projectName: 'scopeagent',
+  projectName: 'agentleash',
   projectVersion: '1.0.0',
   defaults: {
     tokens: null,

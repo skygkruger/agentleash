@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════════
-// SCOPEAGENT VALIDATE COMMAND
+// AGENTLEASH VALIDATE COMMAND
 // Validate configuration file
 // ═══════════════════════════════════════════════════════════════
 
@@ -28,11 +28,11 @@ export async function validateCommand(options: ValidateOptions): Promise<void> {
 
   if (!configPath) {
     if (options.json) {
-      console.log(JSON.stringify({ valid: false, error: 'No .scopeagent.yml found' }));
+      console.log(JSON.stringify({ valid: false, error: 'No .agentleash.yml found' }));
     } else {
-      ui.printError('No .scopeagent.yml found');
+      ui.printError('No .agentleash.yml found');
       ui.newLine();
-      console.log(`Run ${ui.colors.cyan('scopeagent init')} to create a configuration file`);
+      console.log(`Run ${ui.colors.cyan('leash init')} to create a configuration file`);
     }
     process.exit(1);
   }
@@ -139,7 +139,7 @@ export async function formatCommand(options: FormatOptions): Promise<void> {
   const configPath = options.config || findConfig();
 
   if (!configPath) {
-    ui.printError('No .scopeagent.yml found');
+    ui.printError('No .agentleash.yml found');
     process.exit(1);
   }
 
@@ -161,12 +161,12 @@ export async function formatCommand(options: FormatOptions): Promise<void> {
   });
 
   const header = `# ═══════════════════════════════════════════════════════════════
-# SCOPEAGENT CONFIGURATION
+# AGENTLEASH CONFIGURATION
 # AI Agent Permission Controller
 # ═══════════════════════════════════════════════════════════════
 #
 # This file defines what paths AI agents can access in your project.
-# Documentation: https://scopeagent.io/docs/configuration
+# Documentation: https://agentleash.io/docs/configuration
 #
 # ───────────────────────────────────────────────────────────────
 
@@ -181,7 +181,7 @@ export async function formatCommand(options: FormatOptions): Promise<void> {
     } else {
       ui.printError('Configuration needs formatting');
       ui.newLine();
-      console.log(`Run ${ui.colors.cyan('scopeagent format')} to fix`);
+      console.log(`Run ${ui.colors.cyan('leash format')} to fix`);
       process.exit(1);
     }
     return;
@@ -228,7 +228,7 @@ export async function doctorCommand(options: DoctorOptions): Promise<void> {
     checks.push({
       name: 'Configuration file',
       status: 'fail',
-      message: 'No .scopeagent.yml found',
+      message: 'No .agentleash.yml found',
     });
   }
 
@@ -314,7 +314,7 @@ export async function doctorCommand(options: DoctorOptions): Promise<void> {
 
   // Display results
   console.log('╔══════════════════════════════════════════════════════════════════════════════╗');
-  console.log(`║  ${ui.colors.amber('SCOPEAGENT DOCTOR')}                                                          ║`);
+  console.log(`║  ${ui.colors.amber('AGENTLEASH DOCTOR')}                                                          ║`);
   console.log('╠══════════════════════════════════════════════════════════════════════════════╣');
 
   for (const check of checks) {

@@ -1,6 +1,6 @@
 // ═══════════════════════════════════════════════════════════════
-// SCOPEAGENT LOGIN COMMAND
-// Authentication with ScopeAgent cloud
+// AGENTLEASH LOGIN COMMAND
+// Authentication with AgentLeash cloud
 // ═══════════════════════════════════════════════════════════════
 
 import inquirer from 'inquirer';
@@ -78,7 +78,7 @@ export async function loginCommand(options: LoginOptions): Promise<void> {
   }
 
   // Interactive login
-  ui.printInfo('Log in to ScopeAgent');
+  ui.printInfo('Log in to AgentLeash');
   ui.newLine();
 
   const { method } = await inquirer.prompt([
@@ -195,7 +195,7 @@ export async function whoamiCommand(): Promise<void> {
   if (!auth.isAuthenticated()) {
     ui.printInfo('Not logged in');
     ui.newLine();
-    console.log(`Run ${ui.colors.cyan('scopeagent login')} to authenticate`);
+    console.log(`Run ${ui.colors.cyan('leash login')} to authenticate`);
     return;
   }
 
@@ -246,7 +246,7 @@ function showAccountInfo(user: { id: string; email: string; plan: string }): voi
 
   if (user.plan === 'free') {
     ui.newLine();
-    ui.printInfo(`Upgrade to Pro for more features: ${ui.colors.cyan('https://scopeagent.io/pricing')}`);
+    ui.printInfo(`Upgrade to Pro for more features: ${ui.colors.cyan('https://agentleash.io/pricing')}`);
   }
 }
 
@@ -264,7 +264,7 @@ export async function createApiKeyCommand(options: ApiKeyOptions): Promise<void>
   if (!auth.isAuthenticated()) {
     ui.printError('You must be logged in to create an API key');
     ui.newLine();
-    console.log(`Run ${ui.colors.cyan('scopeagent login')} first`);
+    console.log(`Run ${ui.colors.cyan('leash login')} first`);
     process.exit(1);
   }
 
@@ -296,8 +296,8 @@ export async function createApiKeyCommand(options: ApiKeyOptions): Promise<void>
 
     ui.newLine();
     ui.printInfo('Use this key with:');
-    console.log(`  ${ui.colors.cyan(`scopeagent login --api-key ${result.data.key}`)}`);
-    console.log(`  ${ui.colors.muted('or set')} ${ui.colors.cyan('SCOPEAGENT_API_KEY')} ${ui.colors.muted('environment variable')}`);
+    console.log(`  ${ui.colors.cyan(`leash login --api-key ${result.data.key}`)}`);
+    console.log(`  ${ui.colors.muted('or set')} ${ui.colors.cyan('AGENTLEASH_API_KEY')} ${ui.colors.muted('environment variable')}`);
   } else {
     spinner.fail(ui.colors.coral('Failed to create API key'));
     ui.printError(result.error || 'Could not create API key');

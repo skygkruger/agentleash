@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════════
-// SCOPEAGENT SYNC COMMAND
+// AGENTLEASH SYNC COMMAND
 // Sync configuration with cloud
 // ═══════════════════════════════════════════════════════════════
 
@@ -27,7 +27,7 @@ export async function syncCommand(options: SyncOptions): Promise<void> {
   if (!auth.isAuthenticated()) {
     ui.printError('Authentication required');
     ui.newLine();
-    console.log(`Run ${ui.colors.cyan('scopeagent login')} first`);
+    console.log(`Run ${ui.colors.cyan('leash login')} first`);
     process.exit(1);
   }
 
@@ -35,9 +35,9 @@ export async function syncCommand(options: SyncOptions): Promise<void> {
   const configPath = options.config || findConfig();
 
   if (!configPath) {
-    ui.printError('No .scopeagent.yml found');
+    ui.printError('No .agentleash.yml found');
     ui.newLine();
-    console.log(`Run ${ui.colors.cyan('scopeagent init')} first`);
+    console.log(`Run ${ui.colors.cyan('leash init')} first`);
     process.exit(1);
   }
 
@@ -162,7 +162,7 @@ async function pushConfig(
   ));
 
   ui.newLine();
-  ui.printInfo(`View in dashboard: ${ui.colors.cyan('https://scopeagent.io/dashboard')}`);
+  ui.printInfo(`View in dashboard: ${ui.colors.cyan('https://agentleash.io/dashboard')}`);
 }
 
 // ───────────────────────────────────────────────────────────────
@@ -187,7 +187,7 @@ async function pullConfig(
 
     if (!scopesResult.success || !scopesResult.data || scopesResult.data.length === 0) {
       spinner.fail(ui.colors.coral('No scopes found'));
-      ui.printInfo('Push your local config first with: scopeagent sync --push');
+      ui.printInfo('Push your local config first with: leash sync --push');
       process.exit(1);
     }
 
@@ -310,7 +310,7 @@ export async function linkCommand(scopeId: string, options: LinkOptions): Promis
   const configPath = options.config || findConfig();
 
   if (!configPath) {
-    ui.printError('No .scopeagent.yml found');
+    ui.printError('No .agentleash.yml found');
     process.exit(1);
   }
 
@@ -361,8 +361,8 @@ export async function linkCommand(scopeId: string, options: LinkOptions): Promis
     ));
 
     ui.newLine();
-    ui.printInfo(`Run ${ui.colors.cyan('scopeagent sync --pull')} to download cloud rules`);
-    ui.printInfo(`Run ${ui.colors.cyan('scopeagent sync --push')} to upload local rules`);
+    ui.printInfo(`Run ${ui.colors.cyan('leash sync --pull')} to download cloud rules`);
+    ui.printInfo(`Run ${ui.colors.cyan('leash sync --push')} to upload local rules`);
   } catch (error) {
     spinner.fail(ui.colors.coral('Failed to save configuration'));
     process.exit(1);
@@ -379,7 +379,7 @@ export async function unlinkCommand(options: LinkOptions): Promise<void> {
   const configPath = options.config || findConfig();
 
   if (!configPath) {
-    ui.printError('No .scopeagent.yml found');
+    ui.printError('No .agentleash.yml found');
     process.exit(1);
   }
 

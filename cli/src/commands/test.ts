@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════════
-// SCOPEAGENT TEST COMMAND
+// AGENTLEASH TEST COMMAND
 // Test if a path would be allowed/denied
 // ═══════════════════════════════════════════════════════════════
 
@@ -27,9 +27,9 @@ export async function testCommand(
   const configPath = options.config || findConfig();
 
   if (!configPath) {
-    ui.printError('No .scopeagent.yml found');
+    ui.printError('No .agentleash.yml found');
     ui.newLine();
-    console.log(`Run ${ui.colors.cyan('scopeagent init')} to create a configuration file`);
+    console.log(`Run ${ui.colors.cyan('leash init')} to create a configuration file`);
     process.exit(1);
   }
 
@@ -152,7 +152,7 @@ export async function batchTestCommand(
   const configPath = options.config || findConfig();
 
   if (!configPath) {
-    ui.printError('No .scopeagent.yml found');
+    ui.printError('No .agentleash.yml found');
     process.exit(1);
   }
 
