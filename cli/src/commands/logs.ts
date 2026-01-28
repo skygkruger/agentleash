@@ -4,7 +4,7 @@
 // ═══════════════════════════════════════════════════════════════
 
 import ui from '../utils/ui';
-import { findConfig, loadConfig, ScopeConfig } from '../utils/config';
+import { findConfig, loadConfig } from '../utils/config';
 import auth from '../utils/auth';
 import api, { LogData } from '../utils/api';
 

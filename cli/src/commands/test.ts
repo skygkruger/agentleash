@@ -3,7 +3,6 @@
 // Test if a path would be allowed/denied
 // ═══════════════════════════════════════════════════════════════
 
-import * as path from 'path';
 import { minimatch } from 'minimatch';
 import ui from '../utils/ui';
 import { findConfig, loadConfig, ScopeConfig, Rule } from '../utils/config';
@@ -97,7 +96,7 @@ export async function testCommand(
   console.log('╠══════════════════════════════════════════════════════════════════════════════╣');
 
   // Summary
-  const allowed = results.filter((r) => r.result === 'allowed').length;
+  const _allowed = results.filter((r) => r.result === 'allowed').length;
   const blocked = results.filter((r) => r.result === 'blocked').length;
 
   const summaryIcon = blocked === 0 ? ui.icons.allowed : ui.icons.blocked;

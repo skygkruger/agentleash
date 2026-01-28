@@ -8,7 +8,6 @@ import {
   saveTokens,
   getRefreshToken,
   saveUser,
-  AuthTokens,
   UserInfo,
 } from './auth';
 
@@ -137,7 +136,7 @@ async function refreshTokens(): Promise<boolean> {
 
     if (!response.ok) return false;
 
-    const data = await response.json();
+    const data = await response.json() as { success: boolean; data?: { accessToken: string; refreshToken: string; expiresIn: number } };
     if (data.success && data.data) {
       saveTokens({
         accessToken: data.data.accessToken,

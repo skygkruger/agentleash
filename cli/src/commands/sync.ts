@@ -88,7 +88,7 @@ export async function syncCommand(options: SyncOptions): Promise<void> {
 async function pushConfig(
   config: ScopeConfig,
   configPath: string,
-  force?: boolean
+  _force?: boolean
 ): Promise<void> {
   const spinner = ui.spinner('Pushing configuration to cloud...');
   spinner.start();
@@ -212,7 +212,7 @@ async function pullConfig(
   // Export scope
   spinner.text = 'Downloading configuration...';
 
-  const exportResult = await api.exportScope(scopeId);
+  const exportResult = await api.exportScope(scopeId as string);
 
   if (!exportResult.success || !exportResult.data) {
     spinner.fail(ui.colors.coral('Failed to export scope'));
@@ -221,7 +221,7 @@ async function pullConfig(
   }
 
   // Get rules
-  const rulesResult = await api.listRules(scopeId);
+  const rulesResult = await api.listRules(scopeId as string);
 
   if (!rulesResult.success) {
     spinner.fail(ui.colors.coral('Failed to fetch rules'));

@@ -4,7 +4,6 @@
 // ═══════════════════════════════════════════════════════════════
 
 import * as path from 'path';
-import * as fs from 'fs';
 import chokidar from 'chokidar';
 import { minimatch } from 'minimatch';
 import WebSocket from 'ws';
@@ -24,12 +23,83 @@ interface WatchStats {
   startTime: Date;
 }
 
-interface AccessEvent {
-  path: string;
-  operation: 'read' | 'write' | 'delete' | 'list';
-  result: 'allowed' | 'blocked' | 'warning';
-  rule?: Rule;
-  timestamp: Date;
+// ───────────────────────────────────────────────────────────────
+// LOG BATCHER - Batches events before sending to reduce network calls
+// ───────────────────────────────────────────────────────────────
+
+class LogBatcher {
+  private buffer: Array<{
+    filePath: string;
+    operation: string;
+    result: string;
+    matchedRule?: string;
+    timestamp: string;
+  }> = [];
+  private flushTimer: NodeJS.Timeout | null = null;
+  private ws: WebSocket | null = null;
+
+  // Configuration
+  private readonly MAX_BATCH_SIZE = 50;
+  private readonly FLUSH_INTERVAL_MS = 5000; // 5 seconds
+
+  constructor(ws: WebSocket | null) {
+    this.ws = ws;
+    this.startFlushTimer();
+  }
+
+  add(event: {
+    filePath: string;
+    operation: string;
+    result: string;
+    matchedRule?: string;
+    timestamp: string;
+  }): void {
+    this.buffer.push(event);
+
+    // Flush immediately if buffer is full
+    if (this.buffer.length >= this.MAX_BATCH_SIZE) {
+      this.flush();
+    }
+  }
+
+  flush(): void {
+    if (this.buffer.length === 0) return;
+    if (!this.ws || this.ws.readyState !== WebSocket.OPEN) {
+      // Clear buffer if not connected (avoid memory buildup)
+      if (this.buffer.length > 1000) {
+        this.buffer = this.buffer.slice(-100); // Keep last 100
+      }
+      return;
+    }
+
+    // Send batch
+    this.ws.send(JSON.stringify({
+      type: 'access_batch',
+      data: this.buffer,
+    }));
+
+    // Clear buffer
+    this.buffer = [];
+  }
+
+  private startFlushTimer(): void {
+    this.flushTimer = setInterval(() => {
+      this.flush();
+    }, this.FLUSH_INTERVAL_MS);
+  }
+
+  shutdown(): void {
+    if (this.flushTimer) {
+      clearInterval(this.flushTimer);
+      this.flushTimer = null;
+    }
+    // Final flush before shutdown
+    this.flush();
+  }
+
+  updateWebSocket(ws: WebSocket | null): void {
+    this.ws = ws;
+  }
 }
 
 // ───────────────────────────────────────────────────────────────
@@ -85,6 +155,9 @@ export async function watchCommand(options: WatchOptions): Promise<void> {
     ws = connectWebSocket(config.sync.scopeId);
   }
 
+  // Initialize log batcher for efficient cloud sync
+  const logBatcher = new LogBatcher(ws);
+
   // Print header
   printWatchHeader(config, watchPath);
 
@@ -106,11 +179,11 @@ export async function watchCommand(options: WatchOptions): Promise<void> {
   });
 
   // Handle file events
-  watcher.on('add', (filePath) => handleEvent(filePath, 'write', config, stats, options.quiet, ws));
-  watcher.on('change', (filePath) => handleEvent(filePath, 'write', config, stats, options.quiet, ws));
-  watcher.on('unlink', (filePath) => handleEvent(filePath, 'delete', config, stats, options.quiet, ws));
-  watcher.on('addDir', (filePath) => handleEvent(filePath, 'write', config, stats, options.quiet, ws));
-  watcher.on('unlinkDir', (filePath) => handleEvent(filePath, 'delete', config, stats, options.quiet, ws));
+  watcher.on('add', (filePath) => handleEvent(filePath, 'write', config, stats, options.quiet, logBatcher));
+  watcher.on('change', (filePath) => handleEvent(filePath, 'write', config, stats, options.quiet, logBatcher));
+  watcher.on('unlink', (filePath) => handleEvent(filePath, 'delete', config, stats, options.quiet, logBatcher));
+  watcher.on('addDir', (filePath) => handleEvent(filePath, 'write', config, stats, options.quiet, logBatcher));
+  watcher.on('unlinkDir', (filePath) => handleEvent(filePath, 'delete', config, stats, options.quiet, logBatcher));
 
   // Handle ready
   watcher.on('ready', () => {
@@ -144,6 +217,7 @@ export async function watchCommand(options: WatchOptions): Promise<void> {
   const shutdown = () => {
     ui.newLine();
     ui.printInfo('Shutting down...');
+    logBatcher.shutdown(); // Flush remaining logs before closing
     watcher.close();
     configWatcher.close();
     if (ws) {
@@ -170,7 +244,7 @@ function handleEvent(
   config: ScopeConfig,
   stats: WatchStats,
   quiet?: boolean,
-  ws?: WebSocket | null
+  logBatcher?: LogBatcher
 ): void {
   const relativePath = path.relative(process.cwd(), filePath);
   const result = evaluateAccess(relativePath, operation, config);
@@ -190,18 +264,15 @@ function handleEvent(
     }
   }
 
-  // Send to WebSocket if connected
-  if (ws && ws.readyState === WebSocket.OPEN) {
-    ws.send(JSON.stringify({
-      type: 'access',
-      data: {
-        filePath: relativePath,
-        operation,
-        result: result.result,
-        matchedRule: result.rule?.pattern,
-        timestamp: new Date().toISOString(),
-      },
-    }));
+  // Add to batch for cloud sync (batches are sent every 5s or when full)
+  if (logBatcher) {
+    logBatcher.add({
+      filePath: relativePath,
+      operation,
+      result: result.result,
+      matchedRule: result.rule?.pattern,
+      timestamp: new Date().toISOString(),
+    });
   }
 }
 

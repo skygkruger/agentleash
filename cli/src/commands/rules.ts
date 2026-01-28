@@ -3,14 +3,12 @@
 // Manage allow/deny rules
 // ═══════════════════════════════════════════════════════════════
 
-import * as path from 'path';
 import inquirer from 'inquirer';
 import ui from '../utils/ui';
 import {
   findConfig,
   loadConfig,
   saveConfig,
-  getConfigPath,
   addRule,
   removeRule,
   ScopeConfig,

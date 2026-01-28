@@ -296,7 +296,7 @@ export async function doctorCommand(options: DoctorOptions): Promise<void> {
   }
 
   // Check 5: Authentication
-  const { isAuthenticated, getUser } = await import('../utils/auth');
+  const { isAuthenticated, getUser } = await import('../utils/auth.js');
   if (isAuthenticated()) {
     const user = getUser();
     checks.push({
@@ -338,7 +338,7 @@ export async function doctorCommand(options: DoctorOptions): Promise<void> {
   console.log('╚══════════════════════════════════════════════════════════════════════════════╝');
 
   // Summary
-  const passCount = checks.filter((c) => c.status === 'pass').length;
+  const _passCount = checks.filter((c) => c.status === 'pass').length;
   const failCount = checks.filter((c) => c.status === 'fail').length;
   const warnCount = checks.filter((c) => c.status === 'warn').length;
 
