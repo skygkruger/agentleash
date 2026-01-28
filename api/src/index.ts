@@ -98,7 +98,7 @@ const authLimiter = rateLimit({
 // ───────────────────────────────────────────────────────────────
 
 app.post(
-  '/api/stripe/webhook',
+  '/api/webhooks/stripe',
   express.raw({ type: 'application/json' }),
   async (req, res) => {
     const signature = req.headers['stripe-signature'] as string;
@@ -217,7 +217,7 @@ app.get('/api', (_req, res) => {
         upgrade: 'POST /api/bundles/upgrade',
         status: 'GET /api/bundles/status',
         cancel: 'POST /api/bundles/cancel',
-        webhook: 'POST /api/stripe/webhook (Stripe webhook endpoint)',
+        webhook: 'POST /api/webhooks/stripe (Stripe webhook endpoint)',
       },
     },
     websocket: {
