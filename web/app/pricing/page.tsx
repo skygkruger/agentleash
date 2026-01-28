@@ -1,7 +1,7 @@
 'use client';
 
 // ═══════════════════════════════════════════════════════════════
-// SCOPEAGENT PRICING PAGE
+// AGENTLEASH PRICING PAGE
 // Bundle pricing with VaultAgent
 // ═══════════════════════════════════════════════════════════════
 
@@ -62,8 +62,9 @@ const INDIVIDUAL_PLANS = [
 export default function PricingPage() {
   const [bundles, setBundles] = useState<Bundle[]>([]);
   const [loading, setLoading] = useState(true);
-  const [interval, setInterval] = useState<'monthly' | 'yearly'>('monthly');
+  const [billingInterval, setBillingInterval] = useState<'monthly' | 'yearly'>('monthly');
   const [subscribing, setSubscribing] = useState<string | null>(null);
+  const [hoveredNav, setHoveredNav] = useState<string | null>(null);
 
   useEffect(() => {
     api.getBundles().then((result) => {
@@ -77,7 +78,7 @@ export default function PricingPage() {
   const handleSubscribe = async (bundleId: string) => {
     setSubscribing(bundleId);
     try {
-      const result = await api.subscribeToBundle(bundleId, interval);
+      const result = await api.subscribeToBundle(bundleId, billingInterval);
       if (result.success && result.data?.url) {
         window.location.href = result.data.url;
       }
@@ -88,30 +89,54 @@ export default function PricingPage() {
 
   return (
     <div className="min-h-screen bg-scope-bg">
-      {/* Header */}
+      {/* Header - Veridian Style */}
       <header className="border-b border-scope-border">
-        <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
-          <Link href="/" className="text-scope-amber text-lg">
-            {'// SCOPEAGENT'}
-          </Link>
-          <div className="flex items-center gap-4">
-            <Link href="/login" className="text-scope-muted text-xs hover:text-scope-amber">
-              [LOGIN]
+        <div className="max-w-5xl mx-auto px-6 py-4">
+          <div className="flex items-center justify-between">
+            <Link href="/" className="flex items-center gap-2">
+              <span className="text-scope-amber text-lg">AGENTLEASH</span>
+              <span className="text-scope-amber animate-cursor-blink">_</span>
             </Link>
-            <Link href="/register" className="text-scope-amber text-xs hover:text-scope-cream">
-              [GET STARTED]
-            </Link>
+            <nav className="flex items-center gap-6">
+              {[
+                { label: 'HOME', href: '/' },
+                { label: 'DOCS', href: '/docs' },
+                { label: 'PRICING', href: '/pricing', active: true },
+              ].map((item) => (
+                <Link
+                  key={item.label}
+                  href={item.href}
+                  className={`relative transition-colors duration-200 ${
+                    item.active ? 'text-scope-amber' : 'text-scope-muted hover:text-scope-amber'
+                  }`}
+                  onMouseEnter={() => setHoveredNav(item.label)}
+                  onMouseLeave={() => setHoveredNav(null)}
+                >
+                  <span className={`transition-all duration-200 ${hoveredNav === item.label && !item.active ? 'pl-4' : ''}`}>
+                    {hoveredNav === item.label && !item.active && <span className="absolute left-0 text-scope-amber">&gt;</span>}
+                    [{item.label}]
+                  </span>
+                </Link>
+              ))}
+              <Link
+                href="/login"
+                className="border border-scope-amber text-scope-amber px-4 py-1.5 hover:bg-scope-amber hover:text-scope-bg transition-all duration-200"
+              >
+                [LOGIN]
+              </Link>
+            </nav>
           </div>
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="max-w-6xl mx-auto px-4 py-12">
+      <main className="max-w-5xl mx-auto px-6 py-12">
         {/* Title */}
         <div className="text-center mb-12">
-          <h1 className="text-3xl text-scope-amber mb-2">{'// PRICING'}</h1>
-          <p className="text-scope-text">
-            Choose a plan that fits your needs
+          <p className="text-xs text-scope-rust mb-2 tracking-wider">// PRICING</p>
+          <h1 className="text-2xl text-scope-amber mb-2">Choose Your Plan</h1>
+          <p className="text-scope-muted">
+            Start free, upgrade when you need more
           </p>
         </div>
 
@@ -119,9 +144,9 @@ export default function PricingPage() {
         <div className="flex justify-center mb-8">
           <div className="inline-flex border border-scope-border">
             <button
-              onClick={() => setInterval('monthly')}
-              className={`px-4 py-2 text-xs ${
-                interval === 'monthly'
+              onClick={() => setBillingInterval('monthly')}
+              className={`px-4 py-2 text-xs transition-colors ${
+                billingInterval === 'monthly'
                   ? 'bg-scope-amber text-scope-bg'
                   : 'text-scope-muted hover:text-scope-amber'
               }`}
@@ -129,29 +154,29 @@ export default function PricingPage() {
               MONTHLY
             </button>
             <button
-              onClick={() => setInterval('yearly')}
-              className={`px-4 py-2 text-xs ${
-                interval === 'yearly'
+              onClick={() => setBillingInterval('yearly')}
+              className={`px-4 py-2 text-xs transition-colors ${
+                billingInterval === 'yearly'
                   ? 'bg-scope-amber text-scope-bg'
                   : 'text-scope-muted hover:text-scope-amber'
               }`}
             >
-              YEARLY (SAVE 20%)
+              YEARLY <span className="text-scope-mint">(SAVE 20%)</span>
             </button>
           </div>
         </div>
 
         {/* Individual Plans */}
-        <div className="mb-16">
-          <h2 className="text-xl text-scope-amber mb-6 text-center">{'// SCOPEAGENT PLANS'}</h2>
+        <section className="mb-16">
+          <p className="text-xs text-scope-rust mb-4 tracking-wider text-center">// AGENTLEASH PLANS</p>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             {INDIVIDUAL_PLANS.map((plan) => (
               <div
                 key={plan.name}
-                className={`border p-6 ${
+                className={`border p-6 transition-colors ${
                   plan.highlight
-                    ? 'border-scope-amber bg-scope-amber/5'
-                    : 'border-scope-border bg-scope-bg-card'
+                    ? 'border-scope-amber'
+                    : 'border-scope-border hover:border-scope-rust'
                 }`}
               >
                 {plan.highlight && (
@@ -181,14 +206,15 @@ export default function PricingPage() {
               </div>
             ))}
           </div>
-        </div>
+        </section>
 
         {/* Bundle Section */}
-        <div className="border-t border-scope-border pt-16">
+        <section className="border-t border-scope-border pt-16">
           <div className="text-center mb-8">
-            <h2 className="text-2xl text-scope-amber mb-2">{'// AI AGENT SECURITY STACK'}</h2>
-            <p className="text-scope-text max-w-2xl mx-auto">
-              VaultAgent protects secrets FROM agents. ScopeAgent protects systems FROM agents.
+            <p className="text-xs text-scope-rust mb-2 tracking-wider">// BUNDLE & SAVE</p>
+            <h2 className="text-xl text-scope-amber mb-2">AI Agent Security Stack</h2>
+            <p className="text-scope-muted max-w-xl mx-auto text-sm">
+              VaultAgent protects secrets FROM agents. AgentLeash controls file access.
               Together: Complete AI agent security.
             </p>
           </div>
@@ -209,8 +235,8 @@ export default function PricingPage() {
                   key={bundle.id}
                   className={`border p-6 ${
                     index === 1
-                      ? 'border-scope-amber bg-scope-amber/5'
-                      : 'border-scope-border bg-scope-bg-card'
+                      ? 'border-scope-amber'
+                      : 'border-scope-border'
                   }`}
                 >
                   {index === 1 && (
@@ -221,17 +247,17 @@ export default function PricingPage() {
 
                   <div className="mb-4">
                     <div className="text-2xl text-scope-amber">
-                      {interval === 'monthly'
+                      {billingInterval === 'monthly'
                         ? bundle.pricing.monthly.formatted
                         : bundle.pricing.yearly.monthlyEquivalent}
                     </div>
-                    {interval === 'yearly' && (
+                    {billingInterval === 'yearly' && (
                       <div className="text-xs text-scope-muted">
                         Billed {bundle.pricing.yearly.formatted}
                       </div>
                     )}
                     <div className="text-xs text-scope-mint mt-1">
-                      Save {interval === 'monthly'
+                      Save {billingInterval === 'monthly'
                         ? bundle.pricing.monthly.savingsFormatted
                         : bundle.pricing.yearly.savingsFormatted}
                     </div>
@@ -265,69 +291,67 @@ export default function PricingPage() {
               ))}
             </div>
           )}
-        </div>
+        </section>
 
         {/* FAQ Section */}
-        <div className="border-t border-scope-border mt-16 pt-16">
-          <h2 className="text-xl text-scope-amber mb-8 text-center">{'// FAQ'}</h2>
-          <div className="max-w-2xl mx-auto space-y-6">
-            <div className="border border-scope-border p-4">
-              <h3 className="text-scope-text mb-2">[?] What is the AI Agent Security Stack?</h3>
-              <p className="text-xs text-scope-muted">
-                The AI Agent Security Stack combines VaultAgent and ScopeAgent for complete protection.
-                VaultAgent protects your secrets (API keys, credentials) from being accessed by AI agents,
-                while ScopeAgent controls what files and directories AI agents can access.
-              </p>
-            </div>
-            <div className="border border-scope-border p-4">
-              <h3 className="text-scope-text mb-2">[?] Can I use ScopeAgent without VaultAgent?</h3>
-              <p className="text-xs text-scope-muted">
-                Yes! ScopeAgent works independently to monitor and control file system access.
-                However, for complete AI agent security, we recommend using both products together.
-              </p>
-            </div>
-            <div className="border border-scope-border p-4">
-              <h3 className="text-scope-text mb-2">[?] How do bundles work?</h3>
-              <p className="text-xs text-scope-muted">
-                Bundles give you both VaultAgent and ScopeAgent at a discounted price.
-                You get a unified dashboard, combined audit logs, and priority support.
-                Bundle subscriptions are billed together for convenience.
-              </p>
-            </div>
-            <div className="border border-scope-border p-4">
-              <h3 className="text-scope-text mb-2">[?] Can I upgrade later?</h3>
-              <p className="text-xs text-scope-muted">
-                Absolutely! You can start with a free plan and upgrade anytime.
-                When upgrading mid-cycle, you'll only pay the prorated difference.
-              </p>
-            </div>
+        <section className="border-t border-scope-border mt-16 pt-16">
+          <p className="text-xs text-scope-rust mb-4 tracking-wider text-center">// FAQ</p>
+          <div className="max-w-2xl mx-auto space-y-4">
+            {[
+              {
+                q: 'What is the AI Agent Security Stack?',
+                a: 'The AI Agent Security Stack combines VaultAgent and AgentLeash for complete protection. VaultAgent protects your secrets (API keys, credentials) from being accessed by AI agents, while AgentLeash controls what files and directories AI agents can access.',
+              },
+              {
+                q: 'Can I use AgentLeash without VaultAgent?',
+                a: 'Yes! AgentLeash works independently to monitor and control file system access. However, for complete AI agent security, we recommend using both products together.',
+              },
+              {
+                q: 'How do bundles work?',
+                a: 'Bundles give you both VaultAgent and AgentLeash at a discounted price. You get a unified dashboard, combined audit logs, and priority support.',
+              },
+              {
+                q: 'Can I upgrade later?',
+                a: "Absolutely! You can start with a free plan and upgrade anytime. When upgrading mid-cycle, you'll only pay the prorated difference.",
+              },
+            ].map((faq, i) => (
+              <div key={i} className="border border-scope-border p-4">
+                <h3 className="text-scope-text text-sm mb-2">[?] {faq.q}</h3>
+                <p className="text-xs text-scope-muted leading-relaxed">{faq.a}</p>
+              </div>
+            ))}
           </div>
-        </div>
+        </section>
 
         {/* CTA */}
-        <div className="text-center mt-16 py-12 border border-scope-amber bg-scope-amber/5">
-          <h2 className="text-xl text-scope-amber mb-4">Ready to secure your AI agents?</h2>
+        <div className="text-center mt-16 py-12 border border-scope-amber">
+          <h2 className="text-lg text-scope-amber mb-3">Ready to secure your AI agents?</h2>
           <p className="text-scope-muted text-sm mb-6">
             Start with a free account. No credit card required.
           </p>
-          <Button onClick={() => window.location.href = '/register'}>
+          <Link
+            href="/register"
+            className="inline-block border border-scope-amber text-scope-amber px-6 py-2.5 hover:bg-scope-amber hover:text-scope-bg transition-all duration-200"
+          >
             [GET STARTED FREE]
-          </Button>
+          </Link>
         </div>
       </main>
 
       {/* Footer */}
       <footer className="border-t border-scope-border mt-16">
-        <div className="max-w-6xl mx-auto px-4 py-8">
-          <div className="flex items-center justify-between">
-            <div className="text-xs text-scope-muted">
-              {new Date().getFullYear()} Veridian Labs. All rights reserved.
+        <div className="max-w-5xl mx-auto px-6 py-8">
+          <div className="text-center">
+            <div className="flex justify-center gap-6 text-xs mb-4">
+              <Link href="/docs" className="text-scope-muted hover:text-scope-amber transition-colors">[DOCS]</Link>
+              <Link href="/pricing" className="text-scope-muted hover:text-scope-amber transition-colors">[PRICING]</Link>
+              <a href="https://github.com/veridiantools/agentleash" className="text-scope-muted hover:text-scope-amber transition-colors">[GITHUB]</a>
+              <a href="https://veridiantools.dev" className="text-scope-muted hover:text-scope-amber transition-colors">[VERIDIAN]</a>
             </div>
-            <div className="flex items-center gap-4 text-xs text-scope-muted">
-              <Link href="/docs" className="hover:text-scope-amber">Docs</Link>
-              <Link href="/privacy" className="hover:text-scope-amber">Privacy</Link>
-              <Link href="/terms" className="hover:text-scope-amber">Terms</Link>
-            </div>
+            <p className="text-scope-muted text-xs">
+              Part of the <a href="https://veridiantools.dev" className="text-scope-rust hover:text-scope-amber transition-colors">Veridian</a> family
+            </p>
+            <p className="text-scope-border text-xs mt-2">© 2025 AgentLeash</p>
           </div>
         </div>
       </footer>

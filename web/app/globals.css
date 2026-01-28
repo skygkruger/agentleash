@@ -3,33 +3,41 @@
 @tailwind utilities;
 
 /* ═══════════════════════════════════════════════════════════════
-   SCOPEAGENT - PASTEL RETRO TERMINAL THEME
-   Primary Accent: Warm Amber (#d4a76a)
+   AGENTLEASH - RETRO 70s TERMINAL THEME
+   Primary Accent: Warm Gold (#d4a76a)
    ═══════════════════════════════════════════════════════════════ */
 
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 
 :root {
-  /* Base */
-  --color-bg: #1a1a2e;
-  --color-bg-light: #252542;
-  --color-bg-card: #1f1f35;
+  /* Base - Warm dark tones */
+  --color-bg: #1a1814;
+  --color-bg-light: #252219;
+  --color-bg-card: #1f1c17;
 
   /* Text */
-  --color-text: #e8e3e3;
-  --color-muted: #6e6a86;
+  --color-text: #e8e3db;
+  --color-muted: #7a7267;
 
-  /* Accents */
+  /* Primary - Gold/Amber */
   --color-amber: #d4a76a;
+  --color-gold: #d4a76a;
+
+  /* 70s Palette */
+  --color-rust: #c56a4a;
+  --color-burnt: #b85c38;
+  --color-terracotta: #a65d3f;
+  --color-brown: #5c3d2e;
+  --color-cream: #f5e6c8;
+  --color-tan: #d4c4a8;
+
+  /* Functional (keep for UI) */
   --color-mint: #a8d8b9;
   --color-coral: #eb6f92;
-  --color-lavender: #c4a7e7;
-  --color-cyan: #7eb8da;
-  --color-cream: #ffe9b0;
 
-  /* Borders */
-  --color-border: #6e6a86;
-  --color-border-light: #4a4a6a;
+  /* Borders - Warmer */
+  --color-border: #4a4238;
+  --color-border-light: #3a352d;
 }
 
 * {
@@ -83,7 +91,7 @@ body {
    ─────────────────────────────────────────────────────────────── */
 
 a {
-  color: var(--color-cyan);
+  color: var(--color-rust);
   text-decoration: none;
   transition: color 0.2s ease;
 }
@@ -194,7 +202,7 @@ details summary::-webkit-details-marker {
 }
 
 .text-warning {
-  color: var(--color-cream);
+  color: var(--color-amber);
 }
 
 .text-primary {
@@ -202,11 +210,11 @@ details summary::-webkit-details-marker {
 }
 
 .text-info {
-  color: var(--color-lavender);
+  color: var(--color-rust);
 }
 
 .text-link {
-  color: var(--color-cyan);
+  color: var(--color-rust);
 }
 
 .border-terminal {
@@ -242,4 +250,32 @@ details summary::-webkit-details-marker {
   display: block;
   color: var(--color-amber);
   margin-top: 0.5rem;
+}
+
+/* ───────────────────────────────────────────────────────────────
+   HOVER EFFECTS - VERIDIAN STYLE
+   ─────────────────────────────────────────────────────────────── */
+
+.hover-glow:hover {
+  text-shadow: 0 0 10px var(--color-amber);
+}
+
+.card-sweep {
+  position: relative;
+  overflow: hidden;
+}
+
+.card-sweep::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--color-amber), transparent);
+  transition: left 0.5s ease;
+}
+
+.card-sweep:hover::before {
+  left: 100%;
 }

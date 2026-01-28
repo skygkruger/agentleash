@@ -3,9 +3,10 @@ import './globals.css';
 import { AuthProvider } from '@/lib/auth-context';
 
 export const metadata: Metadata = {
-  title: 'ScopeAgent - AI Agent Permission Controller',
+  metadataBase: new URL('https://agentleash.io'),
+  title: 'AgentLeash - AI Agent Access Control',
   description:
-    'Define path boundaries for AI coding agents. See every file operation in real-time. Get alerts when agents try to access sensitive files.',
+    'Monitor and control what files AI coding agents access in your projects. Full visibility, rule-based boundaries, real-time alerts.',
   keywords: [
     'AI',
     'agent',
@@ -16,21 +17,23 @@ export const metadata: Metadata = {
     'Claude Code',
     'Cursor',
     'Copilot',
+    'Windsurf',
+    'Aider',
   ],
   authors: [{ name: 'Veridian Tools' }],
   openGraph: {
-    title: 'ScopeAgent - AI Agent Permission Controller',
+    title: 'AgentLeash - AI Agent Access Control',
     description:
-      'AI agents are powerful. ScopeAgent keeps them in line. Define path boundaries, monitor operations, get alerts.',
-    url: 'https://scopeagent.io',
-    siteName: 'ScopeAgent',
+      'Monitor and control what files AI coding agents access. Define boundaries, watch in real-time, get alerts.',
+    url: 'https://agentleash.io',
+    siteName: 'AgentLeash',
     type: 'website',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'ScopeAgent - AI Agent Permission Controller',
-    description: 'AI agents are powerful. ScopeAgent keeps them in line.',
-    creator: '@scopeagent',
+    title: 'AgentLeash - AI Agent Access Control',
+    description: 'Monitor and control what files AI coding agents access.',
+    creator: '@agentleash',
   },
 };
 
