@@ -8,6 +8,14 @@ import { authenticate, AuthRequest, requirePlan } from '../middleware/auth';
 import { validateParams, validateQuery, schemas } from '../middleware/validate';
 import { supabaseAdmin } from '../db/supabase';
 
+// Known agent IDs — must match shared/constants/agents.ts
+const KNOWN_AGENT_IDS = new Set([
+  'claude-code', 'cursor', 'windsurf', 'aider', 'github-copilot', 'continue',
+]);
+function isKnownAgent(id: string): boolean {
+  return KNOWN_AGENT_IDS.has(id);
+}
+
 const router = Router({ mergeParams: true });
 
 // ───────────────────────────────────────────────────────────────
@@ -292,17 +300,25 @@ router.post(
       return;
     }
 
-    const logsToInsert = logs.map((log: any) => ({
-      scope_id: scopeId,
-      file_path: log.filePath,
-      operation: log.operation,
-      result: log.result,
-      matched_rule_id: log.matchedRuleId || null,
-      agent_identifier: log.agentIdentifier || null,
-      process_name: log.processName || null,
-      process_pid: log.processPid || null,
-      metadata: log.metadata || null,
-    }));
+    const logsToInsert = logs.map((log: any) => {
+      const agentId = log.agentIdentifier || null;
+      const metadata = {
+        ...(log.metadata || {}),
+        ...(agentId ? { known_agent: isKnownAgent(agentId) } : {}),
+      };
+
+      return {
+        scope_id: scopeId,
+        file_path: log.filePath,
+        operation: log.operation,
+        result: log.result,
+        matched_rule_id: log.matchedRuleId || null,
+        agent_identifier: agentId,
+        process_name: log.processName || null,
+        process_pid: log.processPid || null,
+        metadata: Object.keys(metadata).length > 0 ? metadata : null,
+      };
+    });
 
     const { error } = await supabaseAdmin
       .from('access_logs')

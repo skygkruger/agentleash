@@ -65,6 +65,7 @@ program
   .command('start')
   .description('Start the daemon watching the current directory')
   .option('-c, --config <path>', 'Path to .scopeagent.yml', '.scopeagent.yml')
+  .option('-a, --agent <name>', 'AI agent being monitored')
   .option('-v, --verbose', 'Enable verbose logging')
   .option('--no-colors', 'Disable colored output')
   .action(async (options) => {
@@ -93,13 +94,14 @@ program
     }
 
     const config = parser.getConfig()!;
-    const rules = parser.getRulesForAgent();
+    const rules = parser.getRulesForAgent(options.agent);
 
     // Create watcher
     const watcher = new ScopeWatcher({
       basePath: config.base_path,
       rules,
       defaultPolicy: config.default_policy,
+      agentIdentifier: options.agent,
     });
 
     // Display header
@@ -125,7 +127,7 @@ program
     // Watch for config changes
     parser.watchConfigChanges((_newConfig) => {
       console.log(`${c.amber}[*] Configuration reloaded${c.reset}`);
-      const newRules = parser.getRulesForAgent();
+      const newRules = parser.getRulesForAgent(options.agent);
       watcher.updateRules(newRules);
     });
 

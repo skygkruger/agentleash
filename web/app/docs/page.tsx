@@ -118,12 +118,12 @@ $ leash report
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mb-4">
               {[
-                { name: 'Claude Code', supported: true },
-                { name: 'Cursor', supported: true },
-                { name: 'Windsurf', supported: true },
-                { name: 'GitHub Copilot', supported: false },
-                { name: 'Aider', supported: true },
-                { name: 'Continue', supported: false },
+                { name: 'Claude Code', id: 'claude-code', supported: true },
+                { name: 'Cursor', id: 'cursor', supported: true },
+                { name: 'Windsurf', id: 'windsurf', supported: true },
+                { name: 'GitHub Copilot', id: 'github-copilot', supported: true },
+                { name: 'Aider', id: 'aider', supported: true },
+                { name: 'Continue', id: 'continue', supported: true },
               ].map(agent => (
                 <div key={agent.name} className="bg-scope-bg-light border border-scope-border p-2 md:p-3 flex justify-between items-center">
                   <span className="text-scope-text text-xs md:text-sm">{agent.name}</span>
@@ -135,11 +135,38 @@ $ leash report
               ))}
             </div>
 
+            <h3 className="text-scope-rust mb-3">Agent Setup</h3>
+
+            <p className="text-scope-text leading-relaxed mb-4">
+              Start a monitored session by passing the agent name with the <code className="text-scope-amber">--agent</code> flag:
+            </p>
+
+            <CodeBlock title="per-agent setup">
+{`# Claude Code
+$ leash watch --agent claude-code
+
+# Cursor
+$ leash watch --agent cursor
+
+# Windsurf
+$ leash watch --agent windsurf
+
+# Aider
+$ leash watch --agent aider
+
+# GitHub Copilot
+$ leash watch --agent github-copilot
+
+# Continue
+$ leash watch --agent continue`}
+            </CodeBlock>
+
             <div className="bg-scope-bg-light border border-scope-amber p-4">
               <div className="text-scope-amber mb-2">[i] Works with any file-accessing agent</div>
               <div className="text-scope-muted text-xs leading-relaxed">
                 AgentLeash monitors at the filesystem level. Any tool that reads or writes
                 files in your project directory will be tracked, regardless of native integration.
+                The <code className="text-scope-amber">--agent</code> flag labels the session for filtering in logs and reports.
               </div>
             </div>
           </div>

@@ -17,6 +17,7 @@ export interface WatcherConfig {
   basePath: string;
   rules: ParsedRule[];
   defaultPolicy: 'allow' | 'deny';
+  agentIdentifier?: string;
   ignored?: string[];
   persistent?: boolean;
   debounceMs?: number;
@@ -42,6 +43,7 @@ export interface AccessEvent {
   operation: Operation;
   result: 'allowed' | 'blocked' | 'warning';
   reason: string;
+  agentIdentifier?: string;
   timestamp: Date;
   matchedRule?: ParsedRule;
 }
@@ -184,6 +186,7 @@ export class ScopeWatcher extends EventEmitter {
     const request: AccessRequest = {
       filePath: absolutePath,
       operation,
+      agentIdentifier: this.config.agentIdentifier,
       timestamp: new Date(),
     };
 
@@ -205,6 +208,7 @@ export class ScopeWatcher extends EventEmitter {
       operation,
       result: decision.allowed ? 'allowed' : decision.severity === 'violation' ? 'blocked' : 'warning',
       reason: decision.reason,
+      agentIdentifier: this.config.agentIdentifier,
       timestamp: new Date(),
       matchedRule: decision.matchedRule,
     };

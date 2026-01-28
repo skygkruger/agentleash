@@ -71,6 +71,7 @@ program
   .description('Start monitoring file operations')
   .option('-p, --path <path>', 'Directory to watch')
   .option('-c, --config <path>', 'Path to config file')
+  .option('-a, --agent <name>', 'AI agent being monitored')
   .option('-q, --quiet', 'Only show blocked operations')
   .option('--sync', 'Sync events to cloud')
   .action(watchCommand);

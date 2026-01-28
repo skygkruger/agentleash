@@ -288,8 +288,10 @@ export async function initCommand(options: InitOptions): Promise<void> {
         choices: [
           { name: 'Claude Code', value: 'claude-code', checked: true },
           { name: 'Cursor', value: 'cursor', checked: true },
-          { name: 'GitHub Copilot', value: 'copilot' },
           { name: 'Windsurf', value: 'windsurf' },
+          { name: 'Aider', value: 'aider' },
+          { name: 'GitHub Copilot', value: 'github-copilot' },
+          { name: 'Continue', value: 'continue' },
         ],
       },
       {

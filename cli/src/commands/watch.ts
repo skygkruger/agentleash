@@ -11,6 +11,16 @@ import ui from '../utils/ui';
 import { findConfig, loadConfig, ScopeConfig, Rule } from '../utils/config';
 import auth from '../utils/auth';
 
+// Agent display names — IDs match VaultAgent for cross-product compatibility
+const AGENT_NAMES: Record<string, string> = {
+  'claude-code': 'Claude Code',
+  'cursor': 'Cursor',
+  'windsurf': 'Windsurf',
+  'aider': 'Aider',
+  'github-copilot': 'GitHub Copilot',
+  'continue': 'Continue',
+};
+
 // ───────────────────────────────────────────────────────────────
 // TYPES
 // ───────────────────────────────────────────────────────────────
@@ -33,6 +43,7 @@ class LogBatcher {
     operation: string;
     result: string;
     matchedRule?: string;
+    agentIdentifier?: string;
     timestamp: string;
   }> = [];
   private flushTimer: NodeJS.Timeout | null = null;
@@ -52,6 +63,7 @@ class LogBatcher {
     operation: string;
     result: string;
     matchedRule?: string;
+    agentIdentifier?: string;
     timestamp: string;
   }): void {
     this.buffer.push(event);
@@ -109,6 +121,7 @@ class LogBatcher {
 export interface WatchOptions {
   path?: string;
   config?: string;
+  agent?: string;
   quiet?: boolean;
   sync?: boolean;
 }
@@ -158,8 +171,13 @@ export async function watchCommand(options: WatchOptions): Promise<void> {
   // Initialize log batcher for efficient cloud sync
   const logBatcher = new LogBatcher(ws);
 
+  // Resolve agent display name
+  const agentName = options.agent
+    ? (AGENT_NAMES[options.agent] || options.agent)
+    : undefined;
+
   // Print header
-  printWatchHeader(config, watchPath);
+  printWatchHeader(config, watchPath, agentName);
 
   // Set up file watcher
   const watcher = chokidar.watch(watchPath, {
@@ -179,11 +197,11 @@ export async function watchCommand(options: WatchOptions): Promise<void> {
   });
 
   // Handle file events
-  watcher.on('add', (filePath) => handleEvent(filePath, 'write', config, stats, options.quiet, logBatcher));
-  watcher.on('change', (filePath) => handleEvent(filePath, 'write', config, stats, options.quiet, logBatcher));
-  watcher.on('unlink', (filePath) => handleEvent(filePath, 'delete', config, stats, options.quiet, logBatcher));
-  watcher.on('addDir', (filePath) => handleEvent(filePath, 'write', config, stats, options.quiet, logBatcher));
-  watcher.on('unlinkDir', (filePath) => handleEvent(filePath, 'delete', config, stats, options.quiet, logBatcher));
+  watcher.on('add', (filePath) => handleEvent(filePath, 'write', config, stats, options.quiet, logBatcher, options.agent));
+  watcher.on('change', (filePath) => handleEvent(filePath, 'write', config, stats, options.quiet, logBatcher, options.agent));
+  watcher.on('unlink', (filePath) => handleEvent(filePath, 'delete', config, stats, options.quiet, logBatcher, options.agent));
+  watcher.on('addDir', (filePath) => handleEvent(filePath, 'write', config, stats, options.quiet, logBatcher, options.agent));
+  watcher.on('unlinkDir', (filePath) => handleEvent(filePath, 'delete', config, stats, options.quiet, logBatcher, options.agent));
 
   // Handle ready
   watcher.on('ready', () => {
@@ -244,7 +262,8 @@ function handleEvent(
   config: ScopeConfig,
   stats: WatchStats,
   quiet?: boolean,
-  logBatcher?: LogBatcher
+  logBatcher?: LogBatcher,
+  agentIdentifier?: string
 ): void {
   const relativePath = path.relative(process.cwd(), filePath);
   const result = evaluateAccess(relativePath, operation, config);
@@ -271,6 +290,7 @@ function handleEvent(
       operation,
       result: result.result,
       matchedRule: result.rule?.pattern,
+      agentIdentifier,
       timestamp: new Date().toISOString(),
     });
   }
@@ -375,7 +395,7 @@ function connectWebSocket(scopeId: string): WebSocket | null {
 // UI HELPERS
 // ───────────────────────────────────────────────────────────────
 
-function printWatchHeader(config: ScopeConfig, watchPath: string): void {
+function printWatchHeader(config: ScopeConfig, watchPath: string, agentName?: string): void {
   console.log('╔══════════════════════════════════════════════════════════════════════════════╗');
   console.log(`║  ${ui.colors.amber('AGENTLEASH')}                                          [${ui.colors.mint('WATCHING')}]   ║`);
   console.log('╠══════════════════════════════════════════════════════════════════════════════╣');
@@ -383,6 +403,9 @@ function printWatchHeader(config: ScopeConfig, watchPath: string): void {
   console.log(`║  Path:   ${ui.colors.muted(truncatePath(watchPath, 66).padEnd(66))} ║`);
   console.log(`║  Policy: ${config.defaultPolicy === 'deny' ? ui.colors.coral('DENY') : ui.colors.mint('ALLOW')}${' '.repeat(62)} ║`);
   console.log(`║  Rules:  ${ui.colors.lavender(config.rules.length.toString())} configured${' '.repeat(55)} ║`);
+  if (agentName) {
+    console.log(`║  Agent:  ${ui.colors.cyan(agentName.padEnd(66))} ║`);
+  }
   console.log('╠══════════════════════════════════════════════════════════════════════════════╣');
   console.log(`║  Press ${ui.colors.cream('Ctrl+C')} to stop                                                      ║`);
   console.log('╚══════════════════════════════════════════════════════════════════════════════╝');

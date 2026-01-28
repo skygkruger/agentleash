@@ -68,30 +68,19 @@ export const OPERATION_LABELS: Record<string, string> = {
 };
 
 // ───────────────────────────────────────────────────────────────
-// SUPPORTED AGENTS
+// SUPPORTED AGENTS (re-exported from shared/agents.ts)
 // ───────────────────────────────────────────────────────────────
 
+export { AGENTS, AGENT_IDS, getAgentById, isKnownAgent } from './agents';
+export type { AgentConfig } from './agents';
+
 export const SUPPORTED_AGENTS = [
-  {
-    id: 'claude-code',
-    name: 'Claude Code',
-    status: 'supported',
-  },
-  {
-    id: 'cursor',
-    name: 'Cursor',
-    status: 'supported',
-  },
-  {
-    id: 'copilot',
-    name: 'GitHub Copilot',
-    status: 'coming_soon',
-  },
-  {
-    id: 'windsurf',
-    name: 'Windsurf',
-    status: 'coming_soon',
-  },
+  { id: 'claude-code', name: 'Claude Code', status: 'supported' },
+  { id: 'cursor', name: 'Cursor', status: 'supported' },
+  { id: 'windsurf', name: 'Windsurf', status: 'supported' },
+  { id: 'aider', name: 'Aider', status: 'supported' },
+  { id: 'github-copilot', name: 'GitHub Copilot', status: 'supported' },
+  { id: 'continue', name: 'Continue', status: 'supported' },
 ] as const;
 
 // ───────────────────────────────────────────────────────────────
