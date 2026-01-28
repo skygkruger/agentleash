@@ -1,7 +1,7 @@
 'use client';
 
 // ═══════════════════════════════════════════════════════════════
-// SCOPEAGENT NEW SCOPE PAGE
+// AGENTLEASH NEW SCOPE PAGE
 // ═══════════════════════════════════════════════════════════════
 
 import React, { useState } from 'react';
@@ -120,8 +120,8 @@ export default function NewScopePage() {
           <p>After creating your scope:</p>
           <ol className="list-decimal list-inside space-y-1 mt-2">
             <li>Add rules to define what paths are allowed/denied</li>
-            <li>Sync the configuration to your CLI with <span className="text-scope-amber">scopeagent sync --pull</span></li>
-            <li>Start monitoring with <span className="text-scope-amber">scopeagent watch</span></li>
+            <li>Sync the configuration to your CLI with <span className="text-scope-amber">leash sync --pull</span></li>
+            <li>Start monitoring with <span className="text-scope-amber">leash watch</span></li>
           </ol>
         </div>
       </Card>

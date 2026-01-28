@@ -1,7 +1,7 @@
 {
-  "name": "@scopeagent/api",
+  "name": "@agentleash/api",
   "version": "1.0.0",
-  "description": "ScopeAgent API Server",
+  "description": "AgentLeash API Server",
   "main": "dist/index.js",
   "scripts": {
     "dev": "nodemon --watch src --ext ts --exec ts-node src/index.ts",

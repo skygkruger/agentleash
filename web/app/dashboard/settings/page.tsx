@@ -1,7 +1,7 @@
 'use client';
 
 // ═══════════════════════════════════════════════════════════════
-// SCOPEAGENT SETTINGS PAGE
+// AGENTLEASH SETTINGS PAGE
 // Account and API key management
 // ═══════════════════════════════════════════════════════════════
 
@@ -191,23 +191,23 @@ export default function SettingsPage() {
       {/* CLI Usage */}
       <Card title="// CLI USAGE">
         <div className="space-y-4 text-xs">
-          <p className="text-scope-muted">Install and use the ScopeAgent CLI:</p>
+          <p className="text-scope-muted">Install and use the AgentLeash CLI:</p>
           <pre className="bg-scope-bg-light p-3 text-scope-amber overflow-x-auto">
 {`# Install globally
-npm install -g @veridian/scopeagent
+npm install -g agentleash
 
 # Login with API key
-scopeagent login --api-key YOUR_API_KEY
+leash login --api-key YOUR_API_KEY
 
 # Or login interactively
-scopeagent login
+leash login
 
 # Initialize in your project
 cd your-project
-scopeagent init
+leash init
 
 # Start watching
-scopeagent watch`}
+leash watch`}
           </pre>
         </div>
       </Card>

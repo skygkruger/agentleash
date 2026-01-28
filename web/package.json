@@ -1,7 +1,7 @@
 {
-  "name": "@scopeagent/web",
+  "name": "@agentleash/web",
   "version": "1.0.0",
-  "description": "ScopeAgent Web Dashboard",
+  "description": "AgentLeash Web Dashboard",
   "private": true,
   "scripts": {
     "dev": "next dev",

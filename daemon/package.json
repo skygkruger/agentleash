@@ -1,7 +1,7 @@
 {
-  "name": "@scopeagent/daemon",
+  "name": "@agentleash/daemon",
   "version": "1.0.0",
-  "description": "ScopeAgent File Watcher Daemon",
+  "description": "AgentLeash File Watcher Daemon",
   "main": "dist/index.js",
   "scripts": {
     "dev": "nodemon --watch src --ext ts --exec ts-node src/index.ts",

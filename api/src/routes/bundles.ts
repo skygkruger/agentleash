@@ -1,6 +1,6 @@
 // ═══════════════════════════════════════════════════════════════
 // BUNDLE PRICING ROUTES
-// VaultAgent + ScopeAgent bundle management
+// VaultAgent + AgentLeash bundle management
 // ═══════════════════════════════════════════════════════════════
 
 import { Router, Request, Response } from 'express';
@@ -48,14 +48,14 @@ const BUNDLES: Bundle[] = [
   {
     id: 'security-stack-pro',
     name: 'AI Security Stack Pro',
-    description: 'Complete AI agent security: VaultAgent Pro + ScopeAgent Pro',
+    description: 'Complete AI agent security: VaultAgent Pro + AgentLeash Pro',
     products: {
       vaultAgent: 'pro',
       scopeAgent: 'pro',
     },
     features: [
       'VaultAgent Pro - 10 vaults, 100 secrets',
-      'ScopeAgent Pro - 5 scopes, 10,000 logs/day',
+      'AgentLeash Pro - 5 scopes, 10,000 logs/day',
       'Cross-product dashboard',
       'Combined audit logs',
       'Priority support',
@@ -76,14 +76,14 @@ const BUNDLES: Bundle[] = [
   {
     id: 'security-stack-team',
     name: 'AI Security Stack Team',
-    description: 'Team-scale AI agent security: VaultAgent Team + ScopeAgent Team',
+    description: 'Team-scale AI agent security: VaultAgent Team + AgentLeash Team',
     products: {
       vaultAgent: 'team',
       scopeAgent: 'team',
     },
     features: [
       'VaultAgent Team - 50 vaults, 1,000 secrets',
-      'ScopeAgent Team - 20 scopes, 100,000 logs/day',
+      'AgentLeash Team - 20 scopes, 100,000 logs/day',
       'Team collaboration',
       'Webhooks & integrations',
       'Combined audit logs',
@@ -113,7 +113,7 @@ const BUNDLES: Bundle[] = [
     },
     features: [
       'VaultAgent Enterprise - Unlimited vaults & secrets',
-      'ScopeAgent Enterprise - Unlimited scopes & logs',
+      'AgentLeash Enterprise - Unlimited scopes & logs',
       'Full team collaboration',
       'Advanced webhooks & integrations',
       'Combined audit logs with export',
@@ -213,7 +213,7 @@ router.get('/', async (_req: Request, res: Response) => {
       data: {
         bundles: bundleList,
         tagline: 'AI Agent Security Stack',
-        description: 'VaultAgent protects secrets FROM agents. ScopeAgent protects systems FROM agents. Together: Complete AI agent security.',
+        description: 'VaultAgent protects secrets FROM agents. AgentLeash protects systems FROM agents. Together: Complete AI agent security.',
       },
     });
   } catch (error) {

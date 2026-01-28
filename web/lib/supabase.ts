@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════════
-// SCOPEAGENT SUPABASE CLIENT
+// AGENTLEASH SUPABASE CLIENT
 // ═══════════════════════════════════════════════════════════════
 
 import { createClient } from '@supabase/supabase-js';
@@ -9,7 +9,7 @@ const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
 if (!supabaseUrl || !supabaseAnonKey) {
   console.warn(
-    '[ScopeAgent] Missing Supabase environment variables. Some features may not work.'
+    '[AgentLeash] Missing Supabase environment variables. Some features may not work.'
   );
 }
 
