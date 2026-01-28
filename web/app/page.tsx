@@ -249,8 +249,8 @@ But have you ever wondered:
               { name: 'Cursor', status: 'supported' },
               { name: 'Windsurf', status: 'supported' },
               { name: 'Aider', status: 'supported' },
-              { name: 'GitHub Copilot', status: 'coming' },
-              { name: 'Continue', status: 'coming' },
+              { name: 'GitHub Copilot', status: 'supported' },
+              { name: 'Continue', status: 'supported' },
             ].map((agent) => (
               <div
                 key={agent.name}
@@ -325,7 +325,7 @@ But have you ever wondered:
         <div className="max-w-5xl mx-auto px-6 py-8">
           <div className="text-center">
             <div className="text-scope-amber mb-4">AGENTLEASH</div>
-            <p className="text-scope-muted text-xs mb-4">Keep your AI agents in check.</p>
+            <p className="text-scope-muted text-xs mb-4">LEASHED WITH &lt;3 IN THE TERMINAL</p>
             <div className="flex flex-wrap justify-center gap-4 md:gap-6 text-xs">
               <Link href="/docs" className="text-scope-muted hover:text-scope-amber transition-colors">[DOCS]</Link>
               <Link href="/pricing" className="text-scope-muted hover:text-scope-amber transition-colors">[PRICING]</Link>
