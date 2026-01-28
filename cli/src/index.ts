@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
 // ═══════════════════════════════════════════════════════════════
-// SCOPEAGENT CLI
-// AI Agent Permission Controller
+// AGENTLEASH CLI
+// AI Agent Access Control
 // ═══════════════════════════════════════════════════════════════
 
 import { program } from 'commander';
@@ -41,10 +41,10 @@ import { printBanner, colors } from './utils/ui';
 // ───────────────────────────────────────────────────────────────
 
 program
-  .name('scopeagent')
-  .description('AI Agent Permission Controller - Define path boundaries, monitor operations, get alerts')
+  .name('leash')
+  .description('AI Agent Access Control - Define path boundaries, monitor operations, get alerts')
   .version('1.0.0')
-  .option('-c, --config <path>', 'Path to .scopeagent.yml config file')
+  .option('-c, --config <path>', 'Path to .agentleash.yml config file')
   .hook('preAction', () => {
     // Could add global pre-action hooks here
   });
@@ -55,7 +55,7 @@ program
 
 program
   .command('init')
-  .description('Create .scopeagent.yml in current directory')
+  .description('Create .agentleash.yml in current directory')
   .option('-p, --path <path>', 'Directory to initialize', '.')
   .option('--preset <name>', 'Use a preset (minimal, strict, nodejs, python)')
   .option('-f, --force', 'Overwrite existing config')
@@ -112,14 +112,14 @@ program
 
 program
   .command('login')
-  .description('Authenticate with ScopeAgent')
+  .description('Authenticate with AgentLeash')
   .option('--api-key <key>', 'Use API key instead of interactive login')
   .option('--email <email>', 'Pre-fill email')
   .action(loginCommand);
 
 program
   .command('logout')
-  .description('Log out from ScopeAgent')
+  .description('Log out from AgentLeash')
   .option('--all', 'Clear all credentials including API key')
   .action(logoutCommand);
 
@@ -242,7 +242,7 @@ program
 
 program
   .command('doctor')
-  .description('Check ScopeAgent setup')
+  .description('Check AgentLeash setup')
   .option('-c, --config <path>', 'Path to config file')
   .action(doctorCommand);
 
@@ -256,17 +256,17 @@ program.parse();
 if (!process.argv.slice(2).length) {
   printBanner();
   console.log('');
-  console.log(colors.amber('AI agents are powerful. ScopeAgent keeps them in line.'));
+  console.log(colors.amber('AI agents are powerful. AgentLeash keeps them in line.'));
   console.log('');
   program.outputHelp();
   console.log('');
   console.log(colors.muted('Examples:'));
-  console.log(`  ${colors.cyan('scopeagent init')}          Create a new configuration`);
-  console.log(`  ${colors.cyan('scopeagent watch')}         Start monitoring file operations`);
-  console.log(`  ${colors.cyan('scopeagent test src/app.ts')}   Test if a path is allowed`);
-  console.log(`  ${colors.cyan('scopeagent allow "src/**"')}    Add an allow rule`);
-  console.log(`  ${colors.cyan('scopeagent deny ".env"')}       Add a deny rule`);
+  console.log(`  ${colors.cyan('leash init')}              Create a new configuration`);
+  console.log(`  ${colors.cyan('leash watch')}             Start monitoring file operations`);
+  console.log(`  ${colors.cyan('leash test src/app.ts')}   Test if a path is allowed`);
+  console.log(`  ${colors.cyan('leash allow "src/**"')}    Add an allow rule`);
+  console.log(`  ${colors.cyan('leash deny ".env"')}       Add a deny rule`);
   console.log('');
-  console.log(colors.muted('Documentation: https://scopeagent.io/docs'));
+  console.log(colors.muted('Documentation: https://agentleash.io/docs'));
   console.log('');
 }

@@ -1,6 +1,6 @@
 // ═══════════════════════════════════════════════════════════════
-// SCOPEAGENT CONFIG UTILITIES
-// Read/write .scopeagent.yml configuration files
+// AGENTLEASH CONFIG UTILITIES
+// Read/write .agentleash.yml configuration files
 // ═══════════════════════════════════════════════════════════════
 
 import * as fs from 'fs';
@@ -12,7 +12,7 @@ import { z } from 'zod';
 // CONSTANTS
 // ───────────────────────────────────────────────────────────────
 
-export const CONFIG_FILE_NAME = '.scopeagent.yml';
+export const CONFIG_FILE_NAME = '.agentleash.yml';
 export const CONFIG_VERSION = 1;
 
 // ───────────────────────────────────────────────────────────────
@@ -63,7 +63,7 @@ export type Rule = z.infer<typeof ruleSchema>;
 export const DEFAULT_CONFIG: ScopeConfig = {
   version: CONFIG_VERSION,
   name: 'My Project Scope',
-  description: 'ScopeAgent configuration for this project',
+  description: 'AgentLeash configuration for this project',
   defaultPolicy: 'deny',
   rules: [
     {
@@ -186,12 +186,12 @@ export function saveConfig(config: ScopeConfig, configPath: string): void {
   });
 
   const header = `# ═══════════════════════════════════════════════════════════════
-# SCOPEAGENT CONFIGURATION
-# AI Agent Permission Controller
+# AGENTLEASH CONFIGURATION
+# AI Agent Access Control
 # ═══════════════════════════════════════════════════════════════
 #
 # This file defines what paths AI agents can access in your project.
-# Documentation: https://scopeagent.io/docs/configuration
+# Documentation: https://agentleash.io/docs/configuration
 #
 # ───────────────────────────────────────────────────────────────
 

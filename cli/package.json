@@ -1,10 +1,10 @@
 {
-  "name": "@veridian/scopeagent",
+  "name": "agentleash",
   "version": "1.0.0",
-  "description": "ScopeAgent CLI - AI Agent Permission Controller",
+  "description": "AgentLeash CLI - AI Agent Access Control",
   "main": "dist/index.js",
   "bin": {
-    "scopeagent": "./dist/index.js"
+    "leash": "./dist/index.js"
   },
   "scripts": {
     "dev": "nodemon --watch src --ext ts --exec ts-node src/index.ts",
@@ -61,10 +61,10 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/skygkruger/scopeagent.git"
+    "url": "https://github.com/skygkruger/agentleash.git"
   },
-  "homepage": "https://scopeagent.io",
+  "homepage": "https://agentleash.io",
   "bugs": {
-    "url": "https://github.com/skygkruger/scopeagent/issues"
+    "url": "https://github.com/skygkruger/agentleash/issues"
   }
 }
