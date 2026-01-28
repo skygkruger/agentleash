@@ -27,7 +27,9 @@ interface Bundle {
 const INDIVIDUAL_PLANS = [
   {
     name: 'Free',
-    price: '$0',
+    monthlyPrice: 0,
+    yearlyPricePerMonth: 0,
+    yearlyTotal: 0,
     scopes: '1',
     logs: '1,000/day',
     features: ['Basic monitoring', 'Email alerts', 'Community support'],
@@ -35,7 +37,9 @@ const INDIVIDUAL_PLANS = [
   },
   {
     name: 'Pro',
-    price: '$15/mo',
+    monthlyPrice: 15,
+    yearlyPricePerMonth: 12,
+    yearlyTotal: 144,
     scopes: '5',
     logs: '10,000/day',
     features: ['Custom rules', 'Export logs', 'Priority support', 'Webhooks'],
@@ -43,7 +47,9 @@ const INDIVIDUAL_PLANS = [
   },
   {
     name: 'Team',
-    price: '$49/mo',
+    monthlyPrice: 49,
+    yearlyPricePerMonth: 39,
+    yearlyTotal: 468,
     scopes: '20',
     logs: '100,000/day',
     features: ['Team collaboration', 'SSO', 'Audit logs', 'API access'],
@@ -51,7 +57,9 @@ const INDIVIDUAL_PLANS = [
   },
   {
     name: 'Enterprise',
-    price: '$149/mo',
+    monthlyPrice: 149,
+    yearlyPricePerMonth: 119,
+    yearlyTotal: 1428,
     scopes: 'Unlimited',
     logs: 'Unlimited',
     features: ['Custom integrations', 'Dedicated support', 'Compliance reports', 'On-prem option'],
@@ -198,7 +206,16 @@ export default function PricingPage() {
                   <div className="text-[10px] md:text-xs text-scope-amber mb-2">[POPULAR]</div>
                 )}
                 <h3 className="text-sm md:text-lg text-scope-text mb-1">{plan.name}</h3>
-                <div className="text-lg md:text-2xl text-scope-amber mb-2 md:mb-4">{plan.price}</div>
+                <div className="text-lg md:text-2xl text-scope-amber mb-1">
+                  {plan.monthlyPrice === 0
+                    ? '$0'
+                    : `$${billingInterval === 'monthly' ? plan.monthlyPrice : plan.yearlyPricePerMonth}/mo`}
+                </div>
+                {billingInterval === 'yearly' && plan.yearlyTotal > 0 && (
+                  <div className="text-[10px] md:text-xs text-scope-muted mb-1">
+                    Billed ${plan.yearlyTotal}/yr
+                  </div>
+                )}
                 <div className="text-[10px] md:text-xs text-scope-muted mb-2 md:mb-4 space-y-0.5 md:space-y-1">
                   <p>Scopes: {plan.scopes}</p>
                   <p>Logs: {plan.logs}</p>
