@@ -21,6 +21,7 @@
     "build:cli": "npm run build -w cli",
     "build:daemon": "npm run build -w daemon",
     "build:web": "npm run build -w web",
+    "start": "npm start --workspace=@scopeagent/api",
     "lint": "npm run lint --workspaces --if-present",
     "test": "npm run test --workspaces --if-present",
     "clean": "rimraf api/dist cli/dist daemon/dist web/.next"
