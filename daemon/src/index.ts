@@ -123,7 +123,7 @@ program
     });
 
     // Watch for config changes
-    parser.watchConfigChanges((newConfig) => {
+    parser.watchConfigChanges((_newConfig) => {
       console.log(`${c.amber}[*] Configuration reloaded${c.reset}`);
       const newRules = parser.getRulesForAgent();
       watcher.updateRules(newRules);
@@ -137,7 +137,7 @@ program
       readline.emitKeypressEvents(process.stdin);
       process.stdin.setRawMode(true);
 
-      process.stdin.on('keypress', (str, key) => {
+      process.stdin.on('keypress', (_str, key) => {
         if (key.name === 'q' || (key.ctrl && key.name === 'c')) {
           console.log(`\n${c.amber}[*] Stopping daemon...${c.reset}`);
           watcher.stop().then(() => {

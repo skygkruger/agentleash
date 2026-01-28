@@ -6,7 +6,7 @@
 import * as path from 'path';
 import { watch, FSWatcher } from 'chokidar';
 import { EventEmitter } from 'events';
-import { RuleEvaluator, AccessRequest, AccessDecision, AccessLog, Violation } from '../evaluator/engine';
+import { RuleEvaluator, AccessRequest, AccessDecision, AccessLog } from '../evaluator/engine';
 import type { ParsedRule, Operation } from '../config/parser';
 
 // ───────────────────────────────────────────────────────────────

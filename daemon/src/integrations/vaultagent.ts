@@ -415,7 +415,7 @@ export class VaultAgentIntegration {
         );
 
         if (response.ok) {
-          const data = await response.json();
+          const data = await response.json() as { logs?: Array<{ timestamp: string; type: string; description?: string; operation?: string; path: string; result: string; severity?: string }> };
           if (data.logs && Array.isArray(data.logs)) {
             for (const log of data.logs) {
               logs.push({
@@ -424,8 +424,8 @@ export class VaultAgentIntegration {
                 type: log.type === 'violation' ? 'violation' : 'access',
                 description: log.description || `${log.operation} on ${log.path}`,
                 path: log.path,
-                result: log.result,
-                severity: log.severity,
+                result: log.result as 'allowed' | 'blocked' | 'warning',
+                severity: log.severity as 'low' | 'medium' | 'high' | 'critical' | undefined,
               });
             }
           }

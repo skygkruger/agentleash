@@ -4,7 +4,7 @@
 // ═══════════════════════════════════════════════════════════════
 
 import * as path from 'path';
-import { minimatch } from 'glob';
+import { minimatch } from 'minimatch';
 import type { ParsedRule, Operation, ScopeConfig } from '../config/parser';
 
 // ───────────────────────────────────────────────────────────────
@@ -392,7 +392,7 @@ export class RuleEvaluator {
 
   private getSeverity(
     allowed: boolean,
-    rule: ParsedRule,
+    _rule: ParsedRule,
     request: AccessRequest
   ): 'info' | 'warning' | 'violation' {
     if (allowed) {
