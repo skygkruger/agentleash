@@ -35,6 +35,8 @@ import { checkConnection } from './db/supabase';
 const app = express();
 const PORT = process.env.PORT || 3001;
 
+console.log(`[Startup] PORT=${PORT}, NODE_ENV=${process.env.NODE_ENV}`);
+
 // ───────────────────────────────────────────────────────────────
 // MIDDLEWARE
 // ───────────────────────────────────────────────────────────────
@@ -111,9 +113,19 @@ app.use((req, res, next) => {
 // HEALTH CHECK
 // ───────────────────────────────────────────────────────────────
 
-app.get('/health', async (_req, res) => {
-  const dbConnected = await checkConnection();
+app.get('/health', (_req, res) => {
+  // Respond immediately for Railway healthcheck
+  res.json({
+    status: 'ok',
+    service: 'scopeagent-api',
+    version: '1.0.0',
+    timestamp: new Date().toISOString(),
+  });
+});
 
+// Detailed health check with DB status
+app.get('/health/detailed', async (_req, res) => {
+  const dbConnected = await checkConnection();
   res.json({
     status: dbConnected ? 'ok' : 'degraded',
     service: 'scopeagent-api',
