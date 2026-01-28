@@ -6,7 +6,7 @@
 import { Router, Request, Response } from 'express';
 import { z } from 'zod';
 import Stripe from 'stripe';
-import { authMiddleware, AuthRequest } from '../middleware/auth';
+import authenticate, { AuthRequest } from '../middleware/auth';
 import { supabase } from '../db/supabase';
 
 const router = Router();
@@ -15,9 +15,7 @@ const router = Router();
 // STRIPE SETUP
 // ───────────────────────────────────────────────────────────────
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
-  apiVersion: '2024-12-18.acacia',
-});
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '');
 
 // ───────────────────────────────────────────────────────────────
 // BUNDLE DEFINITIONS
@@ -279,7 +277,7 @@ router.get('/:id', async (req: Request, res: Response) => {
  * POST /api/bundles/subscribe
  * Create a checkout session for bundle subscription
  */
-router.post('/subscribe', authMiddleware, async (req: AuthRequest, res: Response) => {
+router.post('/subscribe', authenticate, async (req: AuthRequest, res: Response) => {
   try {
     const validation = subscribeSchema.safeParse(req.body);
     if (!validation.success) {
@@ -381,7 +379,7 @@ router.post('/subscribe', authMiddleware, async (req: AuthRequest, res: Response
  * GET /api/bundles/upgrade
  * Get available upgrade options for current subscription
  */
-router.get('/upgrade/options', authMiddleware, async (req: AuthRequest, res: Response) => {
+router.get('/upgrade/options', authenticate, async (req: AuthRequest, res: Response) => {
   try {
     const userId = req.user!.id;
 
@@ -443,7 +441,7 @@ router.get('/upgrade/options', authMiddleware, async (req: AuthRequest, res: Res
  * POST /api/bundles/upgrade
  * Upgrade to a bundle from current subscription
  */
-router.post('/upgrade', authMiddleware, async (req: AuthRequest, res: Response) => {
+router.post('/upgrade', authenticate, async (req: AuthRequest, res: Response) => {
   try {
     const validation = upgradeSchema.safeParse(req.body);
     if (!validation.success) {
@@ -505,15 +503,17 @@ router.post('/upgrade', authMiddleware, async (req: AuthRequest, res: Response) 
       : bundle.stripePriceIds.yearly;
 
     // Calculate prorated amount
-    const upcomingInvoice = await stripe.invoices.retrieveUpcoming({
+    const upcomingInvoice = await stripe.invoices.createPreview({
       customer: profile.stripe_customer_id,
       subscription: currentSubscription.id,
-      subscription_items: [
-        {
-          id: currentSubscription.items.data[0].id,
-          price: priceId,
-        },
-      ],
+      subscription_details: {
+        items: [
+          {
+            id: currentSubscription.items.data[0].id,
+            price: priceId,
+          },
+        ],
+      },
     });
 
     // Update subscription
@@ -548,7 +548,7 @@ router.post('/upgrade', authMiddleware, async (req: AuthRequest, res: Response) 
         subscriptionId: updatedSubscription.id,
         newPlan: bundle.products.scopeAgent,
         proratedAmount: upcomingInvoice.amount_due,
-        effectiveDate: new Date(updatedSubscription.current_period_start * 1000).toISOString(),
+        effectiveDate: new Date((updatedSubscription as any).current_period_start * 1000).toISOString(),
       },
     });
   } catch (error) {
@@ -564,7 +564,7 @@ router.post('/upgrade', authMiddleware, async (req: AuthRequest, res: Response) 
  * GET /api/bundles/status
  * Get bundle subscription status for current user
  */
-router.get('/status', authMiddleware, async (req: AuthRequest, res: Response) => {
+router.get('/status', authenticate, async (req: AuthRequest, res: Response) => {
   try {
     const userId = req.user!.id;
 
@@ -600,7 +600,7 @@ router.get('/status', authMiddleware, async (req: AuthRequest, res: Response) =>
               bundleId: sub.metadata.bundleId,
               bundleName: bundle.name,
               status: sub.status,
-              currentPeriodEnd: new Date(sub.current_period_end * 1000).toISOString(),
+              currentPeriodEnd: new Date((sub as any).current_period_end * 1000).toISOString(),
               cancelAtPeriodEnd: sub.cancel_at_period_end,
               products: bundle.products,
             };
@@ -636,7 +636,7 @@ router.get('/status', authMiddleware, async (req: AuthRequest, res: Response) =>
  * POST /api/bundles/cancel
  * Cancel bundle subscription
  */
-router.post('/cancel', authMiddleware, async (req: AuthRequest, res: Response) => {
+router.post('/cancel', authenticate, async (req: AuthRequest, res: Response) => {
   try {
     const userId = req.user!.id;
     const { immediately = false } = req.body;
@@ -701,7 +701,7 @@ router.post('/cancel', authMiddleware, async (req: AuthRequest, res: Response) =
         success: true,
         data: {
           message: 'Subscription will cancel at end of billing period',
-          effectiveDate: new Date(updated.current_period_end * 1000).toISOString(),
+          effectiveDate: new Date((updated as any).current_period_end * 1000).toISOString(),
           currentPlan: updated.metadata.scopeAgentPlan || 'pro',
         },
       });

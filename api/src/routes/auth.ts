@@ -136,7 +136,7 @@ router.post(
 // POST /api/auth/logout
 // ───────────────────────────────────────────────────────────────
 
-router.post('/logout', authenticate, async (req: AuthRequest, res: Response) => {
+router.post('/logout', authenticate, async (_req: AuthRequest, res: Response) => {
   // In a more complete implementation, you'd invalidate the token
   // by adding it to a blacklist or using short-lived tokens with refresh
 

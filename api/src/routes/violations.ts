@@ -230,7 +230,7 @@ router.post(
   verifyScopeOwnership,
   async (req: AuthRequest, res: Response) => {
     const { scopeId, id } = req.params;
-    const { note } = req.body;
+    const { note: _note } = req.body;
 
     const { data: violation, error } = await supabaseAdmin
       .from('violation_reports')

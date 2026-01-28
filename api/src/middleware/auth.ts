@@ -4,7 +4,7 @@
 // ═══════════════════════════════════════════════════════════════
 
 import { Request, Response, NextFunction } from 'express';
-import jwt from 'jsonwebtoken';
+import jwt, { SignOptions } from 'jsonwebtoken';
 import { supabase, supabaseAdmin, DbProfile } from '../db/supabase';
 
 // ───────────────────────────────────────────────────────────────
@@ -49,7 +49,7 @@ export function generateToken(user: AuthUser): string {
       plan: user.plan,
     },
     JWT_SECRET,
-    { expiresIn: JWT_EXPIRES_IN }
+    { expiresIn: JWT_EXPIRES_IN } as SignOptions
   );
 }
 
@@ -147,7 +147,7 @@ export function authenticate(
 
 export function optionalAuth(
   req: AuthRequest,
-  res: Response,
+  _res: Response,
   next: NextFunction
 ): void {
   const authHeader = req.headers.authorization;

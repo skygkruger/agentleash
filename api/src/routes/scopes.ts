@@ -5,7 +5,7 @@
 
 import { Router, Response } from 'express';
 import crypto from 'crypto';
-import { authenticate, AuthRequest, requirePlan } from '../middleware/auth';
+import { authenticate, AuthRequest } from '../middleware/auth';
 import { validate, validateParams, schemas } from '../middleware/validate';
 import { supabaseAdmin, DbScope } from '../db/supabase';
 

@@ -67,7 +67,7 @@ export const createMockResponse = () => {
   return res;
 };
 
-export const createMockNext = () => jest.fn();
+export const createMockNext = (): jest.Mock => jest.fn();
 
 // Test user data
 export const TEST_USER = {

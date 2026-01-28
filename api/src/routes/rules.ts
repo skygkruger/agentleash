@@ -264,7 +264,7 @@ router.post(
     }
 
     // Get scope default policy
-    const { data: scope } = await supabaseAdmin
+    const { data: _scope } = await supabaseAdmin
       .from('scopes')
       .select('base_path')
       .eq('id', scopeId)

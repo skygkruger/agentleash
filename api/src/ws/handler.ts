@@ -71,7 +71,7 @@ export class WSHandler {
   // ─────────────────────────────────────────────────────────────
 
   private setupServer(): void {
-    this.wss.on('connection', (ws: WebSocket, req: IncomingMessage) => {
+    this.wss.on('connection', (ws: WebSocket, _req: IncomingMessage) => {
       console.log('[WS] Client connected');
 
       // Initialize client

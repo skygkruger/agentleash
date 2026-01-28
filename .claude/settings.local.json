@@ -6,7 +6,16 @@
       "Bash(git add:*)",
       "Bash(git commit:*)",
       "Bash(git branch:*)",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "Bash(npm test:*)",
+      "Bash(npm install:*)",
+      "Bash(npx jest --passWithNoTests)",
+      "Bash(Select-String \"package\")",
+      "Bash(dir:*)",
+      "Bash(findstr:*)",
+      "Bash(npx tsc:*)",
+      "Bash(npm run build:*)",
+      "Bash(npm ls:*)"
     ]
   }
 }
