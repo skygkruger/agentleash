@@ -195,30 +195,32 @@ export default function DashboardPage() {
       {/* Quick Start */}
       {scopes.length === 0 && (
         <TerminalCard title="GETTING STARTED">
-          <div className="space-y-4">
+          <div className="space-y-6">
             <p className="text-scope-muted">{'// No scopes configured yet. Follow these steps:'}</p>
-            <div className="space-y-2">
-              <p className="text-scope-text">
-                <span className="text-scope-amber">1.</span> Create a scope in the dashboard
-              </p>
-              <p className="text-scope-text">
-                <span className="text-scope-amber">2.</span> Install the CLI:
-              </p>
-              <pre className="bg-scope-bg-light p-2 text-scope-amber">
-                npm install -g agentleash
-              </pre>
-              <p className="text-scope-text">
-                <span className="text-scope-amber">3.</span> Initialize in your project:
-              </p>
-              <pre className="bg-scope-bg-light p-2 text-scope-amber">
-                leash init
-              </pre>
-              <p className="text-scope-text">
-                <span className="text-scope-amber">4.</span> Start watching:
-              </p>
-              <pre className="bg-scope-bg-light p-2 text-scope-amber">
-                leash watch
-              </pre>
+            <div className="space-y-4">
+              <div>
+                <p className="text-scope-text mb-2">
+                  <span className="text-scope-amber">1.</span> Create a scope in the dashboard
+                </p>
+              </div>
+              <div>
+                <p className="text-scope-text mb-2">
+                  <span className="text-scope-amber">2.</span> Install the CLI:
+                </p>
+                <pre className="bg-scope-bg-light p-3 text-scope-amber">npm install -g agentleash</pre>
+              </div>
+              <div>
+                <p className="text-scope-text mb-2">
+                  <span className="text-scope-amber">3.</span> Initialize in your project:
+                </p>
+                <pre className="bg-scope-bg-light p-3 text-scope-amber">leash init</pre>
+              </div>
+              <div>
+                <p className="text-scope-text mb-2">
+                  <span className="text-scope-amber">4.</span> Start watching:
+                </p>
+                <pre className="bg-scope-bg-light p-3 text-scope-amber">leash watch</pre>
+              </div>
             </div>
           </div>
         </TerminalCard>
