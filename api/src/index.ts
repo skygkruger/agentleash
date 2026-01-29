@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════════
-// SCOPEAGENT API SERVER
+// AGENTLEASH API SERVER
 // Express.js + TypeScript + Supabase + WebSocket
 // ═══════════════════════════════════════════════════════════════
 
