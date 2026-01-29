@@ -17,21 +17,39 @@ export default function AuthCallbackPage() {
   useEffect(() => {
     async function handleOAuthCallback() {
       try {
-        // Get the code from URL params (OAuth PKCE flow)
-        const params = new URLSearchParams(window.location.search);
-        const code = params.get('code');
+        // Check for hash-based tokens (implicit flow) or code (PKCE flow)
+        const hashParams = new URLSearchParams(window.location.hash.substring(1));
+        const searchParams = new URLSearchParams(window.location.search);
 
-        if (!code) {
-          setError('Missing authorization code. Please try logging in again.');
-          return;
-        }
+        const accessToken = hashParams.get('access_token');
+        const code = searchParams.get('code');
 
-        // Exchange the code for a session
-        const { data: { session }, error: sessionError } = await supabase.auth.exchangeCodeForSession(code);
+        let session;
 
-        if (sessionError || !session) {
-          console.error('Session error:', sessionError);
-          setError('Failed to complete authentication. Please try again.');
+        if (accessToken) {
+          // Hash-based implicit flow - get the current session
+          const { data, error: sessionError } = await supabase.auth.getSession();
+
+          if (sessionError || !data.session) {
+            console.error('Session error:', sessionError);
+            setError('Failed to complete authentication. Please try again.');
+            return;
+          }
+
+          session = data.session;
+        } else if (code) {
+          // PKCE flow - exchange code for session
+          const { data, error: sessionError } = await supabase.auth.exchangeCodeForSession(code);
+
+          if (sessionError || !data.session) {
+            console.error('Session error:', sessionError);
+            setError('Failed to complete authentication. Please try again.');
+            return;
+          }
+
+          session = data.session;
+        } else {
+          setError('Missing authorization data. Please try logging in again.');
           return;
         }
 
