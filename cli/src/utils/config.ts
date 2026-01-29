@@ -22,7 +22,7 @@ export const CONFIG_VERSION = 1;
 const operationSchema = z.enum(['read', 'write', 'delete', 'execute', 'list']);
 
 const ruleSchema = z.object({
-  pattern: z.string(),
+  path: z.string(),
   allow: z.array(operationSchema).optional(),
   deny: z.array(operationSchema).optional(),
   reason: z.string().optional(),
@@ -67,53 +67,53 @@ export const DEFAULT_CONFIG: ScopeConfig = {
   defaultPolicy: 'deny',
   rules: [
     {
-      pattern: 'src/**/*',
+      path: 'src/**/*',
       allow: ['read', 'write'],
       reason: 'Allow full access to source code',
     },
     {
-      pattern: 'tests/**/*',
+      path: 'tests/**/*',
       allow: ['read', 'write'],
       reason: 'Allow full access to test files',
     },
     {
-      pattern: 'docs/**/*',
+      path: 'docs/**/*',
       allow: ['read', 'write'],
       reason: 'Allow access to documentation',
     },
     {
-      pattern: '.env',
+      path: '.env',
       deny: ['read', 'write', 'delete'],
       reason: 'Protect environment variables',
     },
     {
-      pattern: '.env.*',
+      path: '.env.*',
       deny: ['read', 'write', 'delete'],
       reason: 'Protect environment files',
     },
     {
-      pattern: '**/*.key',
+      path: '**/*.key',
       deny: ['read', 'write', 'delete'],
       reason: 'Protect private keys',
     },
     {
-      pattern: '**/*.pem',
+      path: '**/*.pem',
       deny: ['read', 'write', 'delete'],
       reason: 'Protect certificates',
     },
     {
-      pattern: '**/secrets/**',
+      path: '**/secrets/**',
       deny: ['read', 'write', 'delete', 'list'],
       reason: 'Protect secrets directory',
     },
     {
-      pattern: '**/.git/**',
+      path: '**/.git/**',
       deny: ['write', 'delete'],
       allow: ['read'],
       reason: 'Read-only access to git internals',
     },
     {
-      pattern: 'node_modules/**',
+      path: 'node_modules/**',
       deny: ['write', 'delete'],
       allow: ['read'],
       reason: 'Read-only access to dependencies',
@@ -223,15 +223,15 @@ export function validateConfig(config: unknown): ValidationResult {
     }
 
     // Check for conflicting rules
-    const patterns = validated.rules.map((r) => r.pattern);
-    const duplicates = patterns.filter((p, i) => patterns.indexOf(p) !== i);
+    const paths = validated.rules.map((r) => r.path);
+    const duplicates = paths.filter((p, i) => paths.indexOf(p) !== i);
     if (duplicates.length > 0) {
-      warnings.push(`Duplicate patterns found: ${duplicates.join(', ')}`);
+      warnings.push(`Duplicate path patterns found: ${duplicates.join(', ')}`);
     }
 
     // Check for overly permissive rules
     const wildcardAllows = validated.rules.filter(
-      (r) => r.pattern === '**/*' && r.allow && r.allow.length > 0
+      (r) => r.path === '**/*' && r.allow && r.allow.length > 0
     );
     if (wildcardAllows.length > 0) {
       warnings.push('Wildcard allow rule found - this may be overly permissive');
@@ -267,11 +267,11 @@ export function addRule(
 
 export function removeRule(
   config: ScopeConfig,
-  pattern: string
+  rulePath: string
 ): ScopeConfig {
   return {
     ...config,
-    rules: config.rules.filter((r) => r.pattern !== pattern),
+    rules: config.rules.filter((r) => r.path !== rulePath),
   };
 }
 

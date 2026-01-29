@@ -8,7 +8,7 @@ import Link from 'next/link';
 // Retro 70s Terminal Design
 // ═══════════════════════════════════════════════════════════════
 
-type SectionId = 'getting-started' | 'how-it-works' | 'features' | 'cli' | 'rules' | 'faq';
+type SectionId = 'getting-started' | 'how-it-works' | 'features' | 'cli' | 'rules' | 'limitations' | 'faq';
 
 const sections: { id: SectionId; label: string }[] = [
   { id: 'getting-started', label: '[>] Getting Started' },
@@ -16,6 +16,7 @@ const sections: { id: SectionId; label: string }[] = [
   { id: 'features', label: '[+] Features' },
   { id: 'cli', label: '[/] CLI Reference' },
   { id: 'rules', label: '[~] Rules Reference' },
+  { id: 'limitations', label: '[!] Limitations' },
   { id: 'faq', label: '[?] FAQ' },
 ];
 
@@ -81,7 +82,7 @@ export default function DocsPage() {
 
             <div className="bg-scope-bg-light border border-scope-border p-4 mb-6">
               <div className="text-scope-text mb-3"><span className="text-scope-amber">[1]</span> Initialize AgentLeash in your project</div>
-              <div className="text-scope-text mb-3"><span className="text-scope-amber">[2]</span> Define scope rules (allow, deny, warn)</div>
+              <div className="text-scope-text mb-3"><span className="text-scope-amber">[2]</span> Define scope rules (allow, deny)</div>
               <div className="text-scope-text mb-3"><span className="text-scope-amber">[3]</span> Run your AI agent session through AgentLeash</div>
               <div className="text-scope-text mb-3"><span className="text-scope-amber">[4]</span> Review the access log after the session</div>
               <div className="text-scope-text"><span className="text-scope-amber">[5]</span> Refine rules based on actual behavior</div>
@@ -96,22 +97,20 @@ $ npm install -g agentleash
 # Initialize in your project
 $ cd your-project
 $ leash init
-[/] Created .agentleash/config.yaml
-[/] Created .agentleash/rules.yaml
+[/] Created .agentleash.yml
 
 # Start a monitored session
 $ leash watch --agent claude-code
-[/] Monitoring started
-[/] Watching: /Users/you/your-project
-[/] Rules loaded: 12 allow, 3 deny, 2 warn
+╔═══════════════════════════════════════════╗
+║  AGENTLEASH                  [WATCHING]   ║
+╠═══════════════════════════════════════════╣
+║  Agent:  Claude Code                      ║
+║  Mode:   PASSIVE                          ║
+╚═══════════════════════════════════════════╝
+[*] Watching for file operations...
 
 # ... run your AI agent normally ...
-
-# View the access report
-$ leash report
-[/] Session complete: 47 files accessed
-[/] 3 warnings triggered
-[/] Full report: .agentleash/reports/2026-01-28_14-32.json`}
+# Press Ctrl+C to stop and see summary`}
             </CodeBlock>
 
             <h3 className="text-scope-rust mb-3">Supported AI Agents</h3>
@@ -178,9 +177,10 @@ $ leash watch --agent continue`}
             <h2 className="text-scope-amber text-lg mb-4">┌─ How It Works ─┐</h2>
 
             <p className="text-scope-text leading-relaxed mb-6">
-              AgentLeash uses filesystem monitoring to track all file access within your
-              project directory. It operates transparently alongside your AI agent, logging
-              every read and write operation.
+              AgentLeash uses filesystem monitoring to track file operations within your
+              project directory. Writes and deletes are detected in real-time via chokidar.
+              Reads are detected by polling file access times (atime), which may require
+              filesystem atime to be enabled.
             </p>
 
             <h3 className="text-scope-rust mb-3">Architecture</h3>
@@ -207,7 +207,7 @@ $ leash watch --agent continue`}
 │                    ┌─────────────────┐                         │
 │                    │   Rules Engine  │                         │
 │                    │  allow / deny   │                         │
-│                    │  warn / audit   │                         │
+│                    │    evaluate     │                         │
 │                    └────────┬────────┘                         │
 │                             │                                   │
 │                             ▼                                   │
@@ -237,30 +237,35 @@ $ leash watch --agent continue`}
             <div className="mb-6">
               <h4 className="text-scope-amber mb-2">Active Mode</h4>
               <p className="text-scope-text leading-relaxed mb-3">
-                Enforces your rules in real-time. Denied file access is blocked,
-                and the agent receives a permission error. Use this when you've
-                established trusted rules and want to enforce boundaries.
+                Enforces deny rules by restricting file permissions. Files matching
+                deny rules become inaccessible to all processes while active mode is
+                running. Permissions are restored on shutdown or Ctrl+C. Includes
+                crash recovery via temporary recovery files.
               </p>
               <CodeBlock>
 {`$ leash watch --mode active
-[/] Active monitoring: rules will be enforced
-[!] Denied access will be blocked`}
+[!] Active mode: deny-rule files locked. Press Ctrl+C to restore.
+[*] Watching for file operations...`}
               </CodeBlock>
+              <div className="bg-scope-bg-light border border-scope-amber p-3 mt-2">
+                <div className="text-scope-amber text-xs">[!] Active mode restricts permissions for ALL processes, not just the agent.</div>
+              </div>
             </div>
 
             <div className="mb-6">
               <h4 className="text-scope-amber mb-2">Interactive Mode</h4>
               <p className="text-scope-text leading-relaxed mb-3">
-                Prompts you for approval when the agent tries to access files
-                matching "warn" rules. Useful when working with sensitive areas
-                of the codebase where you want human oversight.
+                Prompts for approval when agents access files matching deny rules.
+                Requires a TTY terminal. Supports session memory (always/never) to avoid
+                repeated prompts. Falls back to passive mode if no TTY is available.
+                Auto-denies after 30 seconds if no response.
               </p>
               <CodeBlock>
 {`$ leash watch --mode interactive
-[/] Interactive monitoring: will prompt on warnings
+[*] Interactive mode: will prompt on denied access.
 
-[?] Agent wants to READ: config/production.yaml
-    Allow this access? [y/n/always/never]: _`}
+[?] Agent wants to WRITE: config/production.yaml
+    Allow? [y/n/a(lways)/ne(ver)]: _`}
               </CodeBlock>
             </div>
 
@@ -268,10 +273,10 @@ $ leash watch --agent continue`}
 
             <div className="bg-scope-bg-light border border-scope-border p-4">
               <div className="text-scope-text mb-2"><span className="text-scope-mint">[/]</span> File path (relative to project root)</div>
-              <div className="text-scope-text mb-2"><span className="text-scope-mint">[/]</span> Operation type (read, write, delete, rename)</div>
+              <div className="text-scope-text mb-2"><span className="text-scope-mint">[/]</span> Operation type (read, write, delete)</div>
               <div className="text-scope-text mb-2"><span className="text-scope-mint">[/]</span> Timestamp (millisecond precision)</div>
               <div className="text-scope-text mb-2"><span className="text-scope-mint">[/]</span> Rule matched (if any)</div>
-              <div className="text-scope-text mb-2"><span className="text-scope-mint">[/]</span> Action taken (allow, deny, warn)</div>
+              <div className="text-scope-text mb-2"><span className="text-scope-mint">[/]</span> Action taken (allowed, blocked)</div>
               <div className="text-scope-text"><span className="text-scope-mint">[/]</span> Session context (agent name, duration)</div>
             </div>
           </div>
@@ -286,78 +291,68 @@ $ leash watch --agent continue`}
               <h3 className="text-scope-rust mb-3">[&gt;] Real-Time Monitoring</h3>
               <p className="text-scope-text leading-relaxed mb-3">
                 Watch file access as it happens. The CLI displays a live feed of
-                every file your agent touches, color-coded by rule match.
+                every file your agent touches, color-coded by rule match. Writes
+                and deletes are detected instantly via chokidar. Reads are detected
+                via atime polling (with ~2s latency).
               </p>
               <CodeBlock>
-{`$ leash watch --live
-[/] 14:32:01  READ   src/index.ts
-[/] 14:32:01  READ   src/utils/helpers.ts
-[/] 14:32:02  READ   package.json
-[!] 14:32:03  READ   .env.local          [WARN: sensitive]
-[/] 14:32:04  WRITE  src/components/Button.tsx
-[X] 14:32:05  READ   config/secrets.yaml [DENIED: blocked]`}
+{`$ leash watch --agent claude-code
+[/] 14:32:01  WRITE  src/components/Button.tsx
+[/] 14:32:02  WRITE  src/index.ts
+[/] 14:32:04  READ   package.json
+[X] 14:32:05  READ   .env.local          [DENIED: sensitive]
+[X] 14:32:06  WRITE  secrets/api-keys.yaml [DENIED: blocked]
+[/] 14:32:07  DELETE src/old-file.ts`}
               </CodeBlock>
             </div>
 
             <div className="mb-8">
               <h3 className="text-scope-rust mb-3">[&gt;] Flexible Rules Engine</h3>
               <p className="text-scope-text leading-relaxed mb-3">
-                Define rules using glob patterns, regex, or directory paths.
-                Rules can allow, deny, or warn on specific file access patterns.
+                Define rules using glob patterns. Rules specify which operations
+                to allow or deny on matching file paths.
               </p>
-              <CodeBlock title=".agentleash/rules.yaml">
-{`# Allow all source files
-- pattern: "src/**/*"
-  action: allow
+              <CodeBlock title=".agentleash.yml">
+{`rules:
+  # Allow all source files
+  - path: "src/**"
+    allow: [read, write]
+    reason: "Source code access"
 
-# Warn on environment files
-- pattern: "*.env*"
-  action: warn
-  reason: "sensitive configuration"
+  # Block secrets directory
+  - path: "**/secrets/**"
+    deny: [read, write, delete]
+    reason: "contains credentials"
 
-# Block secrets directory
-- pattern: "secrets/**"
-  action: deny
-  reason: "contains credentials"
+  # Environment files - blocked
+  - path: ".env*"
+    deny: [read, write, delete]
+    reason: "sensitive configuration"
 
-# Allow package files (read-only)
-- pattern: "package*.json"
-  action: allow
-  operations: [read]`}
+  # Dependencies - read only
+  - path: "node_modules/**"
+    allow: [read]
+    deny: [write, delete]
+    reason: "package integrity"`}
               </CodeBlock>
             </div>
 
             <div className="mb-8">
-              <h3 className="text-scope-rust mb-3">[&gt;] Session Reports</h3>
+              <h3 className="text-scope-rust mb-3">[&gt;] Session Summary</h3>
               <p className="text-scope-text leading-relaxed mb-3">
-                After each session, generate a comprehensive report showing
-                every file accessed, organized by operation type and rule match.
+                When you stop a monitoring session (Ctrl+C), AgentLeash prints
+                a summary of everything that happened during the session.
               </p>
               <CodeBlock>
-{`$ leash report --format summary
-
-SESSION REPORT: 2026-01-28 14:32:01 - 14:47:22
-Agent: claude-code
-Duration: 15m 21s
-
-FILES ACCESSED: 47
-├── Read:    38
-├── Write:   8
-└── Delete:  1
-
-BY RULE:
-├── Allowed: 42
-├── Warned:  3
-└── Denied:  2
-
-WARNINGS:
-├── .env.local (read) - sensitive configuration
-├── config/prod.yaml (read) - production config
-└── .env.local (read) - sensitive configuration
-
-DENIED:
-├── secrets/api-keys.yaml - contains credentials
-└── secrets/database.yaml - contains credentials`}
+{`╔══════════════════════════════════════════════════════════════════════════════╗
+║  SESSION SUMMARY                                                             ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║  Duration: 15m 21s                                                           ║
+║  Total:    47                                                                ║
+║  Allowed:  44                                                                ║
+║  Blocked:  3                                                                 ║
+║  Warnings: 0                                                                 ║
+╚══════════════════════════════════════════════════════════════════════════════╝`}
               </CodeBlock>
             </div>
 
@@ -434,79 +429,84 @@ Examples:
 {`$ leash watch [options]
 
 Options:
-  --agent <name>      Label for the agent being monitored
-                      (default: "unknown")
-  --mode <mode>       Monitoring mode: passive, active, interactive
+  -a, --agent <name>  AI agent being monitored (labels the session)
+  -m, --mode <mode>   Monitor mode: passive, active, interactive
                       (default: "passive")
-  --live              Show real-time file access feed
-  --quiet             Suppress output, log to file only
-  --duration <time>   Auto-stop after duration (e.g., "1h", "30m")
+  -p, --path <path>   Directory to watch
+  -c, --config <path> Path to .agentleash.yml config file
+  -q, --quiet         Only show blocked operations
+  --sync              Sync events to cloud dashboard
 
 Examples:
   $ leash watch --agent claude-code
-  $ leash watch --mode active --live
-  $ leash watch --agent cursor --duration 2h`}
+  $ leash watch --mode active --agent cursor
+  $ leash watch --mode interactive --agent claude-code`}
               </CodeBlock>
             </div>
 
             <div className="mb-8">
-              <h3 className="text-scope-rust mb-3">leash stop</h3>
+              <h3 className="text-scope-rust mb-3">leash test</h3>
               <p className="text-scope-text leading-relaxed mb-3">
-                Stop the current monitoring session.
+                Test if a path would be allowed or denied by current rules.
               </p>
               <CodeBlock>
-{`$ leash stop
-
-[/] Session stopped
-[/] Duration: 15m 21s
-[/] Files accessed: 47
-[/] Report saved: .agentleash/reports/2026-01-28_14-32.json`}
-              </CodeBlock>
-            </div>
-
-            <div className="mb-8">
-              <h3 className="text-scope-rust mb-3">leash report</h3>
-              <p className="text-scope-text leading-relaxed mb-3">
-                Generate or view session reports.
-              </p>
-              <CodeBlock>
-{`$ leash report [options]
+{`$ leash test <path> [options]
 
 Options:
-  --session <id>      Report for specific session
-                      (default: "latest")
-  --format <format>   Output format: summary, detailed, json, csv
-                      (default: "summary")
-  --output <file>     Write report to file
-  --warnings          Show only warnings and denials
-  --files             Show only file list
+  -o, --operation <type>  Operation to test (read,write,delete)
+  -c, --config <path>     Path to config file
+  -v, --verbose           Show matching rules
 
 Examples:
-  $ leash report
-  $ leash report --format json --output report.json
-  $ leash report --session 2026-01-28_14-32 --warnings`}
+  $ leash test src/app.ts
+  $ leash test .env -o read --verbose
+  $ leash test-batch src/app.ts .env secrets/key.pem`}
               </CodeBlock>
             </div>
 
             <div className="mb-8">
-              <h3 className="text-scope-rust mb-3">leash rules</h3>
+              <h3 className="text-scope-rust mb-3">leash rules / allow / deny</h3>
               <p className="text-scope-text leading-relaxed mb-3">
-                Manage scope rules.
+                Manage scope rules from the command line.
               </p>
               <CodeBlock>
-{`$ leash rules <command> [options]
+{`# List all configured rules
+$ leash rules [--json]
 
-Commands:
-  list                Show all active rules
-  add                 Add a new rule interactively
-  test <path>         Test which rule matches a path
-  validate            Check rules.yaml for errors
+# Add an allow rule
+$ leash allow <pattern> [-o operations] [-r reason]
+
+# Add a deny rule
+$ leash deny <pattern> [-o operations] [-r reason]
+
+# Remove a rule
+$ leash rule-remove <pattern>
+
+# Interactive rule editor
+$ leash rules-edit
 
 Examples:
-  $ leash rules list
-  $ leash rules add
-  $ leash rules test src/utils/secret.ts
-  $ leash rules validate`}
+  $ leash rules
+  $ leash allow "src/**" -o read,write -r "Source code"
+  $ leash deny ".env" -r "Protect environment variables"
+  $ leash rule-remove "old-pattern/**"`}
+              </CodeBlock>
+            </div>
+
+            <div className="mb-8">
+              <h3 className="text-scope-rust mb-3">leash validate / doctor</h3>
+              <p className="text-scope-text leading-relaxed mb-3">
+                Validate your configuration and check setup.
+              </p>
+              <CodeBlock>
+{`# Validate configuration file
+$ leash validate [--strict]
+
+# Check AgentLeash setup
+$ leash doctor
+
+# Format configuration file
+$ leash format [--check]`}
               </CodeBlock>
             </div>
           </div>
@@ -519,17 +519,20 @@ Examples:
 
             <p className="text-scope-text leading-relaxed mb-6">
               Rules control how AgentLeash responds to file access. Rules are
-              defined in <code className="text-scope-amber">.agentleash/rules.yaml</code> and
-              evaluated in order from top to bottom.
+              defined in <code className="text-scope-amber">.agentleash.yml</code> under the
+              <code className="text-scope-amber"> rules:</code> section and evaluated in
+              priority order (higher priority first, then specificity).
             </p>
 
             <h3 className="text-scope-rust mb-3">Rule Structure</h3>
 
             <CodeBlock title="rule anatomy">
-{`- pattern: "src/**/*.ts"      # Required: glob pattern to match
-  action: allow               # Required: allow, deny, or warn
-  operations: [read, write]   # Optional: limit to specific operations
-  reason: "source files"      # Optional: logged when rule matches`}
+{`- path: "src/**/*.ts"         # Required: glob pattern to match
+  allow: [read, write]        # Optional: operations to allow
+  deny: [delete]              # Optional: operations to deny
+  reason: "source files"      # Optional: logged when rule matches
+  except: ["src/generated/*"] # Optional: paths to exclude
+  priority: 10                # Optional: higher = evaluated first`}
             </CodeBlock>
 
             <h3 className="text-scope-rust mb-3">Actions</h3>
@@ -547,15 +550,8 @@ Examples:
                 <div className="text-scope-coral font-bold mb-2">deny</div>
                 <p className="text-scope-text text-sm">
                   Blocks the file access (in active mode). In passive mode, logs the
-                  access as denied but allows it to proceed.
-                </p>
-              </div>
-
-              <div className="bg-scope-bg-light border border-scope-amber p-4">
-                <div className="text-scope-amber font-bold mb-2">warn</div>
-                <p className="text-scope-text text-sm">
-                  Allows the access but flags it for review. In interactive mode,
-                  prompts for confirmation before proceeding.
+                  access as denied but allows it to proceed. In interactive mode,
+                  prompts for confirmation allowing you to override.
                 </p>
               </div>
             </div>
@@ -571,7 +567,7 @@ Examples:
 "*.{ts,tsx}"
 
 # Match directory and all contents
-"src/**/*"
+"src/**"
 
 # Match any depth
 "**/test/**"
@@ -579,41 +575,99 @@ Examples:
 # Match single directory level
 "config/*"
 
-# Negation (exclude from previous matches)
-"!src/**/*.test.ts"
+# Match dotfiles
+".env*"
 
-# Regex (prefix with ~)
-"~.*\\.secret\\..*"`}
+# Exclude specific paths with except:
+- path: "src/**"
+  allow: [read, write]
+  except: ["src/generated/**"]`}
             </CodeBlock>
 
             <h3 className="text-scope-rust mb-3">Example: Node.js Project</h3>
 
-            <CodeBlock title=".agentleash/rules.yaml">
-{`# Allow source files
-- pattern: "src/**/*"
-  action: allow
+            <CodeBlock title=".agentleash.yml">
+{`rules:
+  # Allow source files
+  - path: "src/**"
+    allow: [read, write]
+    reason: "Source code access"
 
-# Allow config files (read-only)
-- pattern: "*.config.{js,ts,json}"
-  action: allow
-  operations: [read]
+  # Allow config files (read-only)
+  - path: "*.config.{js,ts,json}"
+    allow: [read]
+    deny: [write, delete]
+    reason: "Config files read only"
 
-# Warn on environment files
-- pattern: ".env*"
-  action: warn
-  reason: "environment configuration"
+  # Block environment files
+  - path: ".env*"
+    deny: [read, write, delete]
+    reason: "environment secrets"
 
-# Deny node_modules writes
-- pattern: "node_modules/**"
-  action: deny
-  operations: [write, delete]
-  reason: "package integrity"
+  # Dependencies - read only
+  - path: "node_modules/**"
+    allow: [read]
+    deny: [write, delete]
+    reason: "package integrity"
 
-# Deny git internals
-- pattern: ".git/**"
-  action: deny
-  reason: "git internals"`}
+  # Block git internals
+  - path: ".git/**"
+    deny: [write, delete]
+    allow: [read]
+    reason: "git internals"`}
             </CodeBlock>
+          </div>
+        );
+
+      case 'limitations':
+        return (
+          <div>
+            <h2 className="text-scope-amber text-lg mb-4">┌─ Known Limitations ─┐</h2>
+
+            <p className="text-scope-text leading-relaxed mb-6">
+              AgentLeash is designed to be practical and transparent about what it can and
+              cannot do. These are known limitations of the current implementation.
+            </p>
+
+            <div className="space-y-4 mb-6">
+              <div className="bg-scope-bg-light border border-scope-border p-4">
+                <div className="text-scope-amber font-bold mb-2">[!] Read detection uses atime polling</div>
+                <p className="text-scope-text text-sm leading-relaxed">
+                  Reads are detected by polling file access times (atime) every 2 seconds.
+                  This means read detection has ~2s latency compared to instant write/delete
+                  detection. Requires the filesystem to update atime on read. On Windows,
+                  you may need to run: <code className="text-scope-amber">fsutil behavior set disablelastaccess 0</code>
+                </p>
+              </div>
+
+              <div className="bg-scope-bg-light border border-scope-border p-4">
+                <div className="text-scope-amber font-bold mb-2">[!] Active mode restricts ALL processes</div>
+                <p className="text-scope-text text-sm leading-relaxed">
+                  Active mode works by changing file permissions at the OS level. This means
+                  deny rules block all processes from accessing the file, not just the AI
+                  agent. Permissions are restored when monitoring stops.
+                </p>
+              </div>
+
+              <div className="bg-scope-bg-light border border-scope-border p-4">
+                <div className="text-scope-amber font-bold mb-2">[!] Rename appears as delete + create</div>
+                <p className="text-scope-text text-sm leading-relaxed">
+                  The filesystem watcher (chokidar) reports file renames as a delete of
+                  the old path followed by a create of the new path. There is no dedicated
+                  rename event.
+                </p>
+              </div>
+
+              <div className="bg-scope-bg-light border border-scope-border p-4">
+                <div className="text-scope-amber font-bold mb-2">[!] Agent verification is best-effort</div>
+                <p className="text-scope-text text-sm leading-relaxed">
+                  The <code className="text-scope-amber">--agent</code> flag identifies which agent is being
+                  monitored. Process verification checks if a matching process is running,
+                  but cannot definitively attribute individual file operations to a specific
+                  agent process.
+                </p>
+              </div>
+            </div>
           </div>
         );
 
@@ -650,10 +704,10 @@ $ leash watch --agent cursor`}
             <div className="mb-6">
               <h3 className="text-scope-rust mb-2">[?] What happens if I forget to stop monitoring?</h3>
               <p className="text-scope-text leading-relaxed">
-                AgentLeash continues logging until explicitly stopped. You can set
-                a maximum duration with <code className="text-scope-amber">--duration</code> to
-                auto-stop after a time limit. Sessions are also cleanly terminated
-                if your terminal closes.
+                AgentLeash continues logging until explicitly stopped with Ctrl+C.
+                Sessions are cleanly terminated if your terminal closes. In active
+                mode, file permissions are automatically restored on shutdown via
+                signal handlers and crash recovery files.
               </p>
             </div>
 
@@ -669,7 +723,7 @@ $ leash watch --agent cursor`}
             <div className="mb-6">
               <h3 className="text-scope-rust mb-2">[?] How do I share rules with my team?</h3>
               <p className="text-scope-text leading-relaxed">
-                Commit the <code className="text-scope-amber">.agentleash/</code> directory to your
+                Commit the <code className="text-scope-amber">.agentleash.yml</code> file to your
                 repository. Rules will be shared with anyone who clones the project.
                 Team tier users can also sync rules across multiple projects.
               </p>

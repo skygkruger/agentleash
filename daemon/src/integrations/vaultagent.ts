@@ -122,7 +122,7 @@ export class VaultAgentIntegration {
    * Save linked session info
    */
   private saveLinkedSession(info: LinkedSessionInfo): void {
-    const sessionFile = path.join(this.basePath, '.scopeagent-vault-link');
+    const sessionFile = path.join(this.basePath, '.agentleash-vault-link');
     try {
       fs.writeFileSync(sessionFile, JSON.stringify(info, null, 2), 'utf-8');
       this.linkedSession = info;
@@ -135,7 +135,7 @@ export class VaultAgentIntegration {
    * Load linked session info
    */
   private loadLinkedSession(): LinkedSessionInfo | null {
-    const sessionFile = path.join(this.basePath, '.scopeagent-vault-link');
+    const sessionFile = path.join(this.basePath, '.agentleash-vault-link');
     try {
       if (fs.existsSync(sessionFile)) {
         const content = fs.readFileSync(sessionFile, 'utf-8');
@@ -330,7 +330,7 @@ export class VaultAgentIntegration {
   // ─────────────────────────────────────────────────────────────
 
   /**
-   * Link a ScopeAgent session with a VaultAgent session
+   * Link an AgentLeash session with a VaultAgent session
    */
   async linkSession(scopeSessionId: string, vaultSessionId: string): Promise<boolean> {
     try {
@@ -367,7 +367,7 @@ export class VaultAgentIntegration {
    * Unlink sessions
    */
   unlinkSession(): void {
-    const sessionFile = path.join(this.basePath, '.scopeagent-vault-link');
+    const sessionFile = path.join(this.basePath, '.agentleash-vault-link');
     try {
       if (fs.existsSync(sessionFile)) {
         fs.unlinkSync(sessionFile);
@@ -393,7 +393,7 @@ export class VaultAgentIntegration {
   // ─────────────────────────────────────────────────────────────
 
   /**
-   * Get combined audit logs from both ScopeAgent and VaultAgent
+   * Get combined audit logs from both AgentLeash and VaultAgent
    */
   async getCombinedAuditLogs(
     startDate: Date,
@@ -446,7 +446,7 @@ export class VaultAgentIntegration {
   // ─────────────────────────────────────────────────────────────
 
   /**
-   * Link VaultAgent account with ScopeAgent account
+   * Link VaultAgent account with AgentLeash account
    */
   async linkAccount(vaultAgentApiKey: string): Promise<{
     success: boolean;
@@ -529,7 +529,7 @@ export async function isVaultAgentAvailable(basePath?: string): Promise<boolean>
 }
 
 /**
- * Get VaultAgent protected paths for use in ScopeAgent config
+ * Get VaultAgent protected paths for use in AgentLeash config
  */
 export async function getVaultAgentProtectedPaths(basePath?: string): Promise<string[]> {
   const integration = new VaultAgentIntegration(basePath);

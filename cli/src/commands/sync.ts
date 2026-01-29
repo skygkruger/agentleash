@@ -133,7 +133,7 @@ async function pushConfig(
 
   // Convert rules to API format
   const rules = config.rules.map((rule, index) => ({
-    pathPattern: rule.pattern,
+    pathPattern: rule.path,
     ruleType: (rule.allow && rule.allow.length > 0 ? 'allow' : 'deny') as 'allow' | 'deny',
     operations: rule.allow || rule.deny || [],
     priority: index,
@@ -257,7 +257,7 @@ async function pullConfig(
 
   // Convert cloud rules to local format
   const newRules = cloudRules.map((r) => ({
-    pattern: r.pathPattern,
+    path: r.pathPattern,
     [r.ruleType]: r.operations,
     reason: r.reason,
   }));

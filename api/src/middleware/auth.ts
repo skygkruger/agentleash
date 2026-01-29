@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════════
-// SCOPEAGENT AUTH MIDDLEWARE
+// AGENTLEASH AUTH MIDDLEWARE
 // JWT and API key authentication
 // ═══════════════════════════════════════════════════════════════
 

@@ -84,7 +84,7 @@ export async function testCommand(
     console.log(`║  ${icon} ${opText} ${resultText}${' '.repeat(52)} ║`);
 
     if (r.rule && options.verbose) {
-      const pattern = ui.colors.muted(`Pattern: ${r.rule.pattern}`);
+      const pattern = ui.colors.muted(`Path: ${r.rule.path}`);
       console.log(`║     ${pattern.padEnd(75)} ║`);
       if (r.rule.reason) {
         const reason = ui.colors.muted(`Reason: ${r.rule.reason}`);
@@ -119,7 +119,7 @@ export async function testCommand(
       for (const rule of matchingRules) {
         console.log(ui.formatRule(
           rule.allow ? 'allow' : 'deny',
-          rule.pattern,
+          rule.path,
           rule.allow || rule.deny || [],
           rule.reason
         ));
@@ -224,7 +224,7 @@ function evaluateAccess(
 ): EvaluationResult {
   // Check each rule in order
   for (const rule of config.rules) {
-    const matches = minimatch(filePath, rule.pattern, {
+    const matches = minimatch(filePath, rule.path, {
       dot: true,
       matchBase: true,
     });
@@ -252,7 +252,7 @@ function evaluateAccess(
 
 function findMatchingRules(filePath: string, config: ScopeConfig): Rule[] {
   return config.rules.filter((rule) =>
-    minimatch(filePath, rule.pattern, {
+    minimatch(filePath, rule.path, {
       dot: true,
       matchBase: true,
     })

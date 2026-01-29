@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════════
-// SCOPEAGENT WEB API CLIENT
+// AGENTLEASH WEB API CLIENT
 // HTTP client for API communication
 // ═══════════════════════════════════════════════════════════════
 
@@ -216,6 +216,19 @@ class ApiClient {
     const response = await this.request<{ user: User; tokens: AuthTokens }>('/api/auth/register', {
       method: 'POST',
       body: JSON.stringify({ email, password }),
+    });
+
+    if (response.success && response.data) {
+      this.setTokens(response.data.tokens.accessToken, response.data.tokens.refreshToken);
+    }
+
+    return response;
+  }
+
+  async exchangeOAuthToken(supabaseAccessToken: string): Promise<ApiResponse<{ user: User; tokens: AuthTokens }>> {
+    const response = await this.request<{ user: User; tokens: AuthTokens }>('/api/auth/oauth-exchange', {
+      method: 'POST',
+      body: JSON.stringify({ accessToken: supabaseAccessToken }),
     });
 
     if (response.success && response.data) {

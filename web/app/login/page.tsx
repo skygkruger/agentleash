@@ -9,6 +9,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
 import { Button, Input } from '@/components/ui';
+import { supabase } from '@/lib/supabase';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -26,6 +27,19 @@ export default function LoginPage() {
       router.push('/dashboard');
     } else {
       setError(result.error || 'Login failed');
+    }
+  };
+
+  const handleGitHubLogin = async () => {
+    setError('');
+    const { error: oauthError } = await supabase.auth.signInWithOAuth({
+      provider: 'github',
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`,
+      },
+    });
+    if (oauthError) {
+      setError(oauthError.message);
     }
   };
 
@@ -84,6 +98,23 @@ export default function LoginPage() {
             >
               [LOGIN]
             </Button>
+
+            <div className="relative my-4">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-scope-border" />
+              </div>
+              <div className="relative flex justify-center">
+                <span className="bg-scope-bg px-2 text-xs text-scope-muted">or</span>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={handleGitHubLogin}
+              className="w-full border border-scope-muted px-4 py-2 text-xs text-scope-text hover:border-scope-amber hover:text-scope-amber transition-colors"
+            >
+              [GITHUB LOGIN]
+            </button>
 
             <div className="text-center">
               <Link

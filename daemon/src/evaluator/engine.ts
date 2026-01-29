@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════════
-// SCOPEAGENT RULE EVALUATOR
+// AGENTLEASH RULE EVALUATOR
 // Evaluates file access requests against scope rules
 // ═══════════════════════════════════════════════════════════════
 

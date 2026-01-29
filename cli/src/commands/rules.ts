@@ -72,7 +72,7 @@ export async function listRulesCommand(options: ListRulesOptions): Promise<void>
     const type = rule.allow && rule.allow.length > 0 ? 'allow' : 'deny';
     const operations = rule.allow || rule.deny || [];
 
-    console.log(`${index} ${ui.formatRule(type as 'allow' | 'deny', rule.pattern, operations, rule.reason)}`);
+    console.log(`${index} ${ui.formatRule(type as 'allow' | 'deny', rule.path, operations, rule.reason)}`);
     ui.newLine();
   }
 
@@ -123,13 +123,13 @@ export async function allowCommand(
     : ['read', 'write'];
 
   const newRule: Rule = {
-    pattern,
+    path: pattern,
     allow: operations,
     reason: options.reason,
   };
 
   // Check if pattern already exists
-  const existingIndex = config.rules.findIndex((r) => r.pattern === pattern);
+  const existingIndex = config.rules.findIndex((r) => r.path === pattern);
   if (existingIndex !== -1) {
     const { update } = await inquirer.prompt([
       {
@@ -203,13 +203,13 @@ export async function denyCommand(
     : ['read', 'write', 'delete'];
 
   const newRule: Rule = {
-    pattern,
+    path: pattern,
     deny: operations,
     reason: options.reason,
   };
 
   // Check if pattern already exists
-  const existingIndex = config.rules.findIndex((r) => r.pattern === pattern);
+  const existingIndex = config.rules.findIndex((r) => r.path === pattern);
   if (existingIndex !== -1) {
     const { update } = await inquirer.prompt([
       {
@@ -276,9 +276,9 @@ export async function removeRuleCommand(
   }
 
   // Find the rule
-  const rule = config.rules.find((r) => r.pattern === pattern);
+  const rule = config.rules.find((r) => r.path === pattern);
   if (!rule) {
-    ui.printWarning(`No rule found for pattern: ${pattern}`);
+    ui.printWarning(`No rule found for path: ${pattern}`);
     return;
   }
 
@@ -286,7 +286,7 @@ export async function removeRuleCommand(
   if (!options.yes) {
     const type = rule.allow && rule.allow.length > 0 ? 'allow' : 'deny';
     const operations = rule.allow || rule.deny || [];
-    console.log(ui.formatRule(type as 'allow' | 'deny', rule.pattern, operations, rule.reason));
+    console.log(ui.formatRule(type as 'allow' | 'deny', rule.path, operations, rule.reason));
     ui.newLine();
 
     const { confirm } = await inquirer.prompt([
@@ -385,7 +385,7 @@ export async function editRulesCommand(options: EditRulesOptions): Promise<void>
       for (const rule of config.rules) {
         const type = rule.allow && rule.allow.length > 0 ? 'allow' : 'deny';
         const operations = rule.allow || rule.deny || [];
-        console.log(ui.formatRule(type as 'allow' | 'deny', rule.pattern, operations, rule.reason));
+        console.log(ui.formatRule(type as 'allow' | 'deny', rule.path, operations, rule.reason));
       }
       ui.newLine();
       continue;
@@ -419,7 +419,7 @@ export async function editRulesCommand(options: EditRulesOptions): Promise<void>
       ]);
 
       const newRule: Rule = {
-        pattern: answers.pattern,
+        path: answers.pattern,
         [action]: answers.operations,
         reason: answers.reason || undefined,
       };
@@ -441,8 +441,8 @@ export async function editRulesCommand(options: EditRulesOptions): Promise<void>
           name: 'pattern',
           message: 'Select rule to remove:',
           choices: config.rules.map((r) => ({
-            name: `${r.pattern} (${r.allow ? 'allow' : 'deny'})`,
-            value: r.pattern,
+            name: `${r.path} (${r.allow ? 'allow' : 'deny'})`,
+            value: r.path,
           })),
         },
       ]);

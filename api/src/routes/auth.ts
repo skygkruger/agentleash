@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════════
-// SCOPEAGENT AUTH ROUTES
+// AGENTLEASH AUTH ROUTES
 // Registration, login, token refresh, API keys
 // ═══════════════════════════════════════════════════════════════
 
@@ -290,6 +290,95 @@ router.delete('/api-key/:id', authenticate, async (req: AuthRequest, res: Respon
     success: true,
     message: 'API key deleted',
   });
+});
+
+// ───────────────────────────────────────────────────────────────
+// POST /api/auth/oauth-exchange
+// Exchange a Supabase OAuth session for an API JWT
+// ───────────────────────────────────────────────────────────────
+
+router.post('/oauth-exchange', async (req: AuthRequest, res: Response) => {
+  const { accessToken } = req.body;
+
+  if (!accessToken) {
+    res.status(400).json({
+      success: false,
+      error: 'Supabase access token required',
+    });
+    return;
+  }
+
+  try {
+    // Verify the Supabase token and get the user
+    const { data: { user: supabaseUser }, error: authError } = await supabaseAdmin.auth.getUser(accessToken);
+
+    if (authError || !supabaseUser) {
+      res.status(401).json({
+        success: false,
+        error: 'Invalid Supabase session',
+      });
+      return;
+    }
+
+    // Get or create profile
+    let { data: profile, error: profileError } = await supabaseAdmin
+      .from('profiles')
+      .select('*')
+      .eq('id', supabaseUser.id)
+      .single();
+
+    if (profileError || !profile) {
+      // Create profile for OAuth user (first login)
+      const { data: newProfile, error: createError } = await supabaseAdmin
+        .from('profiles')
+        .insert({
+          id: supabaseUser.id,
+          email: supabaseUser.email || '',
+          display_name: supabaseUser.user_metadata?.full_name || supabaseUser.user_metadata?.user_name || null,
+          plan: 'free',
+        })
+        .select()
+        .single();
+
+      if (createError || !newProfile) {
+        res.status(500).json({
+          success: false,
+          error: 'Failed to create user profile',
+        });
+        return;
+      }
+
+      profile = newProfile;
+    }
+
+    const user = {
+      id: profile.id,
+      email: profile.email,
+      plan: profile.plan,
+    };
+
+    res.json({
+      success: true,
+      data: {
+        user: {
+          id: user.id,
+          email: user.email,
+          plan: user.plan,
+          displayName: profile.display_name,
+        },
+        tokens: {
+          accessToken: generateToken(user),
+          refreshToken: generateRefreshToken(user.id),
+          expiresIn: 7 * 24 * 60 * 60,
+        },
+      },
+    });
+  } catch {
+    res.status(500).json({
+      success: false,
+      error: 'OAuth exchange failed',
+    });
+  }
 });
 
 // ───────────────────────────────────────────────────────────────

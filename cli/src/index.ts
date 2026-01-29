@@ -43,7 +43,7 @@ import { printBanner, colors } from './utils/ui';
 program
   .name('leash')
   .description('AI Agent Access Control - Define path boundaries, monitor operations, get alerts')
-  .version('1.0.0')
+  .version('1.0.1')
   .option('-c, --config <path>', 'Path to .agentleash.yml config file')
   .hook('preAction', () => {
     // Could add global pre-action hooks here
@@ -72,6 +72,7 @@ program
   .option('-p, --path <path>', 'Directory to watch')
   .option('-c, --config <path>', 'Path to config file')
   .option('-a, --agent <name>', 'AI agent being monitored')
+  .option('-m, --mode <mode>', 'Monitor mode: passive, active, interactive', 'passive')
   .option('-q, --quiet', 'Only show blocked operations')
   .option('--sync', 'Sync events to cloud')
   .action(watchCommand);

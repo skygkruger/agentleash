@@ -23,17 +23,17 @@ const PRESETS: Record<string, Partial<ScopeConfig>> = {
   minimal: {
     rules: [
       {
-        pattern: '.env',
+        path: '.env',
         deny: ['read', 'write', 'delete'],
         reason: 'Protect environment variables',
       },
       {
-        pattern: '.env.*',
+        path: '.env.*',
         deny: ['read', 'write', 'delete'],
         reason: 'Protect environment files',
       },
       {
-        pattern: '**/*.key',
+        path: '**/*.key',
         deny: ['read', 'write', 'delete'],
         reason: 'Protect private keys',
       },
@@ -43,47 +43,47 @@ const PRESETS: Record<string, Partial<ScopeConfig>> = {
     defaultPolicy: 'deny',
     rules: [
       {
-        pattern: 'src/**/*',
+        path: 'src/**/*',
         allow: ['read', 'write'],
         reason: 'Allow access to source code',
       },
       {
-        pattern: 'tests/**/*',
+        path: 'tests/**/*',
         allow: ['read', 'write'],
         reason: 'Allow access to tests',
       },
       {
-        pattern: 'package.json',
+        path: 'package.json',
         allow: ['read', 'write'],
         reason: 'Allow package.json access',
       },
       {
-        pattern: 'tsconfig.json',
+        path: 'tsconfig.json',
         allow: ['read'],
         reason: 'Allow reading TypeScript config',
       },
       {
-        pattern: '.env',
+        path: '.env',
         deny: ['read', 'write', 'delete'],
         reason: 'Protect environment variables',
       },
       {
-        pattern: '.env.*',
+        path: '.env.*',
         deny: ['read', 'write', 'delete'],
         reason: 'Protect environment files',
       },
       {
-        pattern: '**/*.key',
+        path: '**/*.key',
         deny: ['read', 'write', 'delete'],
         reason: 'Protect private keys',
       },
       {
-        pattern: '**/*.pem',
+        path: '**/*.pem',
         deny: ['read', 'write', 'delete'],
         reason: 'Protect certificates',
       },
       {
-        pattern: '**/secrets/**',
+        path: '**/secrets/**',
         deny: ['read', 'write', 'delete', 'list'],
         reason: 'Protect secrets directory',
       },
@@ -92,54 +92,54 @@ const PRESETS: Record<string, Partial<ScopeConfig>> = {
   nodejs: {
     rules: [
       {
-        pattern: 'src/**/*',
+        path: 'src/**/*',
         allow: ['read', 'write'],
         reason: 'Full access to source code',
       },
       {
-        pattern: 'lib/**/*',
+        path: 'lib/**/*',
         allow: ['read', 'write'],
         reason: 'Full access to lib directory',
       },
       {
-        pattern: 'tests/**/*',
+        path: 'tests/**/*',
         allow: ['read', 'write'],
         reason: 'Full access to tests',
       },
       {
-        pattern: '__tests__/**/*',
+        path: '__tests__/**/*',
         allow: ['read', 'write'],
         reason: 'Full access to Jest tests',
       },
       {
-        pattern: 'package.json',
+        path: 'package.json',
         allow: ['read', 'write'],
         reason: 'Package configuration',
       },
       {
-        pattern: 'package-lock.json',
+        path: 'package-lock.json',
         allow: ['read'],
         deny: ['write', 'delete'],
         reason: 'Read-only lockfile',
       },
       {
-        pattern: 'node_modules/**',
+        path: 'node_modules/**',
         allow: ['read'],
         deny: ['write', 'delete'],
         reason: 'Read-only dependencies',
       },
       {
-        pattern: '.env',
+        path: '.env',
         deny: ['read', 'write', 'delete'],
         reason: 'Protect environment variables',
       },
       {
-        pattern: '.env.*',
+        path: '.env.*',
         deny: ['read', 'write', 'delete'],
         reason: 'Protect environment files',
       },
       {
-        pattern: '**/*.key',
+        path: '**/*.key',
         deny: ['read', 'write', 'delete'],
         reason: 'Protect private keys',
       },
@@ -148,48 +148,48 @@ const PRESETS: Record<string, Partial<ScopeConfig>> = {
   python: {
     rules: [
       {
-        pattern: 'src/**/*',
+        path: 'src/**/*',
         allow: ['read', 'write'],
         reason: 'Full access to source code',
       },
       {
-        pattern: 'app/**/*',
+        path: 'app/**/*',
         allow: ['read', 'write'],
         reason: 'Full access to app directory',
       },
       {
-        pattern: 'tests/**/*',
+        path: 'tests/**/*',
         allow: ['read', 'write'],
         reason: 'Full access to tests',
       },
       {
-        pattern: 'requirements.txt',
+        path: 'requirements.txt',
         allow: ['read', 'write'],
         reason: 'Dependencies file',
       },
       {
-        pattern: 'pyproject.toml',
+        path: 'pyproject.toml',
         allow: ['read', 'write'],
         reason: 'Project configuration',
       },
       {
-        pattern: '.venv/**',
+        path: '.venv/**',
         allow: ['read'],
         deny: ['write', 'delete'],
         reason: 'Read-only virtual environment',
       },
       {
-        pattern: '.env',
+        path: '.env',
         deny: ['read', 'write', 'delete'],
         reason: 'Protect environment variables',
       },
       {
-        pattern: '**/*.key',
+        path: '**/*.key',
         deny: ['read', 'write', 'delete'],
         reason: 'Protect private keys',
       },
       {
-        pattern: '**/secrets/**',
+        path: '**/secrets/**',
         deny: ['read', 'write', 'delete', 'list'],
         reason: 'Protect secrets directory',
       },

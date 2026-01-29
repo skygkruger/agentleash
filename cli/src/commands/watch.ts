@@ -10,6 +10,12 @@ import WebSocket from 'ws';
 import ui from '../utils/ui';
 import { findConfig, loadConfig, ScopeConfig, Rule } from '../utils/config';
 import auth from '../utils/auth';
+import { ReadDetector } from '../utils/read-detector';
+import { PermissionEnforcer } from './enforcer';
+import { InteractivePrompter } from './interactive';
+import { AgentVerifier } from './agent-verifier';
+
+type MonitorMode = 'passive' | 'active' | 'interactive';
 
 // Agent display names — IDs match VaultAgent for cross-product compatibility
 const AGENT_NAMES: Record<string, string> = {
@@ -122,12 +128,20 @@ export interface WatchOptions {
   path?: string;
   config?: string;
   agent?: string;
+  mode?: string;
   quiet?: boolean;
   sync?: boolean;
 }
 
 export async function watchCommand(options: WatchOptions): Promise<void> {
   ui.printBanner();
+
+  // Validate mode
+  const mode: MonitorMode = (options.mode as MonitorMode) || 'passive';
+  if (!['passive', 'active', 'interactive'].includes(mode)) {
+    ui.printError(`Invalid mode: ${options.mode}. Must be passive, active, or interactive.`);
+    process.exit(1);
+  }
 
   // Find and load config
   const configPath = options.config || findConfig(options.path);
@@ -177,17 +191,63 @@ export async function watchCommand(options: WatchOptions): Promise<void> {
     : undefined;
 
   // Print header
-  printWatchHeader(config, watchPath, agentName);
+  printWatchHeader(config, watchPath, agentName, mode);
+
+  // Agent verification
+  let agentVerifier: AgentVerifier | null = null;
+  if (options.agent) {
+    agentVerifier = new AgentVerifier(options.agent);
+    const check = agentVerifier.verify();
+    if (check.verified) {
+      ui.printSuccess(`Agent verified: ${agentName} (PID: ${check.pid})`);
+    } else {
+      ui.printWarning(`Agent process not detected — events tagged unverified`);
+    }
+    agentVerifier.startPeriodicVerification(30000, (result) => {
+      if (!result.verified) {
+        ui.printWarning(`Agent process no longer detected`);
+      }
+    });
+  }
+
+  // Set up permission enforcer for active mode
+  let enforcer: PermissionEnforcer | null = null;
+  if (mode === 'active') {
+    enforcer = new PermissionEnforcer({
+      basePath: watchPath,
+      rules: config.rules,
+    });
+    try {
+      await enforcer.activate();
+      ui.printWarning('Active mode: deny-rule files locked. Press Ctrl+C to restore.');
+    } catch (error) {
+      ui.printError(`Failed to activate enforcer: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      process.exit(1);
+    }
+  }
+
+  // Set up interactive prompter
+  let prompter: InteractivePrompter | null = null;
+  if (mode === 'interactive') {
+    if (!process.stdin.isTTY) {
+      ui.printWarning('Interactive mode requires a TTY terminal. Falling back to passive mode.');
+    } else {
+      prompter = new InteractivePrompter();
+      ui.printInfo('Interactive mode: will prompt on warn-rule matches.');
+    }
+  }
 
   // Set up file watcher
+  const ignoredPatterns = [
+    '**/node_modules/**',
+    '**/.git/**',
+    '**/dist/**',
+    '**/build/**',
+    '**/.agentleash.yml',
+  ];
+
   const watcher = chokidar.watch(watchPath, {
-    ignored: [
-      '**/node_modules/**',
-      '**/.git/**',
-      '**/dist/**',
-      '**/build/**',
-      '**/.agentleash.yml',
-    ],
+    ignored: ignoredPatterns,
     persistent: true,
     ignoreInitial: true,
     awaitWriteFinish: {
@@ -197,11 +257,52 @@ export async function watchCommand(options: WatchOptions): Promise<void> {
   });
 
   // Handle file events
-  watcher.on('add', (filePath) => handleEvent(filePath, 'write', config, stats, options.quiet, logBatcher, options.agent));
-  watcher.on('change', (filePath) => handleEvent(filePath, 'write', config, stats, options.quiet, logBatcher, options.agent));
-  watcher.on('unlink', (filePath) => handleEvent(filePath, 'delete', config, stats, options.quiet, logBatcher, options.agent));
-  watcher.on('addDir', (filePath) => handleEvent(filePath, 'write', config, stats, options.quiet, logBatcher, options.agent));
-  watcher.on('unlinkDir', (filePath) => handleEvent(filePath, 'delete', config, stats, options.quiet, logBatcher, options.agent));
+  const eventHandler = async (filePath: string, operation: 'read' | 'write' | 'delete' | 'list') => {
+    const result = handleEvent(filePath, operation, config, stats, options.quiet, logBatcher, options.agent);
+
+    // Interactive mode: prompt on warnings/blocks
+    if (prompter && result && (result.result === 'warning' || result.result === 'blocked')) {
+      const relativePath = path.relative(process.cwd(), filePath);
+      const decision = await prompter.promptForAccess(relativePath, operation);
+      if (decision === 'allow' || decision === 'always') {
+        if (!options.quiet) {
+          console.log(`    ${ui.colors.mint('[/]')} Access approved via prompt`);
+        }
+        if (enforcer) {
+          enforcer.restoreFile(filePath);
+        }
+      } else {
+        if (!options.quiet) {
+          console.log(`    ${ui.colors.coral('[X]')} Access denied via prompt`);
+        }
+      }
+    }
+
+    // Active mode: restrict new files matching deny rules
+    if (enforcer && operation === 'write') {
+      enforcer.onNewFileDetected(filePath);
+    }
+  };
+
+  watcher.on('add', (filePath) => eventHandler(filePath, 'write'));
+  watcher.on('change', (filePath) => eventHandler(filePath, 'write'));
+  watcher.on('unlink', (filePath) => eventHandler(filePath, 'delete'));
+  watcher.on('addDir', (filePath) => eventHandler(filePath, 'write'));
+  watcher.on('unlinkDir', (filePath) => eventHandler(filePath, 'delete'));
+
+  // Set up read detection
+  const readDetector = new ReadDetector({
+    basePath: watchPath,
+    pollIntervalMs: 2000,
+    ignored: ignoredPatterns,
+  });
+  readDetector.on('read', (event: { absolutePath: string }) => {
+    eventHandler(event.absolutePath, 'read');
+  });
+  readDetector.on('warning', (msg: string) => {
+    ui.printWarning(msg);
+  });
+  readDetector.start();
 
   // Handle ready
   watcher.on('ready', () => {
@@ -232,12 +333,23 @@ export async function watchCommand(options: WatchOptions): Promise<void> {
   });
 
   // Handle shutdown
-  const shutdown = () => {
+  const shutdown = async () => {
     ui.newLine();
     ui.printInfo('Shutting down...');
-    logBatcher.shutdown(); // Flush remaining logs before closing
+    readDetector.stop();
+    logBatcher.shutdown();
     watcher.close();
     configWatcher.close();
+    if (enforcer) {
+      await enforcer.deactivate();
+      ui.printSuccess('File permissions restored');
+    }
+    if (prompter) {
+      prompter.close();
+    }
+    if (agentVerifier) {
+      agentVerifier.stopPeriodicVerification();
+    }
     if (ws) {
       ws.close();
     }
@@ -264,7 +376,7 @@ function handleEvent(
   quiet?: boolean,
   logBatcher?: LogBatcher,
   agentIdentifier?: string
-): void {
+): EvaluationResult {
   const relativePath = path.relative(process.cwd(), filePath);
   const result = evaluateAccess(relativePath, operation, config);
 
@@ -289,11 +401,13 @@ function handleEvent(
       filePath: relativePath,
       operation,
       result: result.result,
-      matchedRule: result.rule?.pattern,
+      matchedRule: result.rule?.path,
       agentIdentifier,
       timestamp: new Date().toISOString(),
     });
   }
+
+  return result;
 }
 
 // ───────────────────────────────────────────────────────────────
@@ -314,7 +428,7 @@ function evaluateAccess(
 
   // Check each rule in order
   for (const rule of config.rules) {
-    const matches = minimatch(normalizedPath, rule.pattern, {
+    const matches = minimatch(normalizedPath, rule.path, {
       dot: true,
       matchBase: true,
     });
@@ -395,13 +509,19 @@ function connectWebSocket(scopeId: string): WebSocket | null {
 // UI HELPERS
 // ───────────────────────────────────────────────────────────────
 
-function printWatchHeader(config: ScopeConfig, watchPath: string, agentName?: string): void {
+function printWatchHeader(config: ScopeConfig, watchPath: string, agentName?: string, mode?: MonitorMode): void {
+  const modeDisplay = mode === 'active'
+    ? ui.colors.coral('ACTIVE')
+    : mode === 'interactive'
+      ? ui.colors.cream('INTERACTIVE')
+      : ui.colors.mint('PASSIVE');
   console.log('╔══════════════════════════════════════════════════════════════════════════════╗');
   console.log(`║  ${ui.colors.amber('AGENTLEASH')}                                          [${ui.colors.mint('WATCHING')}]   ║`);
   console.log('╠══════════════════════════════════════════════════════════════════════════════╣');
   console.log(`║  Scope:  ${ui.colors.text(config.name.padEnd(66))} ║`);
   console.log(`║  Path:   ${ui.colors.muted(truncatePath(watchPath, 66).padEnd(66))} ║`);
   console.log(`║  Policy: ${config.defaultPolicy === 'deny' ? ui.colors.coral('DENY') : ui.colors.mint('ALLOW')}${' '.repeat(62)} ║`);
+  console.log(`║  Mode:   ${modeDisplay}${' '.repeat(62)} ║`);
   console.log(`║  Rules:  ${ui.colors.lavender(config.rules.length.toString())} configured${' '.repeat(55)} ║`);
   if (agentName) {
     console.log(`║  Agent:  ${ui.colors.cyan(agentName.padEnd(66))} ║`);

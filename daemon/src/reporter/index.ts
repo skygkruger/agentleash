@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════════
-// SCOPEAGENT REPORTER
+// AGENTLEASH REPORTER
 // Formats and outputs access logs and violations
 // ═══════════════════════════════════════════════════════════════
 
@@ -161,7 +161,7 @@ export class Reporter {
     const lines = [
       '',
       this.c('amber', '╔══════════════════════════════════════════════════════════════════════════════╗'),
-      `${this.c('amber', '║')}  ${this.c('bold', 'SCOPEAGENT')}${''.padEnd(50)}${status}   ${this.c('amber', '║')}`,
+      `${this.c('amber', '║')}  ${this.c('bold', 'AGENTLEASH')}${''.padEnd(50)}${status}   ${this.c('amber', '║')}`,
       this.c('amber', '╠══════════════════════════════════════════════════════════════════════════════╣'),
       `${this.c('amber', '║')}  Scope: ${scopeName.padEnd(67)} ${this.c('amber', '║')}`,
       `${this.c('amber', '║')}  Path:  ${this.truncatePath(basePath, 67).padEnd(67)} ${this.c('amber', '║')}`,

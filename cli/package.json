@@ -1,10 +1,10 @@
 {
   "name": "agentleash",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "AgentLeash CLI - AI Agent Access Control",
   "main": "dist/index.js",
   "bin": {
-    "leash": "./dist/index.js"
+    "leash": "dist/index.js"
   },
   "scripts": {
     "dev": "nodemon --watch src --ext ts --exec ts-node src/index.ts",
@@ -44,8 +44,13 @@
     "typescript": "^5.3.3"
   },
   "files": [
-    "dist/**/*"
+    "dist/**/*",
+    "README.md",
+    "LICENSE"
   ],
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "keywords": [
     "cli",
     "ai",
@@ -61,10 +66,10 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/skygkruger/agentleash.git"
+    "url": "git+https://github.com/skygkruger/scopeagent.git"
   },
   "homepage": "https://agentleash.io",
   "bugs": {
-    "url": "https://github.com/skygkruger/agentleash/issues"
+    "url": "https://github.com/skygkruger/scopeagent/issues"
   }
 }

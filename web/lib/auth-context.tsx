@@ -1,7 +1,7 @@
 'use client';
 
 // ═══════════════════════════════════════════════════════════════
-// SCOPEAGENT AUTH CONTEXT
+// AGENTLEASH AUTH CONTEXT
 // ═══════════════════════════════════════════════════════════════
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';

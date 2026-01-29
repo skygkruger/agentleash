@@ -1,6 +1,6 @@
 // ═══════════════════════════════════════════════════════════════
-// SCOPEAGENT CONFIG PARSER
-// Parses and validates .scopeagent.yml configuration files
+// AGENTLEASH CONFIG PARSER
+// Parses and validates .agentleash.yml configuration files
 // ═══════════════════════════════════════════════════════════════
 
 import * as fs from 'fs';
@@ -90,7 +90,7 @@ export class ConfigParser {
   private config: ScopeConfig | null = null;
   private watcher: ReturnType<typeof watchFile> | null = null;
 
-  constructor(configPath: string = '.scopeagent.yml') {
+  constructor(configPath: string = '.agentleash.yml') {
     this.configPath = path.resolve(configPath);
   }
 
@@ -400,7 +400,7 @@ export class ConfigError extends Error {
 // ───────────────────────────────────────────────────────────────
 
 export const DEFAULT_CONFIG_TEMPLATE = `# ═══════════════════════════════════════════════════════════════
-# SCOPEAGENT CONFIGURATION
+# AGENTLEASH CONFIGURATION
 # AI Agent Permission Controller
 # ═══════════════════════════════════════════════════════════════
 

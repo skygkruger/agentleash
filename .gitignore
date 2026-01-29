@@ -1,5 +1,5 @@
 # ═══════════════════════════════════════════════════════════════
-# SCOPEAGENT .GITIGNORE
+# AGENTLEASH .GITIGNORE
 # ═══════════════════════════════════════════════════════════════
 
 # Dependencies
@@ -85,6 +85,11 @@ temp/
 # Turbo
 .turbo/
 
-# ScopeAgent specific
-.scopeagent/
-scopeagent.log
+# AgentLeash specific
+.agentleash/
+agentleash.log
+
+# Claude Code
+.claude/settings.local.json
+AgentLeash_Documentation.jsx
+nul

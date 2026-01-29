@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 // ═══════════════════════════════════════════════════════════════
-// SCOPEAGENT DAEMON
+// AGENTLEASH DAEMON
 // File Watcher + Rule Evaluator + Real-time Monitoring
 // ═══════════════════════════════════════════════════════════════
 
@@ -16,6 +16,9 @@ import { ScopeWatcher, AccessEvent } from './watcher';
 import { Violation } from './evaluator/engine';
 import { Reporter } from './reporter';
 import { VaultAgentIntegration } from './integrations';
+import { PermissionEnforcer } from './enforcer';
+import { InteractivePrompter } from './enforcer/interactive';
+import { AgentVerifier } from './watcher/agent-verifier';
 
 dotenv.config();
 
@@ -53,8 +56,8 @@ const c = {
 // ───────────────────────────────────────────────────────────────
 
 program
-  .name('scopeagent-daemon')
-  .description('ScopeAgent file watcher daemon')
+  .name('agentleash-daemon')
+  .description('AgentLeash file watcher daemon')
   .version('1.0.0');
 
 // ───────────────────────────────────────────────────────────────
@@ -64,8 +67,9 @@ program
 program
   .command('start')
   .description('Start the daemon watching the current directory')
-  .option('-c, --config <path>', 'Path to .scopeagent.yml', '.scopeagent.yml')
+  .option('-c, --config <path>', 'Path to .agentleash.yml', '.agentleash.yml')
   .option('-a, --agent <name>', 'AI agent being monitored')
+  .option('-m, --mode <mode>', 'Monitor mode: passive, active, interactive', 'passive')
   .option('-v, --verbose', 'Enable verbose logging')
   .option('--no-colors', 'Disable colored output')
   .action(async (options) => {
@@ -75,7 +79,7 @@ program
     // Check for config file
     if (!fs.existsSync(configPath)) {
       console.log(`${c.coral}[X] Configuration file not found: ${configPath}${c.reset}`);
-      console.log(`${c.muted}    Run 'scopeagent init' to create one.${c.reset}`);
+      console.log(`${c.muted}    Run 'agentleash-daemon init' to create one.${c.reset}`);
       process.exit(1);
     }
 
@@ -96,22 +100,104 @@ program
     const config = parser.getConfig()!;
     const rules = parser.getRulesForAgent(options.agent);
 
+    // Validate mode
+    const mode = options.mode || 'passive';
+    if (!['passive', 'active', 'interactive'].includes(mode)) {
+      console.log(`${c.coral}[X] Invalid mode: ${mode}. Must be passive, active, or interactive.${c.reset}`);
+      process.exit(1);
+    }
+
     // Create watcher
     const watcher = new ScopeWatcher({
       basePath: config.base_path,
       rules,
       defaultPolicy: config.default_policy,
       agentIdentifier: options.agent,
+      enableReadDetection: true,
     });
 
     // Display header
     console.clear();
     console.log(`${c.amber}${BANNER}${c.reset}`);
     console.log(reporter.formatWatchHeader(config.base_path, rules.length, config.name));
+    const modeLabel = mode === 'passive' ? 'PASSIVE (logging)' : mode === 'active' ? 'ACTIVE (enforcing)' : 'INTERACTIVE (prompting)';
+    console.log(`${c.amber}[*] Mode: ${modeLabel}${c.reset}`);
+
+    // Agent process verification
+    let agentVerifier: AgentVerifier | null = null;
+    if (options.agent) {
+      const AGENT_PROCESS_PATTERNS: Record<string, string[]> = {
+        'claude-code': ['claude', 'claude-code'],
+        'cursor': ['Cursor', 'cursor'],
+        'windsurf': ['Windsurf', 'windsurf'],
+        'aider': ['aider'],
+        'github-copilot': ['copilot-agent', 'Code.exe', 'code'],
+        'continue': ['continue', 'Code.exe', 'code'],
+      };
+      const patterns = AGENT_PROCESS_PATTERNS[options.agent] ?? [];
+      agentVerifier = new AgentVerifier(options.agent, patterns);
+      const check = agentVerifier.verify();
+      if (check.verified) {
+        console.log(`${c.mint}[/] Agent verified: ${options.agent} (PID: ${check.pid})${c.reset}`);
+      } else {
+        console.log(`${c.amber}[!] Agent process not detected — events tagged unverified${c.reset}`);
+      }
+      agentVerifier.startPeriodicVerification(30000, (result) => {
+        if (!result.verified) {
+          console.log(`${c.amber}[!] Agent process no longer detected${c.reset}`);
+        }
+      });
+    }
+
+    // Set up permission enforcer for active mode
+    let enforcer: PermissionEnforcer | null = null;
+    if (mode === 'active') {
+      enforcer = new PermissionEnforcer({
+        basePath: config.base_path,
+        rules: rules.map(r => ({ path: r.path, deny: r.operations.deny })),
+      });
+      try {
+        await enforcer.activate();
+        console.log(`${c.coral}[!] Active mode: deny-rule files locked. Press Ctrl+C to restore.${c.reset}`);
+      } catch (error) {
+        console.log(`${c.coral}[X] Failed to activate enforcer: ${error instanceof Error ? error.message : 'Unknown error'}${c.reset}`);
+        process.exit(1);
+      }
+    }
+
+    // Set up interactive prompter
+    let prompter: InteractivePrompter | null = null;
+    if (mode === 'interactive') {
+      if (!process.stdin.isTTY) {
+        console.log(`${c.amber}[!] Interactive mode requires a TTY terminal. Falling back to passive.${c.reset}`);
+      } else {
+        prompter = new InteractivePrompter();
+        console.log(`${c.amber}[*] Interactive mode: will prompt on denied access.${c.reset}`);
+      }
+    }
 
     // Handle access events
     watcher.on('access', (event: AccessEvent) => {
       console.log(reporter.formatLogLine(event));
+
+      // Interactive mode: prompt on denied access
+      if (prompter && event.result !== 'allowed') {
+        prompter.promptForAccess(event.relativePath, event.operation).then((decision) => {
+          if (decision === 'allow' || decision === 'always') {
+            console.log(`    ${c.mint}[/] Access approved via prompt${c.reset}`);
+            if (enforcer) {
+              enforcer.restoreFile(event.filePath);
+            }
+          } else {
+            console.log(`    ${c.coral}[X] Access denied via prompt${c.reset}`);
+          }
+        });
+      }
+
+      // Active mode: restrict new files matching deny rules
+      if (enforcer && event.operation === 'write') {
+        enforcer.onNewFileDetected(event.filePath);
+      }
     });
 
     // Handle violations
@@ -124,6 +210,11 @@ program
       console.log(`${c.coral}[X] Watcher error: ${error.message}${c.reset}`);
     });
 
+    // Handle read detection warnings
+    watcher.on('warning', (msg: string) => {
+      console.log(`${c.amber}[!] ${msg}${c.reset}`);
+    });
+
     // Watch for config changes
     parser.watchConfigChanges((_newConfig) => {
       console.log(`${c.amber}[*] Configuration reloaded${c.reset}`);
@@ -134,18 +225,27 @@ program
     // Start watching
     watcher.start();
 
-    // Handle keyboard input
-    if (process.stdin.isTTY) {
+    // Handle keyboard input (skip raw mode in interactive — readline needs normal stdin)
+    if (process.stdin.isTTY && !prompter) {
       readline.emitKeypressEvents(process.stdin);
       process.stdin.setRawMode(true);
 
       process.stdin.on('keypress', (_str, key) => {
         if (key.name === 'q' || (key.ctrl && key.name === 'c')) {
           console.log(`\n${c.amber}[*] Stopping daemon...${c.reset}`);
-          watcher.stop().then(() => {
+          const shutdown = async () => {
+            if (enforcer) {
+              await enforcer.deactivate();
+              console.log(`${c.mint}[/] File permissions restored${c.reset}`);
+            }
+            if (agentVerifier) {
+              agentVerifier.stopPeriodicVerification();
+            }
+            await watcher.stop();
             parser.stopWatching();
             process.exit(0);
-          });
+          };
+          shutdown();
         } else if (key.name === 's') {
           console.log(reporter.formatStats(watcher.getStats()));
         } else if (key.name === 'c') {
@@ -178,12 +278,31 @@ ${c.amber}[?] Help${c.reset}
     // Handle process signals
     process.on('SIGINT', async () => {
       console.log(`\n${c.amber}[*] Stopping daemon...${c.reset}`);
+      if (enforcer) {
+        await enforcer.deactivate();
+        console.log(`${c.mint}[/] File permissions restored${c.reset}`);
+      }
+      if (prompter) {
+        prompter.close();
+      }
+      if (agentVerifier) {
+        agentVerifier.stopPeriodicVerification();
+      }
       await watcher.stop();
       parser.stopWatching();
       process.exit(0);
     });
 
     process.on('SIGTERM', async () => {
+      if (enforcer) {
+        await enforcer.deactivate();
+      }
+      if (prompter) {
+        prompter.close();
+      }
+      if (agentVerifier) {
+        agentVerifier.stopPeriodicVerification();
+      }
       await watcher.stop();
       parser.stopWatching();
       process.exit(0);
@@ -196,12 +315,12 @@ ${c.amber}[?] Help${c.reset}
 
 program
   .command('init')
-  .description('Create .scopeagent.yml in the specified directory')
+  .description('Create .agentleash.yml in the specified directory')
   .option('-p, --path <dir>', 'Directory to initialize', '.')
   .option('-f, --force', 'Overwrite existing config')
   .action((options) => {
     const dir = path.resolve(options.path);
-    const configPath = path.join(dir, '.scopeagent.yml');
+    const configPath = path.join(dir, '.agentleash.yml');
 
     // Check if config already exists
     if (fs.existsSync(configPath) && !options.force) {
@@ -219,12 +338,12 @@ program
       fs.writeFileSync(configPath, configContent, 'utf-8');
 
       console.log(`${c.amber}${BANNER}${c.reset}`);
-      console.log(`${c.mint}[/] Created .scopeagent.yml${c.reset}`);
+      console.log(`${c.mint}[/] Created .agentleash.yml${c.reset}`);
       console.log(`${c.muted}    Path: ${configPath}${c.reset}`);
       console.log('');
       console.log(`${c.amber}Next steps:${c.reset}`);
-      console.log(`${c.muted}1. Edit .scopeagent.yml to customize rules${c.reset}`);
-      console.log(`${c.muted}2. Run 'scopeagent-daemon start' to begin watching${c.reset}`);
+      console.log(`${c.muted}1. Edit .agentleash.yml to customize rules${c.reset}`);
+      console.log(`${c.muted}2. Run 'agentleash-daemon start' to begin watching${c.reset}`);
       console.log('');
     } catch (error) {
       console.log(`${c.coral}[X] Failed to create configuration: ${error}${c.reset}`);
@@ -239,7 +358,7 @@ program
 program
   .command('status')
   .description('Show current configuration status')
-  .option('-c, --config <path>', 'Path to .scopeagent.yml', '.scopeagent.yml')
+  .option('-c, --config <path>', 'Path to .agentleash.yml', '.agentleash.yml')
   .option('--vault', 'Show combined status with VaultAgent')
   .action(async (options) => {
     const configPath = path.resolve(options.config);
@@ -248,7 +367,7 @@ program
 
     if (!fs.existsSync(configPath)) {
       console.log(`${c.coral}[X] No configuration found${c.reset}`);
-      console.log(`${c.muted}    Run 'scopeagent-daemon init' to create one.${c.reset}`);
+      console.log(`${c.muted}    Run 'agentleash-daemon init' to create one.${c.reset}`);
       process.exit(1);
     }
 
@@ -258,7 +377,7 @@ program
       const rules = parser.getRulesForAgent();
 
       console.log(`${c.amber}╔══════════════════════════════════════════════════════════════════════════════╗${c.reset}`);
-      console.log(`${c.amber}║${c.reset}  ${c.bold}SCOPEAGENT STATUS${c.reset}${''.padEnd(58)}${c.amber}║${c.reset}`);
+      console.log(`${c.amber}║${c.reset}  ${c.bold}AGENTLEASH STATUS${c.reset}${''.padEnd(58)}${c.amber}║${c.reset}`);
       console.log(`${c.amber}╠══════════════════════════════════════════════════════════════════════════════╣${c.reset}`);
       console.log(`${c.amber}║${c.reset}  Scope:          ${config.name.padEnd(57)} ${c.amber}║${c.reset}`);
       console.log(`${c.amber}║${c.reset}  Base Path:      ${config.base_path.slice(0, 57).padEnd(57)} ${c.amber}║${c.reset}`);
@@ -313,7 +432,7 @@ program
         if (vaultStatus.installed && vaultStatus.configured) {
           console.log(`${c.amber}║${c.reset}  ${c.mint}[/] Complete security stack active${c.reset}${''.padEnd(40)}${c.amber}║${c.reset}`);
           console.log(`${c.amber}║${c.reset}      - VaultAgent: Protecting secrets FROM agents${''.padEnd(26)}${c.amber}║${c.reset}`);
-          console.log(`${c.amber}║${c.reset}      - ScopeAgent: Protecting systems FROM agents${''.padEnd(26)}${c.amber}║${c.reset}`);
+          console.log(`${c.amber}║${c.reset}      - AgentLeash: Protecting systems FROM agents${''.padEnd(26)}${c.amber}║${c.reset}`);
         } else if (!vaultStatus.installed) {
           console.log(`${c.amber}║${c.reset}  ${c.coral}[!] VaultAgent not installed${c.reset}${''.padEnd(47)}${c.amber}║${c.reset}`);
           console.log(`${c.amber}║${c.reset}      Install with: npm install -g @veridian/vaultagent${''.padEnd(22)}${c.amber}║${c.reset}`);
@@ -332,7 +451,7 @@ program
         console.log('');
         if (!vaultDetected) {
           console.log(`${c.muted}Tip: Add VaultAgent for complete AI agent security.${c.reset}`);
-          console.log(`${c.muted}     Run 'scopeagent-daemon status --vault' for combined status.${c.reset}`);
+          console.log(`${c.muted}     Run 'agentleash-daemon status --vault' for combined status.${c.reset}`);
         }
       }
 
@@ -354,7 +473,7 @@ program
 program
   .command('test <path>')
   .description('Test if a path would be allowed')
-  .option('-c, --config <configPath>', 'Path to .scopeagent.yml', '.scopeagent.yml')
+  .option('-c, --config <configPath>', 'Path to .agentleash.yml', '.agentleash.yml')
   .option('-o, --operation <type>', 'Operation to test', 'read')
   .action((testPath, options) => {
     const configPath = path.resolve(options.config);
@@ -408,7 +527,7 @@ program
 program
   .command('validate')
   .description('Validate the configuration file')
-  .option('-c, --config <path>', 'Path to .scopeagent.yml', '.scopeagent.yml')
+  .option('-c, --config <path>', 'Path to .agentleash.yml', '.agentleash.yml')
   .action((options) => {
     const configPath = path.resolve(options.config);
 
@@ -464,7 +583,7 @@ program
         console.log('');
         console.log(`${c.amber}AI Agent Security Stack is now complete:${c.reset}`);
         console.log(`${c.muted}  - VaultAgent: Protecting secrets FROM agents${c.reset}`);
-        console.log(`${c.muted}  - ScopeAgent: Protecting systems FROM agents${c.reset}`);
+        console.log(`${c.muted}  - AgentLeash: Protecting systems FROM agents${c.reset}`);
       } else {
         console.log(`${c.coral}[X] ${result.message}${c.reset}`);
       }
@@ -478,13 +597,13 @@ program
           console.log(`${c.muted}    Version: ${status.version}${c.reset}`);
         }
         console.log('');
-        console.log(`${c.muted}To unlink: scopeagent-daemon link-vault --unlink${c.reset}`);
+        console.log(`${c.muted}To unlink: agentleash-daemon link-vault --unlink${c.reset}`);
       } else {
         console.log(`${c.coral}[X] VaultAgent account not linked${c.reset}`);
         console.log('');
         console.log(`${c.amber}To link your VaultAgent account:${c.reset}`);
         console.log(`${c.muted}1. Get your VaultAgent API key from https://vaultagent.dev/settings${c.reset}`);
-        console.log(`${c.muted}2. Run: scopeagent-daemon link-vault --api-key YOUR_API_KEY${c.reset}`);
+        console.log(`${c.muted}2. Run: agentleash-daemon link-vault --api-key YOUR_API_KEY${c.reset}`);
         console.log('');
         console.log(`${c.amber}Why link?${c.reset}`);
         console.log(`${c.muted}- Combined security dashboard${c.reset}`);
@@ -520,11 +639,11 @@ program
     console.log('');
 
     if (options.apply) {
-      console.log(`${c.muted}[~] Applying rules to .scopeagent.yml...${c.reset}`);
+      console.log(`${c.muted}[~] Applying rules to .agentleash.yml...${c.reset}`);
       // TODO: Implement rule application
       console.log(`${c.coral}[!] Not yet implemented. Add these patterns manually to your config.${c.reset}`);
     } else {
-      console.log(`${c.muted}Add these patterns to your .scopeagent.yml to protect secrets:${c.reset}`);
+      console.log(`${c.muted}Add these patterns to your .agentleash.yml to protect secrets:${c.reset}`);
       console.log('');
       console.log(`${c.amber}rules:${c.reset}`);
       for (const p of protectedPaths.slice(0, 5)) {

@@ -271,7 +271,7 @@ export async function doctorCommand(options: DoctorOptions): Promise<void> {
 
       // Check 4: Has sensitive file protection
       const hasSensitiveProtection = (parsed as ScopeConfig).rules?.some(
-        (r) => r.pattern.includes('.env') || r.pattern.includes('secrets')
+        (r) => r.path.includes('.env') || r.path.includes('secrets')
       );
       if (hasSensitiveProtection) {
         checks.push({

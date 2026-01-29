@@ -253,11 +253,11 @@ name: "test"
 rules:
   - path: ".*"
     deny: [read, write, delete]
-    except: [.scopeagent.yml, .gitignore]
+    except: [.agentleash.yml, .gitignore]
 `;
       const result = parseConfig(config);
 
-      expect(result.rules?.[0].except).toEqual(['.scopeagent.yml', '.gitignore']);
+      expect(result.rules?.[0].except).toEqual(['.agentleash.yml', '.gitignore']);
     });
   });
 

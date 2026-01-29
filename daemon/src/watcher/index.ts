@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════════
-// SCOPEAGENT FILE WATCHER
+// AGENTLEASH FILE WATCHER
 // Monitors file system operations and evaluates against rules
 // ═══════════════════════════════════════════════════════════════
 
@@ -8,6 +8,7 @@ import { watch, FSWatcher } from 'chokidar';
 import { EventEmitter } from 'events';
 import { RuleEvaluator, AccessRequest, AccessDecision, AccessLog } from '../evaluator/engine';
 import type { ParsedRule, Operation } from '../config/parser';
+import { ReadDetector } from './read-detector';
 
 // ───────────────────────────────────────────────────────────────
 // TYPES
@@ -21,6 +22,7 @@ export interface WatcherConfig {
   ignored?: string[];
   persistent?: boolean;
   debounceMs?: number;
+  enableReadDetection?: boolean;
 }
 
 export interface WatcherStats {
@@ -62,6 +64,7 @@ export type WatcherEventType =
 
 export class ScopeWatcher extends EventEmitter {
   private watcher: FSWatcher | null = null;
+  private readDetector: ReadDetector | null = null;
   private evaluator: RuleEvaluator;
   private basePath: string;
   private config: WatcherConfig;
@@ -130,6 +133,22 @@ export class ScopeWatcher extends EventEmitter {
       this.isWatching = true;
       this.startedAt = new Date();
       this.emit('started', { basePath: this.basePath });
+
+      // Start read detection if enabled
+      if (this.config.enableReadDetection) {
+        this.readDetector = new ReadDetector({
+          basePath: this.basePath,
+          pollIntervalMs: 2000,
+          ignored,
+        });
+        this.readDetector.on('read', (event: { filePath: string; absolutePath: string }) => {
+          this.processEvent(event.absolutePath, 'read');
+        });
+        this.readDetector.on('warning', (msg: string) => {
+          this.emit('warning', msg);
+        });
+        this.readDetector.start();
+      }
     });
 
     this.watcher.on('error', (error) => {
@@ -144,6 +163,12 @@ export class ScopeWatcher extends EventEmitter {
   async stop(): Promise<void> {
     if (!this.watcher) {
       return;
+    }
+
+    // Stop read detector
+    if (this.readDetector) {
+      this.readDetector.stop();
+      this.readDetector = null;
     }
 
     // Clear all debounce timers

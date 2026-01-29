@@ -9,6 +9,7 @@
 export type Operation = 'read' | 'write' | 'delete' | 'execute' | 'list';
 export type RuleType = 'allow' | 'deny' | 'warn';
 export type DefaultPolicy = 'allow' | 'deny';
+export type MonitorMode = 'passive' | 'active' | 'interactive';
 export type Severity = 'low' | 'medium' | 'high' | 'critical';
 export type AccessResult = 'allowed' | 'blocked' | 'warning';
 

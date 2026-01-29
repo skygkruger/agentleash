@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════════
-// SCOPEAGENT EVALUATOR MODULE EXPORTS
+// AGENTLEASH EVALUATOR MODULE EXPORTS
 // ═══════════════════════════════════════════════════════════════
 
 export {
