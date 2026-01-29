@@ -2,17 +2,17 @@
 
 ```
 ╔══════════════════════════════════════════════════════════════════════════════╗
-║  SCOPEAGENT SECURITY                                                         ║
+║  AGENTLEASH SECURITY                                                         ║
 ╠══════════════════════════════════════════════════════════════════════════════╣
-║  Understanding what ScopeAgent can and cannot do                             ║
+║  Understanding what AgentLeash can and cannot do                             ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ```
 
 ## Overview
 
-ScopeAgent is a **monitoring and alerting** tool for AI agent file system activity. It provides visibility and notifications but operates within the constraints of the operating system's security model.
+AgentLeash is a **monitoring and alerting** tool for AI agent file system activity. It provides visibility and notifications but operates within the constraints of the operating system's security model.
 
-## What ScopeAgent CAN Do
+## What AgentLeash CAN Do
 
 ### 1. Monitor File Operations
 - Watch for file system events (create, modify, delete, read)
@@ -34,24 +34,24 @@ ScopeAgent is a **monitoring and alerting** tool for AI agent file system activi
 - Web dashboard with historical data
 - Export capabilities for compliance
 
-## What ScopeAgent CANNOT Do
+## What AgentLeash CANNOT Do
 
 ### 1. Prevent File Operations in Real-time
-ScopeAgent **monitors** file operations but cannot truly **block** them at the kernel level. The operating system allows the AI agent process to access files; ScopeAgent observes these operations.
+AgentLeash **monitors** file operations but cannot truly **block** them at the kernel level. The operating system allows the AI agent process to access files; AgentLeash observes these operations.
 
-**Why?** ScopeAgent runs as a user-space daemon, not a kernel module. True file system blocking would require:
+**Why?** AgentLeash runs as a user-space daemon, not a kernel module. True file system blocking would require:
 - Kernel-level interception (FUSE, kernel modules)
 - Root/admin privileges
 - Platform-specific implementations
 
 ### 2. Intercept Network Requests
-ScopeAgent monitors file system activity, not network traffic. It cannot see or block:
+AgentLeash monitors file system activity, not network traffic. It cannot see or block:
 - API calls made by AI agents
 - Data exfiltration over the network
 - Remote code execution
 
 ### 3. Guarantee Perfect Detection
-File operations can occur between daemon restarts or during high system load. ScopeAgent provides **best-effort** monitoring, not guaranteed interception.
+File operations can occur between daemon restarts or during high system load. AgentLeash provides **best-effort** monitoring, not guaranteed interception.
 
 ## Security Architecture
 
@@ -85,7 +85,7 @@ File operations can occur between daemon restarts or during high system load. Sc
 
 ## Threat Model
 
-### Threats ScopeAgent Helps With
+### Threats AgentLeash Helps With
 
 | Threat | Mitigation |
 |--------|------------|
@@ -95,12 +95,12 @@ File operations can occur between daemon restarts or during high system load. Sc
 | Audit requirements | Provide complete access logs |
 | Suspicious patterns | Detect mass operations or unusual activity |
 
-### Threats ScopeAgent Does NOT Address
+### Threats AgentLeash Does NOT Address
 
 | Threat | Why Not |
 |--------|---------|
 | Malicious AI agent | Cannot block at kernel level |
-| Root-level compromise | ScopeAgent runs as user |
+| Root-level compromise | AgentLeash runs as user |
 | Memory-based attacks | Only monitors file system |
 | Network exfiltration | Not a network monitor |
 | Insider threats | Still provides useful audit trail |
@@ -108,7 +108,7 @@ File operations can occur between daemon restarts or during high system load. Sc
 ## Best Practices
 
 ### 1. Layer Your Security
-Don't rely on ScopeAgent alone. Use it alongside:
+Don't rely on AgentLeash alone. Use it alongside:
 - Operating system permissions
 - AI agent sandboxing features
 - VaultAgent for secret management
@@ -143,22 +143,22 @@ alerts:
 - Export logs for compliance audits
 - Investigate all violation alerts
 
-### 5. Keep ScopeAgent Updated
+### 5. Keep AgentLeash Updated
 Security issues may be discovered and patched. Always run the latest version:
 ```bash
-npm update -g @veridian/scopeagent
+npm update -g agentleash
 ```
 
 ## Data Security
 
-### What ScopeAgent Collects
+### What AgentLeash Collects
 - File paths accessed
 - Operation types (read, write, delete, etc.)
 - Timestamps
 - Agent identifiers (when available)
 - Process information
 
-### What ScopeAgent Does NOT Collect
+### What AgentLeash Does NOT Collect
 - File contents
 - Credentials or secrets
 - Personal data (unless in file paths)
@@ -166,12 +166,12 @@ npm update -g @veridian/scopeagent
 
 ### Data Storage
 - Local: Logs stored in daemon memory (not persisted locally by default)
-- Cloud: Logs sent to ScopeAgent API (if authenticated)
+- Cloud: Logs sent to AgentLeash API (if authenticated)
 - You control: Export and delete your data anytime
 
 ## Reporting Security Issues
 
-If you discover a security vulnerability in ScopeAgent:
+If you discover a security vulnerability in AgentLeash:
 
 1. **Do NOT** create a public GitHub issue
 2. Email: sky@veridian.run
@@ -185,13 +185,13 @@ We will respond within 48 hours and work with you on a fix before public disclos
 
 ## Compliance
 
-ScopeAgent can help with compliance requirements by providing:
+AgentLeash can help with compliance requirements by providing:
 - Audit trails of file access
 - Exportable logs (CSV, JSON)
 - Violation reports
 - Access statistics
 
-However, ScopeAgent alone does not make your system compliant. Consult with your compliance team about specific requirements.
+However, AgentLeash alone does not make your system compliant. Consult with your compliance team about specific requirements.
 
 ---
 

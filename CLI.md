@@ -2,7 +2,7 @@
 
 ```
 ╔══════════════════════════════════════════════════════════════════════════════╗
-║  SCOPEAGENT CLI REFERENCE                                                    ║
+║  AGENTLEASH CLI REFERENCE                                                    ║
 ╠══════════════════════════════════════════════════════════════════════════════╣
 ║  Command-line interface documentation                                        ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
@@ -12,56 +12,56 @@
 
 ```bash
 # Install globally
-npm install -g @veridian/scopeagent
+npm install -g agentleash
 
 # Or use npx
-npx @veridian/scopeagent <command>
+npx agentleash <command>
 
 # Verify installation
-scopeagent --version
+leash --version
 ```
 
 ---
 
 ## Commands
 
-### scopeagent init
+### leash init
 
-Initialize a new `.scopeagent.yml` configuration file.
+Initialize a new `.agentleash.yml` configuration file.
 
 ```bash
-scopeagent init [path]
+leash init [path]
 ```
 
 **Options:**
 | Flag | Description |
 |------|-------------|
 | `--force, -f` | Overwrite existing config |
-| `--template <name>` | Use a template (node, python, react) |
+| `--preset <name>` | Use a preset (node, python, react) |
 
 **Examples:**
 ```bash
 # Initialize in current directory
-scopeagent init
+leash init
 
 # Initialize in specific directory
-scopeagent init /path/to/project
+leash init /path/to/project
 
 # Force overwrite existing config
-scopeagent init --force
+leash init --force
 
-# Use Node.js template
-scopeagent init --template node
+# Use Node.js preset
+leash init --preset node
 ```
 
 ---
 
-### scopeagent login
+### leash login
 
-Authenticate with ScopeAgent cloud.
+Authenticate with AgentLeash cloud.
 
 ```bash
-scopeagent login
+leash login
 ```
 
 **Options:**
@@ -73,35 +73,35 @@ scopeagent login
 **Examples:**
 ```bash
 # Interactive login
-scopeagent login
+leash login
 
 # Login with API key (for CI/CD)
-scopeagent login --api-key sa_abc123...
+leash login --api-key al_abc123...
 
 # Browser-based OAuth
-scopeagent login --browser
+leash login --browser
 ```
 
-Credentials are stored in `~/.scopeagent/credentials`.
+Credentials are stored in `~/.agentleash/credentials`.
 
 ---
 
-### scopeagent logout
+### leash logout
 
 Log out and clear credentials.
 
 ```bash
-scopeagent logout
+leash logout
 ```
 
 ---
 
-### scopeagent watch
+### leash watch
 
 Start the file watcher daemon.
 
 ```bash
-scopeagent watch [path]
+leash watch [path]
 ```
 
 **Options:**
@@ -111,23 +111,31 @@ scopeagent watch [path]
 | `-v, --verbose` | Enable verbose logging |
 | `--no-colors` | Disable colored output |
 | `--daemon` | Run in background |
+| `-m, --mode <mode>` | Monitor mode: passive, active, interactive |
+| `-a, --agent <name>` | Agent name: claude-code, cursor, windsurf, etc. |
 
 **Examples:**
 ```bash
 # Watch current directory
-scopeagent watch
+leash watch
 
 # Watch specific directory
-scopeagent watch /path/to/project
+leash watch /path/to/project
 
 # Use custom config
-scopeagent watch -c custom.yml
+leash watch -c custom.yml
 
 # Verbose mode
-scopeagent watch --verbose
+leash watch --verbose
 
 # Run as background daemon
-scopeagent watch --daemon
+leash watch --daemon
+
+# Active mode (enforces deny rules)
+leash watch --mode active
+
+# Track specific agent
+leash watch --agent claude-code
 ```
 
 **Interactive Keys (while watching):**
@@ -142,12 +150,12 @@ scopeagent watch --daemon
 
 ---
 
-### scopeagent status
+### leash status
 
 Show current scope status and configuration.
 
 ```bash
-scopeagent status
+leash status
 ```
 
 **Options:**
@@ -160,23 +168,23 @@ scopeagent status
 **Examples:**
 ```bash
 # Show status
-scopeagent status
+leash status
 
 # Show combined status with VaultAgent
-scopeagent status --vault
+leash status --vault
 
 # JSON output for scripting
-scopeagent status --json
+leash status --json
 ```
 
 ---
 
-### scopeagent logs
+### leash logs
 
 View access logs.
 
 ```bash
-scopeagent logs
+leash logs
 ```
 
 **Options:**
@@ -191,29 +199,29 @@ scopeagent logs
 **Examples:**
 ```bash
 # Show last 50 logs
-scopeagent logs
+leash logs
 
 # Show last 100 logs
-scopeagent logs -n 100
+leash logs -n 100
 
 # Filter by operation
-scopeagent logs --operation write
+leash logs --operation write
 
 # Filter blocked operations
-scopeagent logs --result blocked
+leash logs --result blocked
 
 # Follow mode (like tail -f)
-scopeagent logs --follow
+leash logs --follow
 ```
 
 ---
 
-### scopeagent allow
+### leash allow
 
 Quick add an allow rule.
 
 ```bash
-scopeagent allow <pattern>
+leash allow <pattern>
 ```
 
 **Options:**
@@ -226,23 +234,23 @@ scopeagent allow <pattern>
 **Examples:**
 ```bash
 # Allow all access to pattern
-scopeagent allow "src/**/*.ts"
+leash allow "src/**/*.ts"
 
 # Allow specific operations
-scopeagent allow "tests/**" --operation read,write
+leash allow "tests/**" --operation read,write
 
 # With reason
-scopeagent allow "docs/**" --reason "Documentation files"
+leash allow "docs/**" --reason "Documentation files"
 ```
 
 ---
 
-### scopeagent deny
+### leash deny
 
 Quick add a deny rule.
 
 ```bash
-scopeagent deny <pattern>
+leash deny <pattern>
 ```
 
 **Options:**
@@ -255,23 +263,23 @@ scopeagent deny <pattern>
 **Examples:**
 ```bash
 # Deny all access to pattern
-scopeagent deny ".env*"
+leash deny ".env*"
 
 # Deny specific operations
-scopeagent deny "node_modules/**" --operation write,delete
+leash deny "node_modules/**" --operation write,delete
 
 # With reason
-scopeagent deny "**/*.key" --reason "Private key files"
+leash deny "**/*.key" --reason "Private key files"
 ```
 
 ---
 
-### scopeagent test
+### leash test
 
 Test if a path would be allowed or blocked.
 
 ```bash
-scopeagent test <path>
+leash test <path>
 ```
 
 **Options:**
@@ -283,13 +291,13 @@ scopeagent test <path>
 **Examples:**
 ```bash
 # Test read access
-scopeagent test src/app.ts
+leash test src/app.ts
 
 # Test write access
-scopeagent test package.json --operation write
+leash test package.json --operation write
 
 # Test against .env
-scopeagent test .env.local --operation read
+leash test .env.local --operation read
 ```
 
 **Output:**
@@ -304,12 +312,12 @@ scopeagent test .env.local --operation read
 
 ---
 
-### scopeagent sync
+### leash sync
 
 Sync configuration with cloud.
 
 ```bash
-scopeagent sync
+leash sync
 ```
 
 **Options:**
@@ -322,26 +330,26 @@ scopeagent sync
 **Examples:**
 ```bash
 # Two-way sync (merge)
-scopeagent sync
+leash sync
 
 # Pull cloud config (overwrites local)
-scopeagent sync --pull
+leash sync --pull
 
 # Push local config to cloud
-scopeagent sync --push
+leash sync --push
 
 # Force push without confirmation
-scopeagent sync --push --force
+leash sync --push --force
 ```
 
 ---
 
-### scopeagent validate
+### leash validate
 
 Validate configuration file.
 
 ```bash
-scopeagent validate
+leash validate
 ```
 
 **Options:**
@@ -352,10 +360,10 @@ scopeagent validate
 **Examples:**
 ```bash
 # Validate default config
-scopeagent validate
+leash validate
 
 # Validate specific file
-scopeagent validate -c custom.yml
+leash validate -c custom.yml
 ```
 
 **Output:**
@@ -374,12 +382,12 @@ Or with errors:
 
 ---
 
-### scopeagent link-vault
+### leash link-vault
 
 Link VaultAgent account for combined security.
 
 ```bash
-scopeagent link-vault
+leash link-vault
 ```
 
 **Options:**
@@ -391,23 +399,23 @@ scopeagent link-vault
 **Examples:**
 ```bash
 # Check link status
-scopeagent link-vault
+leash link-vault
 
 # Link with API key
-scopeagent link-vault --api-key va_abc123...
+leash link-vault --api-key va_abc123...
 
 # Unlink
-scopeagent link-vault --unlink
+leash link-vault --unlink
 ```
 
 ---
 
-### scopeagent vault-rules
+### leash vault-rules
 
 Generate deny rules for VaultAgent protected paths.
 
 ```bash
-scopeagent vault-rules
+leash vault-rules
 ```
 
 **Options:**
@@ -435,9 +443,9 @@ These options work with all commands:
 
 | Variable | Description |
 |----------|-------------|
-| `SCOPEAGENT_API_URL` | API server URL |
-| `SCOPEAGENT_CONFIG` | Default config file path |
-| `SCOPEAGENT_TOKEN` | Authentication token |
+| `AGENTLEASH_API_URL` | API server URL |
+| `AGENTLEASH_CONFIG` | Default config file path |
+| `AGENTLEASH_TOKEN` | Authentication token |
 | `NO_COLOR` | Disable colors |
 
 ---
@@ -459,8 +467,8 @@ These options work with all commands:
 The CLI reads configuration from:
 
 1. `--config` flag value
-2. `.scopeagent.yml` in current directory
-3. `~/.scopeagent/config.yml` (global)
+2. `.agentleash.yml` in current directory
+3. `~/.agentleash/config.yml` (global)
 
 See [CONFIG.md](CONFIG.md) for full configuration reference.
 
@@ -468,22 +476,22 @@ See [CONFIG.md](CONFIG.md) for full configuration reference.
 
 ## Credentials
 
-Credentials are stored in `~/.scopeagent/credentials`:
+Credentials are stored in `~/.agentleash/credentials`:
 
 ```json
 {
   "accessToken": "...",
   "refreshToken": "...",
-  "apiKey": "sa_..."
+  "apiKey": "al_..."
 }
 ```
 
 To clear credentials:
 ```bash
-scopeagent logout
+leash logout
 
 # Or manually
-rm ~/.scopeagent/credentials
+rm ~/.agentleash/credentials
 ```
 
 ---
@@ -493,28 +501,28 @@ rm ~/.scopeagent/credentials
 ### GitHub Actions
 
 ```yaml
-- name: Setup ScopeAgent
-  run: npm install -g @veridian/scopeagent
+- name: Setup AgentLeash
+  run: npm install -g agentleash
 
 - name: Login
-  run: scopeagent login --api-key ${{ secrets.SCOPEAGENT_API_KEY }}
+  run: leash login --api-key ${{ secrets.AGENTLEASH_API_KEY }}
 
 - name: Validate Config
-  run: scopeagent validate
+  run: leash validate
 
 - name: Sync Rules
-  run: scopeagent sync --push
+  run: leash sync --push
 ```
 
 ### GitLab CI
 
 ```yaml
-scopeagent:
+agentleash:
   script:
-    - npm install -g @veridian/scopeagent
-    - scopeagent login --api-key $SCOPEAGENT_API_KEY
-    - scopeagent validate
-    - scopeagent sync --push
+    - npm install -g agentleash
+    - leash login --api-key $AGENTLEASH_API_KEY
+    - leash validate
+    - leash sync --push
 ```
 
 ---
@@ -525,34 +533,34 @@ scopeagent:
 
 ```bash
 # Create new config
-scopeagent init
+leash init
 
 # Or specify path
-scopeagent watch -c /path/to/.scopeagent.yml
+leash watch -c /path/to/.agentleash.yml
 ```
 
 ### "Not authenticated"
 
 ```bash
 # Login again
-scopeagent login
+leash login
 
 # Or use API key
-scopeagent login --api-key sa_...
+leash login --api-key al_...
 ```
 
 ### "Permission denied"
 
 Ensure you have read access to the directory:
 ```bash
-ls -la .scopeagent.yml
+ls -la .agentleash.yml
 ```
 
 ### "WebSocket connection failed"
 
 Check network connectivity:
 ```bash
-curl https://api.scopeagent.io/health
+curl https://api.agentleash.io/health
 ```
 
 ---
@@ -562,7 +570,7 @@ curl https://api.scopeagent.io/health
 
                            CLI REFERENCE v1.0
 
-                          (c) 2025 SCOPEAGENT
+                          (c) 2025 AGENTLEASH
 
 ═══════════════════════════════════════════════════════════════════════════════
 ```

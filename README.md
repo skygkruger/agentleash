@@ -1,18 +1,18 @@
-# ScopeAgent
+# AgentLeash
 
 ```
-███████╗ ██████╗ ██████╗ ██████╗ ███████╗
-██╔════╝██╔════╝██╔═══██╗██╔══██╗██╔════╝
-███████╗██║     ██║   ██║██████╔╝█████╗  
-╚════██║██║     ██║   ██║██╔═══╝ ██╔══╝  
-███████║╚██████╗╚██████╔╝██║     ███████╗
-╚══════╝ ╚═════╝ ╚═════╝ ╚═╝     ╚══════╝
+ █████╗  ██████╗ ███████╗███╗   ██╗████████╗
+██╔══██╗██╔════╝ ██╔════╝████╗  ██║╚══██╔══╝
+███████║██║  ███╗█████╗  ██╔██╗ ██║   ██║
+██╔══██║██║   ██║██╔══╝  ██║╚██╗██║   ██║
+██║  ██║╚██████╔╝███████╗██║ ╚████║   ██║
+╚═╝  ╚═╝ ╚═════╝ ╚══════╝╚═╝  ╚═══╝   ╚═╝
          ┌───┐ ┌───┐ ┌───┐ ┌───┐ ┌───┐
-         │ A ├─┤ G ├─┤ E ├─┤ N ├─┤ T │
+         │ L ├─┤ E ├─┤ A ├─┤ S ├─┤ H │
          └───┘ └───┘ └───┘ └───┘ └───┘
 ```
 
-**AI agents are powerful. ScopeAgent keeps them in line.**
+**AI agents are powerful. AgentLeash keeps them in line.**
 
 Define path boundaries for AI coding agents. See every file operation in real-time. Get alerts when agents try to access sensitive files.
 
@@ -28,9 +28,9 @@ AI coding agents like Claude Code, Cursor, and Copilot are incredibly powerful�
 
 ## The Solution
 
-ScopeAgent gives you complete control and visibility:
+AgentLeash gives you complete control and visibility:
 
-1. **Define Boundaries** - Create a `.scopeagent.yml` file specifying exactly what paths AI agents can access
+1. **Define Boundaries** - Create a `.agentleash.yml` file specifying exactly what paths AI agents can access
 2. **Real-time Monitoring** - See every file operation as it happens in your terminal or dashboard
 3. **Violation Alerts** - Get notified immediately when agents try to access restricted paths
 
@@ -42,20 +42,20 @@ ScopeAgent gives you complete control and visibility:
 
 ```bash
 # Install globally via npm
-npm install -g @veridian/scopeagent
+npm install -g agentleash
 
 # Or use npx
-npx @veridian/scopeagent init
+npx agentleash init
 ```
 
 ### Initialize Your Project
 
 ```bash
 cd your-project
-scopeagent init
+leash init
 ```
 
-This creates a `.scopeagent.yml` file:
+This creates a `.agentleash.yml` file:
 
 ```yaml
 version: 1
@@ -67,12 +67,12 @@ rules:
   # Allow source code access
   - path: "src/**"
     allow: [read, write]
-    
+
   # Block environment files
   - path: ".env*"
     deny: [read, write, delete]
     reason: "Environment files contain secrets"
-    
+
   # Read-only for configs
   - path: "*.config.js"
     allow: [read]
@@ -82,12 +82,12 @@ rules:
 ### Start Monitoring
 
 ```bash
-scopeagent watch
+leash watch
 ```
 
 ```
 ╔══════════════════════════════════════════════════════════════════════╗
-║  SCOPEAGENT                                          [WATCHING...]   ║
+║  AGENTLEASH                                          [WATCHING...]   ║
 ╠══════════════════════════════════════════════════════════════════════╣
 ║  Scope: my-project-scope                                             ║
 ║  Path:  /Users/dev/projects/myapp                                    ║
@@ -107,14 +107,14 @@ scopeagent watch
 
 | Command | Description |
 |---------|-------------|
-| `scopeagent init` | Create `.scopeagent.yml` in current directory |
-| `scopeagent watch` | Start monitoring file operations |
-| `scopeagent status` | Show current scope info and stats |
-| `scopeagent logs` | View recent access logs |
-| `scopeagent allow <pattern>` | Quick add an allow rule |
-| `scopeagent deny <pattern>` | Quick add a deny rule |
-| `scopeagent test <path>` | Test if a path would be allowed |
-| `scopeagent sync` | Sync config to/from cloud |
+| `leash init` | Create `.agentleash.yml` in current directory |
+| `leash watch` | Start monitoring file operations |
+| `leash status` | Show current scope info and stats |
+| `leash logs` | View recent access logs |
+| `leash allow <pattern>` | Quick add an allow rule |
+| `leash deny <pattern>` | Quick add a deny rule |
+| `leash test <path>` | Test if a path would be allowed |
+| `leash sync` | Sync config to/from cloud |
 
 ---
 
@@ -137,7 +137,7 @@ rules:
 
 ### Path Patterns
 
-ScopeAgent supports glob patterns:
+AgentLeash supports glob patterns:
 
 | Pattern | Matches |
 |---------|---------|
@@ -155,17 +155,17 @@ rules:
   # All TypeScript files
   - path: "**/*.ts"
     allow: [read, write]
-    
+
   # Specific file
   - path: "package.json"
     allow: [read]
     deny: [write, delete]
-    
+
   # Directory and all contents
   - path: "node_modules/**"
     allow: [read]
     deny: [write, delete]
-    
+
   # Multiple extensions
   - path: "**/*.{key,pem,crt}"
     deny: [read]
@@ -180,7 +180,7 @@ agents:
     rules:
       - path: "**/*.key"
         deny: [read]
-        
+
   cursor:
     rules:
       - path: "tests/**"
@@ -191,9 +191,9 @@ agents:
 
 ## Complete AI Security Stack
 
-ScopeAgent pairs perfectly with **VaultAgent** for complete AI agent security:
+AgentLeash pairs perfectly with **VaultAgent** for complete AI agent security:
 
-| | VaultAgent | ScopeAgent |
+| | VaultAgent | AgentLeash |
 |---|---|---|
 | **Protects** | Secrets FROM agents | Systems FROM agents |
 | **Controls** | API keys, passwords, credentials | File access, paths, operations |
@@ -208,7 +208,7 @@ ScopeAgent pairs perfectly with **VaultAgent** for complete AI agent security:
 | Plan | Scopes | Logs/day | Features | Price |
 |------|--------|----------|----------|-------|
 | Free | 1 | 1,000 | Basic monitoring | $0 |
-| Pro | 5 | 10,000 | Custom rules, Export | $15/mo |
+| Pro | 5 | 10,000 | Custom rules, Export | $19/mo |
 | Team | 20 | 100,000 | Team sharing, Webhooks | $49/mo |
 | Enterprise | ∞ | ∞ | SSO, Compliance | $149/mo |
 
@@ -216,10 +216,10 @@ ScopeAgent pairs perfectly with **VaultAgent** for complete AI agent security:
 
 ## Support
 
-- Documentation: [docs.scopeagent.io](https://docs.scopeagent.io)
-- GitHub Issues: [github.com/veridian/scopeagent](https://github.com/veridian/scopeagent)
+- Documentation: [agentleash.io/docs](https://agentleash.io/docs)
+- GitHub Issues: [github.com/skygkruger/agentleash](https://github.com/skygkruger/agentleash)
 - Email: sky@veridian.run
-- Twitter: [@scopeagent](https://twitter.com/scopeagent)
+- Twitter: [@agentleash](https://twitter.com/agentleash)
 
 ---
 
@@ -234,7 +234,7 @@ MIT License - see [LICENSE](LICENSE) for details.
 
                         KEEPING AI AGENTS IN CHECK
 
-                             (c) 2025 SCOPEAGENT
+                             (c) 2025 AGENTLEASH
                         Part of the Veridian family
 
 ═══════════════════════════════════════════════════════════════════════════════

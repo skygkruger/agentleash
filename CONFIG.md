@@ -2,25 +2,25 @@
 
 ```
 ╔══════════════════════════════════════════════════════════════════════════════╗
-║  .SCOPEAGENT.YML REFERENCE                                                   ║
+║  .AGENTLEASH.YML REFERENCE                                                   ║
 ╠══════════════════════════════════════════════════════════════════════════════╣
-║  Complete configuration options for ScopeAgent                               ║
+║  Complete configuration options for AgentLeash                               ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ```
 
 ## File Location
 
-ScopeAgent looks for configuration in this order:
+AgentLeash looks for configuration in this order:
 1. `--config` flag value
-2. `.scopeagent.yml` in current directory
-3. `.scopeagent.yaml` in current directory
-4. `~/.scopeagent/config.yml` (global config)
+2. `.agentleash.yml` in current directory
+3. `.agentleash.yaml` in current directory
+4. `~/.agentleash/config.yml` (global config)
 
 ## Complete Schema
 
 ```yaml
 # ═══════════════════════════════════════════════════════════════
-# SCOPEAGENT CONFIGURATION
+# AGENTLEASH CONFIGURATION
 # ═══════════════════════════════════════════════════════════════
 
 # Required: Configuration version (currently 1)
@@ -67,7 +67,7 @@ rules:
   # With exceptions
   - path: ".*"
     deny: [read, write, delete]
-    except: [.scopeagent.yml, .gitignore, .eslintrc]
+    except: [.agentleash.yml, .gitignore, .eslintrc]
 
 # ───────────────────────────────────────────────────────────────
 # AGENT-SPECIFIC RULES
@@ -112,7 +112,7 @@ alerts:
     - critical_path      # Accessing system paths
 
   # Webhook for notifications (optional)
-  webhook_url: "https://hooks.example.com/scopeagent"
+  webhook_url: "https://hooks.example.com/agentleash"
 
   # Email notifications (requires cloud account)
   email: true
@@ -157,7 +157,7 @@ advanced:
 
 ### Path Patterns
 
-ScopeAgent uses [minimatch](https://github.com/isaacs/minimatch) for pattern matching:
+AgentLeash uses [minimatch](https://github.com/isaacs/minimatch) for pattern matching:
 
 | Pattern | Matches |
 |---------|---------|
@@ -341,7 +341,7 @@ name: "${PROJECT_NAME}-scope"
 base_path: "${HOME}/projects/${PROJECT_NAME}"
 
 alerts:
-  webhook_url: "${SCOPEAGENT_WEBHOOK_URL}"
+  webhook_url: "${AGENTLEASH_WEBHOOK_URL}"
 ```
 
 ## Validation
@@ -349,10 +349,10 @@ alerts:
 Validate your configuration:
 
 ```bash
-scopeagent validate
+leash validate
 
 # or with specific file
-scopeagent validate -c custom.yml
+leash validate -c custom.yml
 ```
 
 ## Debugging
@@ -361,14 +361,14 @@ Test rule matching:
 
 ```bash
 # Test if a path is allowed
-scopeagent test src/app.ts
-scopeagent test .env --operation read
+leash test src/app.ts
+leash test .env --operation read
 
 # Show all rules
-scopeagent status
+leash status
 
 # Verbose watch mode
-scopeagent watch --verbose
+leash watch --verbose
 ```
 
 ---
@@ -378,7 +378,7 @@ scopeagent watch --verbose
 
                         CONFIGURATION REFERENCE
 
-                          (c) 2025 SCOPEAGENT
+                          (c) 2025 AGENTLEASH
 
 ═══════════════════════════════════════════════════════════════════════════════
 ```

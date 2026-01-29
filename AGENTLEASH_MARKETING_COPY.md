@@ -1,4 +1,4 @@
-# SCOPEAGENT - MARKETING & LAUNCH COPY
+# AGENTLEASH - MARKETING & LAUNCH COPY
 ## Veridian Manifesto Style
 
 ---
@@ -7,7 +7,7 @@
 
 ### Tagline (60 chars max)
 ```
-AI agents are powerful. ScopeAgent keeps them in line.
+AI agents are powerful. AgentLeash keeps them in line.
 ```
 
 ### Description (260 chars max)
@@ -19,15 +19,15 @@ Define path boundaries for AI coding agents. See every file operation in real-ti
 ```
 Hey Product Hunt!
 
-I built ScopeAgent because I kept having this paranoid feeling while using AI coding agents: "Wait, can Claude Code read my .env file right now? Did Cursor just try to delete my node_modules?"
+I built AgentLeash because I kept having this paranoid feeling while using AI coding agents: "Wait, can Claude Code read my .env file right now? Did Cursor just try to delete my node_modules?"
 
 The problem: AI agents are incredibly powerful, but you have zero visibility into what they're actually doing with your file system.
 
-The solution: ScopeAgent lets you define exactly what paths agents can access, monitors every file operation in real-time, and alerts you when something looks suspicious.
+The solution: AgentLeash lets you define exactly what paths agents can access, monitors every file operation in real-time, and alerts you when something looks suspicious.
 
 How it works:
-1. Drop a .scopeagent.yml in your project
-2. Run `scopeagent watch`
+1. Drop a .agentleash.yml in your project
+2. Run `leash watch`
 3. See everything. Block what you don't want.
 
 It pairs perfectly with VaultAgent (which protects secrets FROM agents) - together they form a complete AI Agent Security Stack.
@@ -44,7 +44,7 @@ Free tier available. Open to all feedback!
 ┌──────────────────────────────────────────────────────────────────┐
 │                                                                  │
 │  AI AGENTS ARE POWERFUL                                          │
-│  SCOPEAGENT KEEPS THEM IN LINE                                   │
+│  AGENTLEASH KEEPS THEM IN LINE                                   │
 │                                                                  │
 │  Define path boundaries. Monitor operations. Get alerts.         │
 │  The missing security layer for AI-assisted development.         │
@@ -71,7 +71,7 @@ You don't know. You can't see. That's terrifying.
 
 ### Solution
 ```
-// SCOPEAGENT GIVES YOU CONTROL
+// AGENTLEASH GIVES YOU CONTROL
 
 ┌─────────────────────────────────────────────────────────────────┐
 │                                                                 │
@@ -79,10 +79,10 @@ You don't know. You can't see. That's terrifying.
 │   ───────────       ───────────        ───────────              │
 │                                                                 │
 │   Create your       Start the          Get alerts               │
-│   .scopeagent.yml   daemon with        when agents              │
+│   .agentleash.yml   daemon with        when agents              │
 │   with path rules   one command        cross the line           │
 │                                                                 │
-│   $ scopeagent      $ scopeagent       [!] VIOLATION            │
+│   $ leash           $ leash            [!] VIOLATION            │
 │     init              watch            .env access blocked      │
 │                                                                 │
 └─────────────────────────────────────────────────────────────────┘
@@ -115,7 +115,7 @@ I've been paranoid about AI coding agents.
 
 So I built something to fix it.
 
-Introducing ScopeAgent 🧵
+Introducing AgentLeash
 ```
 
 ### Tweet 2 (Problem)
@@ -132,10 +132,10 @@ But you don't really know what they're doing.
 
 ### Tweet 3 (Solution)
 ```
-ScopeAgent gives you control:
+AgentLeash gives you control:
 
-1. Define boundaries in .scopeagent.yml
-2. Run `scopeagent watch`
+1. Define boundaries in .agentleash.yml
+2. Run `leash watch`
 3. See every file operation in real-time
 4. Get alerts when agents cross the line
 
@@ -158,10 +158,10 @@ Zero guesswork.
 
 ### Tweet 5 (VaultAgent Integration)
 ```
-Even better: ScopeAgent pairs with VaultAgent.
+Even better: AgentLeash pairs with VaultAgent.
 
 VaultAgent = protects secrets FROM agents
-ScopeAgent = protects systems FROM agents
+AgentLeash = protects systems FROM agents
 
 Together = complete AI agent security stack
 
@@ -171,14 +171,14 @@ Bundle both and save 15%.
 ### Tweet 6 (CTA)
 ```
 Try it free:
-scopeagent.io
+agentleash.io
 
 - 1 scope
 - 1,000 logs/day
 - Basic monitoring
 - No credit card
 
-Pro is $15/mo when you're ready.
+Pro is $19/mo when you're ready.
 
 Built with the Veridian philosophy:
 No tracking. No bloat. Just tools that work.
@@ -190,21 +190,21 @@ No tracking. No bloat. Just tools that work.
 
 ### Title
 ```
-Show HN: ScopeAgent – Define what AI coding agents can access on your system
+Show HN: AgentLeash – Define what AI coding agents can access on your system
 ```
 
 ### Post
 ```
 Hey HN,
 
-I built ScopeAgent because I was getting paranoid about AI coding agents.
+I built AgentLeash because I was getting paranoid about AI coding agents.
 
 I use Claude Code and Cursor daily. They're amazing. But I realized I had no idea what they were actually doing with my file system. Could they read my .env? My SSH keys? I didn't know.
 
-ScopeAgent is a simple solution:
+AgentLeash is a simple solution:
 
-1. Create a .scopeagent.yml file defining path permissions
-2. Run `scopeagent watch`
+1. Create a .agentleash.yml file defining path permissions
+2. Run `leash watch`
 3. See every file operation in real-time
 4. Get alerts when agents try to access restricted paths
 
@@ -231,12 +231,12 @@ Technical notes:
 This pairs with my other project, VaultAgent (protects secrets FROM agents). Together they form a complete AI agent security stack.
 
 Free tier: 1 scope, 1,000 logs/day
-Pro: $15/mo for more scopes and logs
+Pro: $19/mo for more scopes and logs
 
 Would love feedback, especially on the permission model and what additional features would be useful.
 
-Site: scopeagent.io
-GitHub: github.com/veridian/scopeagent
+Site: agentleash.io
+GitHub: github.com/skygkruger/agentleash
 ```
 
 ---
@@ -245,32 +245,32 @@ GitHub: github.com/veridian/scopeagent
 
 ### Welcome Email (After Signup)
 ```
-Subject: Welcome to ScopeAgent - Let's secure your first project
+Subject: Welcome to AgentLeash - Let's secure your first project
 
 Hey {name},
 
-Thanks for signing up for ScopeAgent. You're now in control of what AI agents can access.
+Thanks for signing up for AgentLeash. You're now in control of what AI agents can access.
 
 Here's how to get started in 2 minutes:
 
 1. Install the CLI:
-   npm install -g @veridian/scopeagent
+   npm install -g agentleash
 
 2. Initialize your first scope:
-   cd your-project && scopeagent init
+   cd your-project && leash init
 
 3. Start watching:
-   scopeagent watch
+   leash watch
 
 That's it. You'll see every file operation in real-time.
 
-Need help? Reply to this email or check our docs at docs.scopeagent.io.
+Need help? Reply to this email or check our docs at agentleash.io/docs.
 
 Building in public,
 [Your name]
 Founder, Veridian Tools
 
-P.S. ScopeAgent pairs perfectly with VaultAgent for complete AI security. Bundle both and save 15%.
+P.S. AgentLeash pairs perfectly with VaultAgent for complete AI security. Bundle both and save 15%.
 ```
 
 ### Day 3 Email (Engagement)
@@ -279,7 +279,7 @@ Subject: Are you seeing what AI agents do to your files?
 
 Hey {name},
 
-Quick check-in: Have you run `scopeagent watch` yet?
+Quick check-in: Have you run `leash watch` yet?
 
 If you have, you've probably seen something like:
 
@@ -287,14 +287,14 @@ If you have, you've probably seen something like:
   14:32:02  [/]  WRITE  src/components/Button.tsx
   14:32:05  [X]  READ   .env.local  [BLOCKED]
 
-That third line? That's why ScopeAgent exists.
+That third line? That's why AgentLeash exists.
 
 Most developers don't realize their AI coding agents are trying to read sensitive files constantly. Now you can see it - and block it.
 
 Not started yet? Here's the fastest way:
 
-  scopeagent init
-  scopeagent watch
+  leash init
+  leash watch
 
 Two commands. Full visibility.
 
@@ -308,24 +308,24 @@ Subject: You've logged {X} operations this week
 
 Hey {name},
 
-This week, ScopeAgent tracked {X} file operations in your projects.
+This week, AgentLeash tracked {X} file operations in your projects.
 
 Here's your breakdown:
 - Allowed: {allowed}
-- Blocked: {blocked}  
+- Blocked: {blocked}
 - Warnings: {warnings}
 
 {If blocked > 0}
 You blocked {blocked} potentially risky operations. Nice work.
 {/If}
 
-Ready for more? ScopeAgent Pro gives you:
+Ready for more? AgentLeash Pro gives you:
 - 5 scopes (instead of 1)
 - 10,000 logs/day (instead of 1,000)
 - Export logs for compliance
 - Priority support
 
-Just $15/mo. Upgrade here: scopeagent.io/upgrade
+Just $19/mo. Upgrade here: agentleash.io/upgrade
 
 Or keep using the free tier - totally fine. We're here to help either way.
 
@@ -339,25 +339,28 @@ Or keep using the free tier - totally fine. We're here to help either way.
 ### For veridiantools.dev
 ```yaml
 product:
-  name: SCOPEAGENT
+  name: AGENTLEASH
   tagline: "// AI Agent Permission Controller"
   description: "AI agents are powerful. They shouldn't have unlimited access. Define path boundaries, monitor operations, get alerts."
   color: "#d4a76a"  # Amber
-  url: "https://scopeagent.io"
+  url: "https://agentleash.io"
   status: "live"
-  
+
 features:
   - "[/] Path boundaries"
-  - "[/] Real-time monitoring"  
+  - "[/] Real-time monitoring"
   - "[/] Violation alerts"
-  
+
 ascii_logo: |
-    ███████╗ ██████╗ ██████╗ ██████╗ ███████╗
-    ██╔════╝██╔════╝██╔═══██╗██╔══██╗██╔════╝
-    ███████╗██║     ██║   ██║██████╔╝█████╗  
-    ╚════██║██║     ██║   ██║██╔═══╝ ██╔══╝  
-    ███████║╚██████╗╚██████╔╝██║     ███████╗
-    ╚══════╝ ╚═════╝ ╚═════╝ ╚═╝     ╚══════╝
+     █████╗  ██████╗ ███████╗███╗   ██╗████████╗
+    ██╔══██╗██╔════╝ ██╔════╝████╗  ██║╚══██╔══╝
+    ███████║██║  ███╗█████╗  ██╔██╗ ██║   ██║
+    ██╔══██║██║   ██║██╔══╝  ██║╚██╗██║   ██║
+    ██║  ██║╚██████╔╝███████╗██║ ╚████║   ██║
+    ╚═╝  ╚═╝ ╚═════╝ ╚══════╝╚═╝  ╚═══╝   ╚═╝
+             ┌───┐ ┌───┐ ┌───┐ ┌───┐ ┌───┐
+             │ L ├─┤ E ├─┤ A ├─┤ S ├─┤ H │
+             └───┘ └───┘ └───┘ └───┘ └───┘
 ```
 
 ---

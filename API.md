@@ -2,7 +2,7 @@
 
 ```
 ╔══════════════════════════════════════════════════════════════════════════════╗
-║  SCOPEAGENT API REFERENCE                                                    ║
+║  AGENTLEASH API REFERENCE                                                    ║
 ╠══════════════════════════════════════════════════════════════════════════════╣
 ║  REST API and WebSocket documentation                                        ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
@@ -10,7 +10,7 @@
 
 ## Base URL
 
-- **Production**: `https://api.scopeagent.io`
+- **Production**: `https://api.agentleash.io`
 - **Local Development**: `http://localhost:3001`
 
 ## Authentication
@@ -30,7 +30,7 @@ Tokens are obtained via the login endpoint and expire after 1 hour.
 For CLI and automated tools, use an API key:
 
 ```
-Authorization: Bearer sa_<your-api-key>
+Authorization: Bearer al_<your-api-key>
 ```
 
 API keys don't expire but can be revoked.
@@ -142,7 +142,7 @@ Create a new API key.
   "success": true,
   "data": {
     "id": "uuid",
-    "key": "sa_abc123..."
+    "key": "al_abc123..."
   }
 }
 ```
@@ -488,7 +488,7 @@ Acknowledge a violation.
 ### Bundles
 
 #### GET /api/bundles
-List available bundles (VaultAgent + ScopeAgent).
+List available bundles (VaultAgent + AgentLeash).
 
 #### POST /api/bundles/subscribe
 Create checkout session for bundle subscription.
@@ -519,7 +519,7 @@ Get current bundle subscription status.
 
 ## WebSocket API
 
-Connect to `ws://api.scopeagent.io/ws` for real-time updates.
+Connect to `wss://api.agentleash.io/ws` for real-time updates.
 
 ### Subscribe to Scope
 
@@ -616,7 +616,7 @@ All errors follow this format:
 
                            API REFERENCE v1.0
 
-                          (c) 2025 SCOPEAGENT
+                          (c) 2025 AGENTLEASH
 
 ═══════════════════════════════════════════════════════════════════════════════
 ```
