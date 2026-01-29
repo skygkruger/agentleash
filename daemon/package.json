@@ -1,5 +1,5 @@
 {
-  "name": "@agentleash/daemon",
+  "name": "agentleash-daemon",
   "version": "1.0.0",
   "description": "AgentLeash File Watcher Daemon - AI agent file access monitoring",
   "main": "dist/index.js",
