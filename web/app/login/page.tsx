@@ -32,14 +32,22 @@ export default function LoginPage() {
 
   const handleGitHubLogin = async () => {
     setError('');
-    const { error: oauthError } = await supabase.auth.signInWithOAuth({
-      provider: 'github',
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
-      },
-    });
-    if (oauthError) {
-      setError(oauthError.message);
+    try {
+      const { data, error: oauthError } = await supabase.auth.signInWithOAuth({
+        provider: 'github',
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`,
+        },
+      });
+      if (oauthError) {
+        setError(oauthError.message);
+      } else if (data?.url) {
+        // Redirect to GitHub OAuth
+        window.location.href = data.url;
+      }
+    } catch (err) {
+      console.error('GitHub login error:', err);
+      setError('Failed to initiate GitHub login. Please try again.');
     }
   };
 

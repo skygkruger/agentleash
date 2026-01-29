@@ -43,14 +43,22 @@ export default function RegisterPage() {
 
   const handleGitHubSignup = async () => {
     setError('');
-    const { error: oauthError } = await supabase.auth.signInWithOAuth({
-      provider: 'github',
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
-      },
-    });
-    if (oauthError) {
-      setError(oauthError.message);
+    try {
+      const { data, error: oauthError } = await supabase.auth.signInWithOAuth({
+        provider: 'github',
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`,
+        },
+      });
+      if (oauthError) {
+        setError(oauthError.message);
+      } else if (data?.url) {
+        // Redirect to GitHub OAuth
+        window.location.href = data.url;
+      }
+    } catch (err) {
+      console.error('GitHub signup error:', err);
+      setError('Failed to initiate GitHub signup. Please try again.');
     }
   };
 
