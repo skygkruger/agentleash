@@ -36,8 +36,8 @@ export function Sidebar() {
   };
 
   return (
-    <aside className="w-56 border-r border-scope-border bg-scope-bg-card min-h-[calc(100vh-60px)]">
-      <nav className="p-4 space-y-1">
+    <aside className="relative w-56 border-r border-scope-border bg-scope-bg-card min-h-[calc(100vh-60px)]">
+      <nav className="p-4 space-y-1 pb-32">
         <div className="text-xs text-scope-muted mb-4 px-2">
           {'// NAVIGATION'}
         </div>

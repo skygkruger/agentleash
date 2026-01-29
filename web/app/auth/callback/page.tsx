@@ -8,10 +8,12 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
+import { useAuth } from '@/lib/auth-context';
 import { api } from '@/lib/api';
 
 export default function AuthCallbackPage() {
   const router = useRouter();
+  const { refresh } = useAuth();
   const [error, setError] = useState('');
 
   useEffect(() => {
@@ -22,12 +24,27 @@ export default function AuthCallbackPage() {
         const searchParams = new URLSearchParams(window.location.search);
 
         const accessToken = hashParams.get('access_token');
+        const refreshToken = hashParams.get('refresh_token');
         const code = searchParams.get('code');
 
         let session;
 
-        if (accessToken) {
-          // Hash-based implicit flow - get the current session
+        if (accessToken && refreshToken) {
+          // Hash-based implicit flow - set the session from URL params
+          const { data, error: sessionError } = await supabase.auth.setSession({
+            access_token: accessToken,
+            refresh_token: refreshToken,
+          });
+
+          if (sessionError || !data.session) {
+            console.error('Session error:', sessionError);
+            setError('Failed to complete authentication. Please try again.');
+            return;
+          }
+
+          session = data.session;
+        } else if (accessToken) {
+          // Fallback: try to get existing session
           const { data, error: sessionError } = await supabase.auth.getSession();
 
           if (sessionError || !data.session) {
@@ -61,6 +78,9 @@ export default function AuthCallbackPage() {
           return;
         }
 
+        // Refresh auth context to pick up the new tokens
+        await refresh();
+
         // Redirect to dashboard
         router.push('/dashboard');
       } catch (err) {
@@ -70,7 +90,7 @@ export default function AuthCallbackPage() {
     }
 
     handleOAuthCallback();
-  }, [router]);
+  }, [router, refresh]);
 
   if (error) {
     return (

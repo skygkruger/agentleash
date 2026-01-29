@@ -128,17 +128,21 @@ export function TerminalCard({
 
   return (
     <div className={cn('font-mono text-xs', className)}>
-      <pre className="text-scope-amber leading-tight">
-{`╔══════════════════════════════════════════════════════════════════════════════╗
-║  ${title.padEnd(48)}${status ? `[${statusText[status].text}]`.padStart(18) : ''.padStart(18)}   ║
-╠══════════════════════════════════════════════════════════════════════════════╣`}
-      </pre>
-      <div className="border-x border-scope-amber px-6 py-6 bg-scope-bg-card">
+      {/* Header */}
+      <div className="border-t-2 border-x-2 border-scope-amber bg-scope-bg-card px-4 py-2 flex items-center justify-between">
+        <span className="text-scope-amber font-bold">{title}</span>
+        {status && (
+          <span className={statusText[status].color}>
+            [{statusText[status].text}]
+          </span>
+        )}
+      </div>
+      {/* Content */}
+      <div className="border-x-2 border-scope-amber px-6 py-6 bg-scope-bg-card">
         {children}
       </div>
-      <pre className="text-scope-amber leading-tight">
-{`╚══════════════════════════════════════════════════════════════════════════════╝`}
-      </pre>
+      {/* Footer */}
+      <div className="border-b-2 border-x-2 border-scope-amber bg-scope-bg-card h-2" />
     </div>
   );
 }
