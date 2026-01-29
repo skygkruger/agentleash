@@ -133,7 +133,7 @@ export function TerminalCard({
 ║  ${title.padEnd(48)}${status ? `[${statusText[status].text}]`.padStart(18) : ''.padStart(18)}   ║
 ╠══════════════════════════════════════════════════════════════════════════════╣`}
       </pre>
-      <div className="border-x border-scope-amber px-2 py-2 bg-scope-bg-card">
+      <div className="border-x border-scope-amber px-6 py-6 bg-scope-bg-card">
         {children}
       </div>
       <pre className="text-scope-amber leading-tight">

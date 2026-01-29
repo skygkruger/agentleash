@@ -17,10 +17,20 @@ export default function AuthCallbackPage() {
   useEffect(() => {
     async function handleOAuthCallback() {
       try {
-        // Supabase automatically picks up the hash params from the OAuth redirect
-        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        // Get the code from URL params (OAuth PKCE flow)
+        const params = new URLSearchParams(window.location.search);
+        const code = params.get('code');
+
+        if (!code) {
+          setError('Missing authorization code. Please try logging in again.');
+          return;
+        }
+
+        // Exchange the code for a session
+        const { data: { session }, error: sessionError } = await supabase.auth.exchangeCodeForSession(code);
 
         if (sessionError || !session) {
+          console.error('Session error:', sessionError);
           setError('Failed to complete authentication. Please try again.');
           return;
         }
@@ -35,7 +45,8 @@ export default function AuthCallbackPage() {
 
         // Redirect to dashboard
         router.push('/dashboard');
-      } catch {
+      } catch (err) {
+        console.error('OAuth callback error:', err);
         setError('Authentication failed. Please try again.');
       }
     }
