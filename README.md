@@ -218,7 +218,7 @@ ScopeAgent pairs perfectly with **VaultAgent** for complete AI agent security:
 
 - Documentation: [docs.scopeagent.io](https://docs.scopeagent.io)
 - GitHub Issues: [github.com/veridian/scopeagent](https://github.com/veridian/scopeagent)
-- Email: support@scopeagent.io
+- Email: sky@veridian.run
 - Twitter: [@scopeagent](https://twitter.com/scopeagent)
 
 ---

@@ -409,13 +409,13 @@ $ leash watch --agent continue`}
 {`$ leash init [options]
 
 Options:
-  --template <name>   Use a preset rule template
-                      (node, python, rust, minimal)
+  --preset <name>     Use a preset (minimal, strict, nodejs, python)
   --force             Overwrite existing configuration
+  --yes               Skip prompts, use defaults
 
 Examples:
   $ leash init
-  $ leash init --template node
+  $ leash init --preset nodejs
   $ leash init --force`}
               </CodeBlock>
             </div>
@@ -741,7 +741,7 @@ $ leash watch --agent cursor`}
             <div className="bg-scope-bg-light border border-scope-border p-4 mt-8">
               <div className="text-scope-muted mb-2">Still have questions?</div>
               <div className="text-scope-text">
-                Contact us at <span className="text-scope-amber">support@agentleash.io</span>
+                Contact us at <span className="text-scope-amber">sky@veridian.run</span>
               </div>
             </div>
           </div>

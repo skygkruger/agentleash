@@ -174,7 +174,7 @@ npm update -g @veridian/scopeagent
 If you discover a security vulnerability in ScopeAgent:
 
 1. **Do NOT** create a public GitHub issue
-2. Email: security@scopeagent.io
+2. Email: sky@veridian.run
 3. Include:
    - Description of the vulnerability
    - Steps to reproduce
