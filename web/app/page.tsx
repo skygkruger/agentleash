@@ -326,17 +326,24 @@ But have you ever wondered:
           <div className="text-center">
             <div className="text-scope-amber mb-4">AGENTLEASH</div>
             <p className="text-scope-muted text-xs mb-4">LEASHED WITH &lt;3 IN THE TERMINAL</p>
-            <div className="flex flex-wrap justify-center gap-4 md:gap-6 text-xs">
+            <p className="text-scope-muted text-xs mb-4">(c) 2026 AGENTLEASH · A VERIDIAN TOOLS PRODUCT</p>
+            <div className="flex flex-wrap justify-center gap-4 md:gap-6 text-xs mb-4">
+              <Link href="/" className="text-scope-muted hover:text-scope-amber transition-colors">[HOME]</Link>
               <Link href="/docs" className="text-scope-muted hover:text-scope-amber transition-colors">[DOCS]</Link>
               <Link href="/pricing" className="text-scope-muted hover:text-scope-amber transition-colors">[PRICING]</Link>
-              <a href="https://github.com/skygkruger" className="text-scope-muted hover:text-scope-amber transition-colors">[GITHUB]</a>
-              <a href="https://veridiantools.dev" className="text-scope-muted hover:text-scope-amber transition-colors">[VERIDIAN]</a>
+              <a href="https://github.com/skygkruger" target="_blank" rel="noopener noreferrer" className="text-scope-muted hover:text-scope-amber transition-colors">[GITHUB]</a>
+              <a href="https://x.com/run_veridian" target="_blank" rel="noopener noreferrer" className="text-scope-muted hover:text-scope-amber transition-colors">[X]</a>
               <a href="mailto:sky@veridian.run" className="text-scope-muted hover:text-scope-amber transition-colors">[CONTACT]</a>
             </div>
-            <p className="text-scope-muted text-xs mt-6">
-              Part of the <a href="https://veridiantools.dev" className="text-scope-rust hover:text-scope-amber transition-colors">Veridian</a> family
-            </p>
-            <p className="text-scope-border-light text-xs mt-2">© 2025 AgentLeash</p>
+            <div className="flex flex-wrap justify-center gap-4 md:gap-6 text-xs mb-6">
+              <Link href="/terms" className="text-scope-muted hover:text-scope-amber transition-colors">[TERMS]</Link>
+              <Link href="/privacy" className="text-scope-muted hover:text-scope-amber transition-colors">[PRIVACY]</Link>
+            </div>
+            {/* VERIDIAN Solidarity Footer */}
+            <div className="max-w-md mx-auto p-4 border border-scope-border">
+              <p className="text-scope-amber text-xs mb-2">15% of revenue supports free emotional tech sanctuaries</p>
+              <p className="text-scope-muted text-[10px]">VERIDIAN believes technology should heal, not extract.</p>
+            </div>
           </div>
         </div>
       </footer>
